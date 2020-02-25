@@ -8,7 +8,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
-public class ClientHandler extends ChannelInboundHandlerAdapter {
+public class RequestHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {

@@ -36,7 +36,7 @@ public class CVNettyClient {
 
 				@Override
 				public void initChannel(SocketChannel ch) throws Exception {
-					ch.pipeline().addLast(new MessageEncoder(), new MessageDecoder(), new ClientHandler());
+					ch.pipeline().addLast(new MessageEncoder(), new MessageDecoder(), new RequestHandler());
 				}
 			});
 
