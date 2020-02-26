@@ -4,9 +4,6 @@
 // ---
 package clustervas;
 
-import java.nio.charset.Charset;
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -16,24 +13,25 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import clustervas.CVContext.Mode;
+import clustervas.api.CVService;
+import clustervas.api.MessageDecoder;
+import clustervas.api.MessageEncoder;
+import clustervas.api.messages.SampleRequest;
+import clustervas.api.messages.SampleResponse;
 import clustervas.service.netty.CVNettyClient;
-import clustervas.service.netty.RequestData;
-import clustervas.service.netty.ResponseData;
 import clustervas.utils.Logger;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelOutboundHandlerAdapter;
+import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.MessageToByteEncoder;
-import io.netty.handler.codec.ReplayingDecoder;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -69,7 +67,7 @@ public class MTCVNettyClient {
 
 					@Override
 					public void initChannel(SocketChannel ch) throws Exception {
-						ch.pipeline().addLast(new RequestDecoder(), new ResponseDataEncoder(), new ProcessingHandler());
+						ch.pipeline().addLast(new MessageDecoder(), new MessageEncoder(), new OutboundHandler(), new InboundHandler());
 					}
 				}).option(ChannelOption.SO_BACKLOG, 128).childOption(ChannelOption.SO_KEEPALIVE, true);
 
@@ -83,40 +81,30 @@ public class MTCVNettyClient {
 			}
 		}
 
-		private static class RequestDecoder extends ReplayingDecoder<RequestData> {
-
-			private final Charset charset = Charset.forName("UTF-8");
+		private static class OutboundHandler extends ChannelOutboundHandlerAdapter {
 
 			@Override
-			protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-
-				RequestData data = new RequestData();
-				data.setIntValue(in.readInt());
-				int strLen = in.readInt();
-				data.setStringValue(in.readCharSequence(strLen, charset).toString());
-				out.add(data);
+			public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+				super.write(ctx, msg, promise);
 			}
 		}
 
-		private static class ResponseDataEncoder extends MessageToByteEncoder<ResponseData> {
+		private static class InboundHandler extends ChannelInboundHandlerAdapter {
 
 			@Override
-			protected void encode(ChannelHandlerContext ctx, ResponseData msg, ByteBuf out) throws Exception {
-				out.writeInt(msg.getIntValue());
+			public void channelActive(ChannelHandlerContext ctx) throws Exception {
 			}
-		}
-
-		private static class ProcessingHandler extends ChannelInboundHandlerAdapter {
 
 			@Override
 			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+			}
+		}
 
-				RequestData requestData = (RequestData) msg;
-				ResponseData responseData = new ResponseData();
-				responseData.setIntValue(requestData.getIntValue() * 2);
-				ChannelFuture future = ctx.writeAndFlush(responseData);
-				future.addListener(ChannelFutureListener.CLOSE);
-				System.out.println(requestData);
+		private static class CVServiceConsumer implements CVService {
+
+			@Override
+			public SampleResponse getSampleResponse(SampleRequest request) {
+				return null;
 			}
 		}
 	}
