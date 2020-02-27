@@ -26,17 +26,13 @@ public class MessageWrapper {
 	public MessageWrapper() {
 	}
 
-	public <T extends AbstractMessage<?>> MessageWrapper(T message, MessageType<T> type) {
-		this();
-		setMessage(message, type);
-	}
-
-	// --- Getters:
-
 	public MessageWrapper(AbstractMessage<?> message) {
+		this();
 		this.type = message.getType();
 		this.serializedMessage = serialize(message);
 	}
+
+	// --- Getters:
 
 	public MessageType<? extends AbstractMessage<?>> getType() {
 		return type;
@@ -62,11 +58,6 @@ public class MessageWrapper {
 	}
 
 	// ---
-
-	private <T extends AbstractMessage<?>> void setMessage(T message, MessageType<T> type) {
-		this.serializedMessage = serialize(message);
-		this.type = type;
-	}
 
 	private String serialize(Object obj) {
 		try {
