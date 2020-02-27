@@ -2,7 +2,7 @@
 // Copyright 2020 ClusterVAS Team
 // All rights reserved
 // ---
-package clustervas.api;
+package clustervas.api.netty;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

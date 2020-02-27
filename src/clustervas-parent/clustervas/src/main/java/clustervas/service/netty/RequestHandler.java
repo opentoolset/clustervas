@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import clustervas.api.MessageTypes;
-import clustervas.api.MessageWrapper;
 import clustervas.api.messages.SampleRequest;
+import clustervas.api.netty.MessageWrapper;
 import clustervas.utils.Logger;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;

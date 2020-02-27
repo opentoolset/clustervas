@@ -14,10 +14,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import clustervas.CVContext.Mode;
 import clustervas.api.CVService;
-import clustervas.api.MessageDecoder;
-import clustervas.api.MessageEncoder;
 import clustervas.api.messages.SampleRequest;
 import clustervas.api.messages.SampleResponse;
+import clustervas.api.netty.MessageDecoder;
+import clustervas.api.netty.MessageEncoder;
 import clustervas.service.netty.CVNettyClient;
 import clustervas.utils.Logger;
 import io.netty.bootstrap.ServerBootstrap;

@@ -30,7 +30,6 @@
 		<module>clustervas</module>
 		<module>clustervas-demo</module>
 		<module>clustervas-api</module>
-		<module>clustervas-net</module>
 	</modules>
 
 	<dependencyManagement>

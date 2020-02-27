@@ -2,7 +2,7 @@
 // Copyright 2020 ClusterVAS Team
 // All rights reserved
 // ---
-package clustervas.api;
+package clustervas.api.netty;
 
 import java.io.IOException;
 
@@ -14,11 +14,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import clustervas.api.MessageTypes.Tuple;
-
 public class MessageWrapper {
 
-	private Tuple<? extends AbstractMessage> type;
+	private MessageType<? extends AbstractMessage> type;
 
 	private String serializedMessage;
 
@@ -27,14 +25,14 @@ public class MessageWrapper {
 	public MessageWrapper() {
 	}
 
-	public <T extends AbstractMessage> MessageWrapper(T message, Tuple<T> type) {
+	public <T extends AbstractMessage> MessageWrapper(T message, MessageType<T> type) {
 		this();
 		setMessage(message, type);
 	}
 
 	// --- Getters:
 
-	public Tuple<? extends AbstractMessage> getType() {
+	public MessageType<? extends AbstractMessage> getType() {
 		return type;
 	}
 
@@ -59,7 +57,7 @@ public class MessageWrapper {
 
 	// ---
 
-	private <T extends AbstractMessage> void setMessage(T message, Tuple<T> type) {
+	private <T extends AbstractMessage> void setMessage(T message, MessageType<T> type) {
 		this.serializedMessage = serialize(message);
 		this.type = type;
 	}

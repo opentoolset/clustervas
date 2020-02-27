@@ -9,8 +9,8 @@ import javax.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
 import clustervas.CVConfig;
-import clustervas.api.MessageEncoder;
-import clustervas.api.MessageDecoder;
+import clustervas.api.netty.MessageDecoder;
+import clustervas.api.netty.MessageEncoder;
 import clustervas.utils.Logger;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
