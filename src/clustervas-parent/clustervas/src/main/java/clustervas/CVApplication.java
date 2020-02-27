@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import clustervas.CVContext.Mode;
-import clustervas.utils.Logger;
+import clustervas.utils.CVLogger;
 
 @SpringBootApplication
 @EnableScheduling
@@ -36,7 +36,7 @@ public class CVApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		if (CVContext.mode == Mode.SERVER) {
-			Logger.info("run-1");
+			CVLogger.info("run-1");
 		}
 	}
 
@@ -44,12 +44,12 @@ public class CVApplication implements CommandLineRunner {
 
 	private void run(ApplicationContext ctx, String[] args) throws IOException, InterruptedException {
 		if (CVContext.mode == Mode.SERVER) {
-			Logger.info("run-2");
+			CVLogger.info("run-2");
 		}
 	}
 
 	@PostConstruct
 	private void start() {
-		Logger.info("ClusterVAS Manager is starting...");
+		CVLogger.info("ClusterVAS Manager is starting...");
 	}
 }

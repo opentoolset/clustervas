@@ -2,7 +2,7 @@ package clustervas.service;
 
 import org.springframework.stereotype.Service;
 
-import clustervas.utils.Logger;
+import clustervas.utils.CVLogger;
 import clustervas.utils.CmdExecutor;
 import clustervas.utils.CmdExecutor.Response;
 
@@ -26,7 +26,7 @@ public class ContainerServiceLocalShell extends AbstractService {
 	public String getGvmdProcessInfo(String containerName) {
 		Response response = dockerExec(containerName, CMD_GVMD_PROCESS_INFO);
 		if (!response.isSuccessful()) {
-			Logger.warn(response.getOutput());
+			CVLogger.warn(response.getOutput());
 		}
 
 		return response.isSuccessful() ? response.getOutput() : null;
@@ -60,7 +60,7 @@ public class ContainerServiceLocalShell extends AbstractService {
 		String cmd = String.format(CMD_DOCKER_COMMIT_TEMPLATE, containerName, targetImageName);
 		Response response = CmdExecutor.exec(cmd);
 		if (!response.isSuccessful()) {
-			Logger.warn(response.getOutput());
+			CVLogger.warn(response.getOutput());
 		}
 
 		return response.isSuccessful();
@@ -70,7 +70,7 @@ public class ContainerServiceLocalShell extends AbstractService {
 		String cmd = String.format(CMD_DOCKER_TAG_TEMPLATE, imageName, newTag);
 		Response response = CmdExecutor.exec(cmd);
 		if (!response.isSuccessful()) {
-			Logger.warn(response.getOutput());
+			CVLogger.warn(response.getOutput());
 		}
 
 		return response.isSuccessful();
@@ -80,7 +80,7 @@ public class ContainerServiceLocalShell extends AbstractService {
 		String cmd = String.format(CMD_DOCKER_RMI_TEMPLATE, imageName);
 		Response response = CmdExecutor.exec(cmd);
 		if (!response.isSuccessful()) {
-			Logger.warn(response.getOutput());
+			CVLogger.warn(response.getOutput());
 		}
 
 		return response.isSuccessful();

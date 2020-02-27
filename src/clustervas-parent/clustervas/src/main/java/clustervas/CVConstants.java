@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 
 import org.springframework.util.StringUtils;
 
-import clustervas.utils.Logger;
+import clustervas.utils.CVLogger;
 
 public interface CVConstants {
 
@@ -34,10 +34,10 @@ public interface CVConstants {
 		String homeFolderEnv = System.getenv(HOME_ENVIRONMENT_VARIABLE);
 
 		if (!StringUtils.hasText(homeFolderEnv)) {
-			Logger.info("The environment variable ({}) is undefined, using default location ({}) as home folder.", HOME_ENVIRONMENT_VARIABLE, HOME_DEFAULT);
+			CVLogger.info("The environment variable ({}) is undefined, using default location ({}) as home folder.", HOME_ENVIRONMENT_VARIABLE, HOME_DEFAULT);
 			return HOME_DEFAULT;
 		} else {
-			Logger.info("({}) as home folder using environment variable ({}).", homeFolderEnv, HOME_ENVIRONMENT_VARIABLE);
+			CVLogger.info("({}) as home folder using environment variable ({}).", homeFolderEnv, HOME_ENVIRONMENT_VARIABLE);
 			return homeFolderEnv;
 		}
 	}

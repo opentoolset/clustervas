@@ -31,7 +31,7 @@ import com.google.common.collect.Lists;
 
 import clustervas.CVConfig;
 import clustervas.CVConstants;
-import clustervas.utils.Logger;
+import clustervas.utils.CVLogger;
 
 @Service
 public class ContainerServiceWithDockerJava extends AbstractService implements ContainerService {
@@ -74,7 +74,7 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 
 			return true;
 		} catch (Exception e) {
-			Logger.error(e);
+			CVLogger.error(e);
 			return false;
 		}
 	}
@@ -114,14 +114,14 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 		try {
 			while (!testerForQuitingLoop.get()) {
 				TimeUnit.SECONDS.sleep(1);
-				Logger.info("Waiting for 1 second...");
+				CVLogger.info("Waiting for 1 second...");
 			}
 
 			if (Optional.ofNullable(stopRequestProvider.get()).orElse(false)) {
 				return false;
 			}
 		} catch (InterruptedException e) {
-			Logger.warn(e);
+			CVLogger.warn(e);
 			return false;
 		}
 
@@ -152,7 +152,7 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 		String imageName = CVConstants.DOCKER_IMAGE_CLUSTERVAS_NAME;
 		Image image = getImageByName(imageName);
 		if (image == null) {
-			Logger.error("Docker image has not been loaded");
+			CVLogger.error("Docker image has not been loaded");
 			return false;
 		}
 

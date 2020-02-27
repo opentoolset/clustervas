@@ -38,21 +38,21 @@ public final class CVConfigProvider {
 
 	static {
 		try {
-			Logger.info("Home folder: {}", CVConstants.HOME_FOLDER);
-			Logger.info("Settings file: {}", CVConstants.PATH_OF_CONFIG_FILE);
+			CVLogger.info("Home folder: {}", CVConstants.HOME_FOLDER);
+			CVLogger.info("Settings file: {}", CVConstants.PATH_OF_CONFIG_FILE);
 
 			Files.createDirectories(CVConstants.PATH_OF_CONFIG_FOLDER);
-			Logger.info("Config directory is {}", CVConstants.PATH_OF_CONFIG_FOLDER);
+			CVLogger.info("Config directory is {}", CVConstants.PATH_OF_CONFIG_FOLDER);
 			if (!Files.exists(CVConstants.PATH_OF_CONFIG_FILE)) {
 				try {
 					Files.createFile(CVConstants.PATH_OF_CONFIG_FILE);
-					Logger.info("Config file was created {}", CVConstants.PATH_OF_CONFIG_FILE);
+					CVLogger.info("Config file was created {}", CVConstants.PATH_OF_CONFIG_FILE);
 				} catch (IOException e) {
-					Logger.warn("Config file couldn't be created", e);
+					CVLogger.warn("Config file couldn't be created", e);
 				}
 			}
 		} catch (IOException e) {
-			Logger.warn("Config directory couldn't be created", e);
+			CVLogger.warn("Config directory couldn't be created", e);
 		}
 
 		loadConfig();
@@ -97,7 +97,7 @@ public final class CVConfigProvider {
 		try {
 			configBuilder.save();
 		} catch (ConfigurationException e) {
-			Logger.error(e);
+			CVLogger.error(e);
 		}
 	}
 
@@ -132,10 +132,10 @@ public final class CVConfigProvider {
 
 			if (changed) {
 				configBuilder.save();
-				Logger.info("Config file was completed with defaults");
+				CVLogger.info("Config file was completed with defaults");
 			}
 		} catch (ConfigurationException e) {
-			Logger.error(e);
+			CVLogger.error(e);
 		}
 	}
 
@@ -147,7 +147,7 @@ public final class CVConfigProvider {
 		try {
 			return configBuilder.getConfiguration();
 		} catch (ConfigurationException e) {
-			Logger.error(e);
+			CVLogger.error(e);
 			System.exit(-1);
 			return null;
 		}
@@ -159,7 +159,7 @@ public final class CVConfigProvider {
 			File configFile = CVConstants.PATH_OF_CONFIG_FILE.toFile();
 			FileBasedBuilderParameters params = new Parameters().fileBased().setFile(configFile);
 			configBuilder.configure(params);
-			Logger.info("Config file was loaded {}", CVConstants.PATH_OF_CONFIG_FILE);
+			CVLogger.info("Config file was loaded {}", CVConstants.PATH_OF_CONFIG_FILE);
 		}
 
 		configBuilder.addEventListener(ConfigurationBuilderEvent.RESET, event -> configBuilder.getReloadingController().resetReloadingState());

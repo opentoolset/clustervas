@@ -16,7 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import clustervas.CVContext.Mode;
 import clustervas.service.ContainerService;
 import clustervas.service.ContainerService.CVContainer;
-import clustervas.utils.Logger;
+import clustervas.utils.CVLogger;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -45,6 +45,6 @@ public class MTContainerService {
 	public void testLoadNode() throws IOException {
 		CVContainer container = service.loadNewNodeContainer();
 		Assert.assertTrue(container != null);
-		Logger.info(container.toString());
+		CVLogger.info(container.toString());
 	}
 }

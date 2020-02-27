@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import clustervas.CVConfig;
 import clustervas.api.netty.MessageDecoder;
 import clustervas.api.netty.MessageEncoder;
-import clustervas.utils.Logger;
+import clustervas.utils.CVLogger;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -45,7 +45,7 @@ public class CVNettyClient {
 			f.channel().closeFuture().sync();
 			return true;
 		} catch (InterruptedException e) {
-			Logger.warn(e);
+			CVLogger.warn(e);
 		} finally {
 			workerGroup.shutdownGracefully();
 		}

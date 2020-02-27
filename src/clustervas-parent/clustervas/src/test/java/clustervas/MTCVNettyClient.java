@@ -19,7 +19,7 @@ import clustervas.api.messages.SampleResponse;
 import clustervas.api.netty.MessageDecoder;
 import clustervas.api.netty.MessageEncoder;
 import clustervas.service.netty.CVNettyClient;
-import clustervas.utils.Logger;
+import clustervas.utils.CVLogger;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -74,7 +74,7 @@ public class MTCVNettyClient {
 				ChannelFuture f = serverBootstrap.bind(port).sync();
 				f.channel().closeFuture().sync();
 			} catch (InterruptedException e) {
-				Logger.error(e);
+				CVLogger.error(e);
 			} finally {
 				workerGroup.shutdownGracefully();
 				bossGroup.shutdownGracefully();

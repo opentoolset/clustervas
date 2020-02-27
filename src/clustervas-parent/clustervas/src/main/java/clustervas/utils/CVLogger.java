@@ -6,6 +6,7 @@ package clustervas.utils;
 
 import java.util.Iterator;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 
@@ -13,12 +14,12 @@ import ch.qos.logback.classic.net.SyslogAppender;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 
-public class Logger {
+public class CVLogger {
 
 	private static ch.qos.logback.classic.Logger logger;
 
 	static {
-		org.slf4j.Logger genericLogger = LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+		Logger genericLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 
 		if (genericLogger instanceof ch.qos.logback.classic.Logger) {
 			logger = (ch.qos.logback.classic.Logger) genericLogger;

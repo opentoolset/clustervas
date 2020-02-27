@@ -36,18 +36,18 @@ public class CmdExecutor {
 				String output = IOUtils.toString(exitValue == Response.SUCCESS ? process.getInputStream() : process.getErrorStream(), Charset.defaultCharset());
 				response.setOutput(output);
 
-				Logger.debug("Execution finished. Exit value: %s", exitValue);
+				CVLogger.debug("Execution finished. Exit value: %s", exitValue);
 			} else {
-				Logger.debug("Timeout was occured");
+				CVLogger.debug("Timeout was occured");
 			}
 
 			if (process.isAlive()) {
 				process.destroyForcibly();
 			}
 		} catch (InterruptedException e) {
-			Logger.debug(e, "Execution was interrupted");
+			CVLogger.debug(e, "Execution was interrupted");
 		} catch (Exception e) {
-			Logger.error(e);
+			CVLogger.error(e);
 		}
 
 		return response;
