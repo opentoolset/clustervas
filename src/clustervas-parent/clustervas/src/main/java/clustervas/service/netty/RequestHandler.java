@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import clustervas.api.MessageTypes;
 import clustervas.api.messages.SampleRequest;
+import clustervas.api.netty.AbstractMessage;
 import clustervas.api.netty.AbstractRequestHandler;
 import clustervas.api.netty.MessageWrapper;
 
@@ -20,12 +21,12 @@ public class RequestHandler extends AbstractRequestHandler {
 
 	@Override
 	protected MessageWrapper processMessage(MessageWrapper requestWrapper) {
-		MessageWrapper response = null;
+		AbstractMessage<?> response = null;
 
 		switch (requestWrapper.getType().getType()) {
 			case SAMPLE_REQUEST: {
 				SampleRequest request = requestWrapper.getMessage(MessageTypes.SAMPLE_REQUEST.getMessageClass());
-				response = new MessageWrapper(serviceProvider.getSampleResponse(request), MessageTypes.SAMPLE_RESPONSE);
+				response = serviceProvider.getSampleResponse(request);
 				break;
 			}
 
@@ -33,6 +34,7 @@ public class RequestHandler extends AbstractRequestHandler {
 				break;
 		}
 
-		return response;
+		MessageWrapper responseWrapper = new MessageWrapper(response);
+		return responseWrapper;
 	}
 }

@@ -6,7 +6,6 @@ package clustervas.api;
 
 import clustervas.api.messages.SampleRequest;
 import clustervas.api.messages.SampleResponse;
-import clustervas.api.netty.MessageType;
 
 public interface MessageTypes {
 

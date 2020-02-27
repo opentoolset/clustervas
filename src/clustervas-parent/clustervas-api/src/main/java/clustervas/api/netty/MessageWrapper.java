@@ -14,10 +14,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import clustervas.api.MessageType;
+
 public class MessageWrapper {
 
-	private MessageType<? extends AbstractMessage<?>> type;
-
+	private MessageType<?> type;
 	private String serializedMessage;
 
 	// ---
@@ -31,6 +32,11 @@ public class MessageWrapper {
 	}
 
 	// --- Getters:
+
+	public MessageWrapper(AbstractMessage<?> message) {
+		this.type = message.getType();
+		this.serializedMessage = serialize(message);
+	}
 
 	public MessageType<? extends AbstractMessage<?>> getType() {
 		return type;

@@ -9,6 +9,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import clustervas.api.MessageType;
+
 public abstract class AbstractMessage<T extends AbstractMessage<?>> {
 
 	@JsonIgnore
