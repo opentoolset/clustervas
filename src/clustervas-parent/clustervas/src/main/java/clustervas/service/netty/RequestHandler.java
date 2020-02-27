@@ -11,7 +11,8 @@ import clustervas.api.MessageTypes;
 import clustervas.api.messages.SampleRequest;
 import clustervas.api.netty.AbstractMessage;
 import clustervas.api.netty.AbstractRequestHandler;
-import clustervas.api.netty.MessageWrapper;
+import clustervas.api.netty.RequestWrapper;
+import clustervas.api.netty.ResponseWrapper;
 
 @Component
 public class RequestHandler extends AbstractRequestHandler {
@@ -20,7 +21,7 @@ public class RequestHandler extends AbstractRequestHandler {
 	private CVServiceProvider serviceProvider;
 
 	@Override
-	protected MessageWrapper processMessage(MessageWrapper requestWrapper) {
+	protected ResponseWrapper processMessage(RequestWrapper requestWrapper) {
 		AbstractMessage<?> response = null;
 
 		switch (requestWrapper.getType().getType()) {
@@ -34,7 +35,7 @@ public class RequestHandler extends AbstractRequestHandler {
 				break;
 		}
 
-		MessageWrapper responseWrapper = new MessageWrapper(response);
+		ResponseWrapper responseWrapper = new ResponseWrapper(response);
 		return responseWrapper;
 	}
 }

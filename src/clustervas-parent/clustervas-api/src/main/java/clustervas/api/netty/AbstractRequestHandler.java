@@ -10,7 +10,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 
 public abstract class AbstractRequestHandler extends ChannelInboundHandlerAdapter {
 
-	protected abstract MessageWrapper processMessage(MessageWrapper requestWrapper);
+	protected abstract ResponseWrapper processMessage(RequestWrapper requestWrapper);
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -18,9 +18,9 @@ public abstract class AbstractRequestHandler extends ChannelInboundHandlerAdapte
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		if (msg instanceof MessageWrapper) {
-			MessageWrapper requestWrapper = (MessageWrapper) msg;
-			MessageWrapper responseWrapper = processMessage(requestWrapper);
+		if (msg instanceof RequestWrapper) {
+			RequestWrapper requestWrapper = (RequestWrapper) msg;
+			ResponseWrapper responseWrapper = processMessage(requestWrapper);
 			ChannelFuture future = ctx.writeAndFlush(responseWrapper);
 		} else {
 			Context.getInstance().getLogger().warn("Request was not recognized");
