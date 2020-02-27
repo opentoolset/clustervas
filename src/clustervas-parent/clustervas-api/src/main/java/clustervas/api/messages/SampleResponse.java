@@ -4,8 +4,14 @@
 // ---
 package clustervas.api.messages;
 
+import clustervas.api.MessageTypes;
 import clustervas.api.netty.AbstractMessage;
+import clustervas.api.netty.MessageType;
 
-public class SampleResponse extends AbstractMessage {
+public class SampleResponse extends AbstractMessage<SampleResponse> {
 
+	@Override
+	public MessageType<SampleResponse> getType() {
+		return MessageTypes.SAMPLE_RESPONSE;
+	}
 }

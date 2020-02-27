@@ -7,7 +7,12 @@ package clustervas.api.netty;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-public abstract class AbstractMessage {
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+public abstract class AbstractMessage<T extends AbstractMessage<?>> {
+
+	@JsonIgnore
+	public abstract MessageType<T> getType();
 
 	@Override
 	public String toString() {

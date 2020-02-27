@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 public class MessageWrapper {
 
-	private MessageType<? extends AbstractMessage> type;
+	private MessageType<? extends AbstractMessage<?>> type;
 
 	private String serializedMessage;
 
@@ -25,14 +25,14 @@ public class MessageWrapper {
 	public MessageWrapper() {
 	}
 
-	public <T extends AbstractMessage> MessageWrapper(T message, MessageType<T> type) {
+	public <T extends AbstractMessage<?>> MessageWrapper(T message, MessageType<T> type) {
 		this();
 		setMessage(message, type);
 	}
 
 	// --- Getters:
 
-	public MessageType<? extends AbstractMessage> getType() {
+	public MessageType<? extends AbstractMessage<?>> getType() {
 		return type;
 	}
 
@@ -46,7 +46,7 @@ public class MessageWrapper {
 		return serialize(this);
 	}
 
-	public <T extends AbstractMessage> T getMessage(Class<T> classOfMessage) {
+	public <T extends AbstractMessage<?>> T getMessage(Class<T> classOfMessage) {
 		return deserialize(this.serializedMessage, classOfMessage);
 	}
 
@@ -57,7 +57,7 @@ public class MessageWrapper {
 
 	// ---
 
-	private <T extends AbstractMessage> void setMessage(T message, MessageType<T> type) {
+	private <T extends AbstractMessage<?>> void setMessage(T message, MessageType<T> type) {
 		this.serializedMessage = serialize(message);
 		this.type = type;
 	}

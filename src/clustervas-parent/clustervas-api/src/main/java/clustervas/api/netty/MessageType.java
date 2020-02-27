@@ -2,7 +2,7 @@ package clustervas.api.netty;
 
 import clustervas.api.MessageTypes.Type;
 
-public class MessageType<T extends AbstractMessage> {
+public class MessageType<T extends AbstractMessage<?>> {
 
 	private Class<T> messageClass;
 	private Type type;
