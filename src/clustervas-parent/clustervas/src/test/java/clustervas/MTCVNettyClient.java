@@ -13,11 +13,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import clustervas.CVContext.Mode;
-import clustervas.api.CVService;
+import clustervas.api.CVServerService;
 import clustervas.api.messages.SampleRequest;
 import clustervas.api.messages.SampleResponse;
-import clustervas.api.netty.CVNettyConnectionAcceptor;
-import clustervas.service.netty.CVNettyConnectionInitiator;
+import clustervas.api.netty.agent.CVClientAgent;
+import clustervas.service.netty.CVServerAgent;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -27,18 +27,18 @@ public class MTCVNettyClient {
 		CVContext.mode = Mode.UNIT_TEST;
 	}
 
-	private static CVNettyConnectionAcceptor connectionAcceptor;
-	private static CVServiceConsumer cvServiceConsumer;
+	private static CVClientAgent connectionAcceptor;
+	private static CVServerServiceConsumer cvServiceConsumer;
 
 	@Autowired
-	private CVNettyConnectionInitiator connectionInitiator;
+	private CVServerAgent connectionInitiator;
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
-		connectionAcceptor = new CVNettyConnectionAcceptor();
+		connectionAcceptor = new CVClientAgent();
 		new Thread(() -> connectionAcceptor.run()).start();
 
-		cvServiceConsumer = new CVServiceConsumer();
+		cvServiceConsumer = new CVServerServiceConsumer();
 	}
 
 	@Test
@@ -50,7 +50,7 @@ public class MTCVNettyClient {
 		Assert.assertNotNull(sampleResponse);
 	}
 
-	private static class CVServiceConsumer implements CVService {
+	private static class CVServerServiceConsumer implements CVServerService {
 
 		@Override
 		public SampleResponse getSampleResponse(SampleRequest request) {

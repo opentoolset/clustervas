@@ -9,7 +9,8 @@ public class MessageType<T extends AbstractMessage> {
 
 	private Class<T> messageClass;
 	private Type type;
-	private BiFunction<T, CVService, AbstractMessage> requestProcessor;
+	private BiFunction<T, CVServerService, AbstractMessage> serverRequestProcessor;
+	private BiFunction<T, CVClientService, AbstractMessage> clientRequestProcessor;
 
 	public MessageType() {
 	}
@@ -20,9 +21,10 @@ public class MessageType<T extends AbstractMessage> {
 		this.type = type;
 	}
 
-	public MessageType(Class<T> messageClass, Type type, BiFunction<T, CVService, AbstractMessage> requestProcessor) {
+	public MessageType(Class<T> messageClass, Type type, BiFunction<T, CVServerService, AbstractMessage> serverRequestProcessor, BiFunction<T, CVClientService, AbstractMessage> clientRequestProcessor) {
 		this(messageClass, type);
-		this.requestProcessor = requestProcessor;
+		this.serverRequestProcessor = serverRequestProcessor;
+		this.clientRequestProcessor = clientRequestProcessor;
 	}
 
 	public Class<T> getMessageClass() {
@@ -33,7 +35,11 @@ public class MessageType<T extends AbstractMessage> {
 		return type;
 	}
 
-	public BiFunction<T, CVService, AbstractMessage> getRequestProcessor() {
-		return requestProcessor;
+	public BiFunction<T, CVServerService, AbstractMessage> getServerRequestProcessor() {
+		return serverRequestProcessor;
+	}
+
+	public BiFunction<T, CVClientService, AbstractMessage> getClientRequestProcessor() {
+		return clientRequestProcessor;
 	}
 }

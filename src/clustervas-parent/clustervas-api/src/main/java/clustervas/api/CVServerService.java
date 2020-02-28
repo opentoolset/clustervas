@@ -7,7 +7,7 @@ package clustervas.api;
 import clustervas.api.messages.SampleRequest;
 import clustervas.api.messages.SampleResponse;
 
-public interface CVService {
+public interface CVServerService {
 
 	SampleResponse getSampleResponse(SampleRequest request);
 }

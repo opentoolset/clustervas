@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import clustervas.CVConfig;
@@ -24,7 +25,13 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 @Component
-public class CVNettyConnectionInitiator {
+public class CVServerAgent {
+
+	@Autowired
+	private CVServerInboundMessageHandler inboundMessageHandler;
+
+	private MessageEncoder encoder = new MessageEncoder();
+	private MessageDecoder decoder = new MessageDecoder();
 
 	public boolean openChannel() {
 
@@ -38,7 +45,7 @@ public class CVNettyConnectionInitiator {
 
 				@Override
 				public void initChannel(SocketChannel ch) throws Exception {
-					ch.pipeline().addLast(new MessageEncoder(), new MessageDecoder(), new RequestHandler());
+					ch.pipeline().addLast(encoder, decoder, inboundMessageHandler);
 				}
 			});
 
@@ -47,7 +54,7 @@ public class CVNettyConnectionInitiator {
 				TimeUnit.SECONDS.sleep(1);
 			}
 
-			channelFuture.channel().closeFuture().sync();
+			// channelFuture.channel().closeFuture().sync();
 			return true;
 		} catch (InterruptedException e) {
 			CVLogger.warn(e);
@@ -62,6 +69,7 @@ public class CVNettyConnectionInitiator {
 		try {
 			return bootstrap.connect(CVConfig.getManagerHost(), CVConfig.getManagerPort()).sync();
 		} catch (Exception e) {
+			CVLogger.debug(e, e.getLocalizedMessage());
 		}
 
 		return null;
