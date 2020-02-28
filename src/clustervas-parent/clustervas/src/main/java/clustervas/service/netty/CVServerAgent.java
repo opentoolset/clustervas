@@ -7,6 +7,7 @@ package clustervas.service.netty;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import clustervas.api.netty.MessageDecoder;
 import clustervas.api.netty.MessageEncoder;
 import clustervas.utils.CVLogger;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -30,14 +32,19 @@ public class CVServerAgent {
 	@Autowired
 	private CVServerInboundMessageHandler inboundMessageHandler;
 
+	private EventLoopGroup workerGroup = new NioEventLoopGroup();
+
 	private MessageEncoder encoder = new MessageEncoder();
 	private MessageDecoder decoder = new MessageDecoder();
 
+	private Bootstrap bootstrap = new Bootstrap();
+	private Channel channel;
+
+	// ---
+
 	public boolean openChannel() {
 
-		EventLoopGroup workerGroup = new NioEventLoopGroup();
 		try {
-			Bootstrap bootstrap = new Bootstrap();
 			bootstrap.group(workerGroup);
 			bootstrap.channel(NioSocketChannel.class);
 			bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
@@ -50,24 +57,24 @@ public class CVServerAgent {
 			});
 
 			ChannelFuture channelFuture = null;
-			while ((channelFuture = connectSafe(bootstrap)) == null) {
+			while ((channelFuture = connectSafe()) == null) {
 				TimeUnit.SECONDS.sleep(1);
 			}
 
-			// channelFuture.channel().closeFuture().sync();
+			this.channel = channelFuture.channel();
 			return true;
 		} catch (InterruptedException e) {
-			CVLogger.warn(e);
-		} finally {
-			workerGroup.shutdownGracefully();
+			CVLogger.warn(e, "Interrupted");
 		}
 
 		return false;
 	}
 
-	private ChannelFuture connectSafe(Bootstrap bootstrap) throws InterruptedException {
+	// ---
+
+	private ChannelFuture connectSafe() throws InterruptedException {
 		try {
-			return bootstrap.connect(CVConfig.getManagerHost(), CVConfig.getManagerPort()).sync();
+			return this.bootstrap.connect(CVConfig.getManagerHost(), CVConfig.getManagerPort()).sync();
 		} catch (Exception e) {
 			CVLogger.debug(e, e.getLocalizedMessage());
 		}
@@ -75,10 +82,18 @@ public class CVServerAgent {
 		return null;
 	}
 
-	// ---
-
 	@PostConstruct
-	private void init() {
+	private void postConstruct() {
+	}
 
+	@PreDestroy
+	private void preDestroy() {
+		try {
+			this.channel.closeFuture().sync();
+		} catch (InterruptedException e) {
+			CVLogger.warn(e, "Interrupted");
+		} finally {
+			this.workerGroup.shutdownGracefully();
+		}
 	}
 }

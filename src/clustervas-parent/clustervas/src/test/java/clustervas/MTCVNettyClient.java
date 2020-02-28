@@ -27,23 +27,23 @@ public class MTCVNettyClient {
 		CVContext.mode = Mode.UNIT_TEST;
 	}
 
-	private static CVClientAgent connectionAcceptor;
+	private static CVClientAgent clientAgent;
 	private static CVServerServiceConsumer cvServiceConsumer;
 
 	@Autowired
-	private CVServerAgent connectionInitiator;
+	private CVServerAgent serverAgent;
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
-		connectionAcceptor = new CVClientAgent();
-		new Thread(() -> connectionAcceptor.run()).start();
+		clientAgent = new CVClientAgent();
 
 		cvServiceConsumer = new CVServerServiceConsumer();
 	}
 
 	@Test
 	public void testCommunication() throws Exception {
-		Assert.assertTrue(connectionInitiator.openChannel());
+		Assert.assertTrue(clientAgent.startup());
+		Assert.assertTrue(serverAgent.openChannel());
 
 		SampleRequest sampleRequest = new SampleRequest();
 		SampleResponse sampleResponse = cvServiceConsumer.getSampleResponse(sampleRequest);
@@ -54,7 +54,7 @@ public class MTCVNettyClient {
 
 		@Override
 		public SampleResponse getSampleResponse(SampleRequest request) {
-			return connectionAcceptor.doRequest(request, SampleResponse.class);
+			return clientAgent.doRequest(request, SampleResponse.class);
 		}
 	}
 }

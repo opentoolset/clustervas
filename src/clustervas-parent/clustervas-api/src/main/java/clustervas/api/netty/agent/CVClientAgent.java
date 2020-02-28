@@ -1,7 +1,8 @@
 package clustervas.api.netty.agent;
 
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
 
 import clustervas.api.netty.AbstractMessage;
 import clustervas.api.netty.CVApiConstants;
@@ -24,39 +25,16 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 public class CVClientAgent {
 
 	private static int port = CVApiConstants.DEFAULT_MANAGER_PORT;
-	private static Channel channel;
 
-	public void run() {
-		EventLoopGroup bossGroup = new NioEventLoopGroup();
-		EventLoopGroup workerGroup = new NioEventLoopGroup();
-		try {
-			ServerBootstrap serverBootstrap = new ServerBootstrap();
-			serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {
+	private Logger logger = CVApiContext.getLogger();
 
-				@Override
-				public void initChannel(SocketChannel ch) throws Exception {
-					try {
-						ch.pipeline().addLast(new MessageDecoder(), new MessageEncoder(), new CVClientInboundMessageHandler());
-					} catch (Exception e) {
-						CVApiContext.getLogger().debug(e.getLocalizedMessage(), e);
-					}
-				}
-			}).option(ChannelOption.SO_BACKLOG, 128).childOption(ChannelOption.SO_KEEPALIVE, true);
+	private MessageEncoder encoder = new MessageEncoder();
+	private MessageDecoder decoder = new MessageDecoder();
 
-			ChannelFuture f = serverBootstrap.bind(port).sync();
-			channel = f.channel();
-			// channel.closeFuture().sync();
-
-			while (true) {
-				TimeUnit.SECONDS.sleep(1);
-			}
-		} catch (InterruptedException e) {
-			CVApiContext.getLogger().error("Interrupted", e);
-		} finally {
-			workerGroup.shutdownGracefully();
-			bossGroup.shutdownGracefully();
-		}
-	}
+	private EventLoopGroup workerGroup = new NioEventLoopGroup();
+	private EventLoopGroup bossGroup = new NioEventLoopGroup();
+	private ServerBootstrap bootstrap = new ServerBootstrap();
+	private Channel channel;
 
 	public <TReq extends AbstractMessage, TResp extends AbstractMessage> TResp doRequest(TReq request, Class<TResp> classOfResponse) {
 		RequestWrapper requestWrapper = new RequestWrapper(request);
@@ -72,7 +50,7 @@ public class CVClientAgent {
 			try {
 				currentThread.wait(CVApiConstants.REQUST_TIMEOUT_MILLIS);
 			} catch (InterruptedException e) {
-				CVApiContext.getLogger().error("Interrupted", e);
+				logger.error("Interrupted", e);
 			}
 		}
 
@@ -84,5 +62,40 @@ public class CVClientAgent {
 		}
 
 		return null;
+	}
+
+	public boolean startup() {
+		try {
+			this.bootstrap.group(this.bossGroup, this.workerGroup).channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {
+
+				@Override
+				public void initChannel(SocketChannel ch) throws Exception {
+					try {
+						ch.pipeline().addLast(CVClientAgent.this.encoder, CVClientAgent.this.decoder, new CVClientInboundMessageHandler());
+					} catch (Exception e) {
+						logger.debug(e.getLocalizedMessage(), e);
+					}
+				}
+			}).option(ChannelOption.SO_BACKLOG, 128).childOption(ChannelOption.SO_KEEPALIVE, true);
+
+			ChannelFuture channelFuture = this.bootstrap.bind(port).sync();
+			this.channel = channelFuture.channel();
+			return true;
+		} catch (InterruptedException e) {
+			logger.error("Interrupted", e);
+		}
+
+		return false;
+	}
+
+	public void shutdown() {
+		try {
+			this.channel.closeFuture().sync();
+		} catch (InterruptedException e) {
+			logger.warn("Interrupted", e);
+		} finally {
+			this.workerGroup.shutdownGracefully();
+			this.bossGroup.shutdownGracefully();
+		}
 	}
 }
