@@ -9,6 +9,7 @@ import java.io.IOException;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,16 +21,20 @@ public class MessageWrapper<T extends AbstractMessage> {
 
 	private MessageType<T> type;
 	private String serializedMessage;
-
 	private Class<? extends AbstractMessage> classOfMessage;
+
+	@JsonIgnore
+	private T message;
 
 	// ---
 
 	public MessageWrapper() {
 	}
 
-	public MessageWrapper(AbstractMessage message) {
+	public MessageWrapper(T message) {
 		this();
+		this.message = message;
+
 		this.type = message.getType();
 		this.classOfMessage = message.getClass();
 		this.serializedMessage = serialize(message);
@@ -47,12 +52,21 @@ public class MessageWrapper<T extends AbstractMessage> {
 
 	// --- Helper methods:
 
+	public T getMessage() {
+		return message;
+	}
+
 	public String serialize() {
 		return serialize(this);
 	}
 
-	public AbstractMessage getMessage() {
+	public AbstractMessage deserializeMessage() {
 		AbstractMessage message = deserialize(this.serializedMessage, classOfMessage);
+		return message;
+	}
+
+	public <TMsg extends AbstractMessage> TMsg deserializeMessage(Class<TMsg> classOfMessage) {
+		TMsg message = deserialize(this.serializedMessage, classOfMessage);
 		return message;
 	}
 

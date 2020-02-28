@@ -4,7 +4,6 @@
 // ---
 package clustervas.api.netty;
 
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -21,7 +20,7 @@ public abstract class AbstractRequestHandler extends ChannelInboundHandlerAdapte
 		if (msg instanceof RequestWrapper) {
 			RequestWrapper requestWrapper = (RequestWrapper) msg;
 			ResponseWrapper responseWrapper = processMessage(requestWrapper);
-			ChannelFuture future = ctx.writeAndFlush(responseWrapper);
+			ctx.writeAndFlush(responseWrapper);
 		} else {
 			Context.getInstance().getLogger().warn("Request was not recognized");
 		}

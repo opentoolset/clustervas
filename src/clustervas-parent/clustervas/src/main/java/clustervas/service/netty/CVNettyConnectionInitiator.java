@@ -22,7 +22,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 @Component
-public class CVNettyClient {
+public class CVNettyConnectionInitiator {
 
 	public boolean openChannel() {
 

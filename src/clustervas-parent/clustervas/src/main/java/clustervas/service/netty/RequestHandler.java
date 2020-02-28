@@ -34,7 +34,7 @@ public class RequestHandler extends AbstractRequestHandler {
 		// break;
 		// }
 
-		AbstractMessage request = requestWrapper.getMessage();
+		AbstractMessage request = requestWrapper.deserializeMessage();
 
 		MessageType<AbstractMessage> type = requestWrapper.getType();
 		AbstractMessage response = type.getRequestProcessor().apply(request, serviceProvider);

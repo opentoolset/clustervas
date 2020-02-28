@@ -1,14 +1,11 @@
 package clustervas.api;
 
-import java.io.Serializable;
 import java.util.function.BiFunction;
 
 import clustervas.api.MessageTypes.Type;
 import clustervas.api.netty.AbstractMessage;
 
-public class MessageType<T extends AbstractMessage> implements Serializable {
-
-	private static final long serialVersionUID = -8768461042162510516L;
+public class MessageType<T extends AbstractMessage> {
 
 	private Class<T> messageClass;
 	private Type type;
