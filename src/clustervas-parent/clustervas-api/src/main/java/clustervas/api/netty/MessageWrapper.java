@@ -16,25 +16,30 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import clustervas.api.MessageType;
 
-public class MessageWrapper {
+public class MessageWrapper<T extends AbstractMessage<?>> {
 
-	private MessageType<?> type;
+	private MessageType<T> type;
 	private String serializedMessage;
+
+	@SuppressWarnings("rawtypes")
+	private Class<? extends AbstractMessage> classOfMessage;
 
 	// ---
 
 	public MessageWrapper() {
 	}
 
-	public MessageWrapper(AbstractMessage<?> message) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public MessageWrapper(AbstractMessage message) {
 		this();
 		this.type = message.getType();
+		this.classOfMessage = message.getClass();
 		this.serializedMessage = serialize(message);
 	}
 
 	// --- Getters:
 
-	public MessageType<? extends AbstractMessage<?>> getType() {
+	public MessageType<T> getType() {
 		return type;
 	}
 
@@ -48,8 +53,9 @@ public class MessageWrapper {
 		return serialize(this);
 	}
 
-	public <T extends AbstractMessage<?>> T getMessage(Class<T> classOfMessage) {
-		return deserialize(this.serializedMessage, classOfMessage);
+	public AbstractMessage<?> getMessage() {
+		AbstractMessage<?> message = deserialize(this.serializedMessage, classOfMessage);
+		return message;
 	}
 
 	@Override
@@ -73,8 +79,10 @@ public class MessageWrapper {
 
 	// ---
 
-	public static MessageWrapper deserialize(String serializedMessageWrapper) {
-		return deserialize(serializedMessageWrapper, MessageWrapper.class);
+	public static MessageWrapper<? extends AbstractMessage<?>> deserialize(String serializedMessageWrapper) {
+		@SuppressWarnings("unchecked")
+		MessageWrapper<AbstractMessage<?>> messageWrapper = deserialize(serializedMessageWrapper, MessageWrapper.class);
+		return messageWrapper;
 	}
 
 	// ---

@@ -4,7 +4,7 @@
 // ---
 package clustervas.api.netty;
 
-public class RequestWrapper extends MessageWrapper {
+public class RequestWrapper extends MessageWrapper<AbstractMessage<?>> {
 
 	private String id;
 

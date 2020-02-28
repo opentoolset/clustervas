@@ -10,12 +10,12 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
 
-public class MessageDecoder extends ReplayingDecoder<MessageWrapper> {
+public class MessageDecoder extends ReplayingDecoder<MessageWrapper<AbstractMessage<AbstractMessage<?>>>> {
 
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
 		String serializedMessageWrapper = in.toString(Constants.DEFAULT_CHARSET);
-		MessageWrapper messageWrapper = MessageWrapper.deserialize(serializedMessageWrapper);
+		MessageWrapper<?> messageWrapper = MessageWrapper.deserialize(serializedMessageWrapper);
 		out.add(messageWrapper);
 	}
 }
