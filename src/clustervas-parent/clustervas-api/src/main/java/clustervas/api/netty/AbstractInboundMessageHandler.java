@@ -10,9 +10,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 
 public abstract class AbstractInboundMessageHandler extends ChannelInboundHandlerAdapter {
 
-	protected abstract ResponseWrapper processRequest(RequestWrapper requestWrapper);
-
-	protected abstract void processMessage(MessageWrapper<?> messageWrapper);
+	protected abstract AbstractMessage processMessage(MessageWrapper messageWrapper);
 
 	// ---
 
@@ -34,17 +32,14 @@ public abstract class AbstractInboundMessageHandler extends ChannelInboundHandle
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		if (msg instanceof RequestWrapper) {
-			RequestWrapper requestWrapper = (RequestWrapper) msg;
-			ResponseWrapper responseWrapper = processRequest(requestWrapper);
-			ctx.writeAndFlush(responseWrapper);
-		} else if (msg instanceof ResponseWrapper) {
-			ResponseWrapper responseWrapper = (ResponseWrapper) msg;
-			String requestId = responseWrapper.getRequestId();
-			if (requestId != null) {
-				OperationContext operationContext = CVApiContext.getInstance().getWaitingRequests().get(requestId);
+		if (msg instanceof MessageWrapper) {
+			MessageWrapper messageWrapper = (MessageWrapper) msg;
+
+			String correlationId = messageWrapper.getCorrelationId();
+			if (correlationId != null) {
+				OperationContext operationContext = CVApiContext.getInstance().getWaitingRequests().get(correlationId);
 				if (operationContext != null) {
-					operationContext.setResponseWrapper(responseWrapper);
+					operationContext.setResponseWrapper(messageWrapper);
 					Thread thread = operationContext.getThread();
 					synchronized (thread) {
 						if (thread.isAlive()) {
@@ -55,13 +50,16 @@ public abstract class AbstractInboundMessageHandler extends ChannelInboundHandle
 					CVApiContext.getLogger().warn("Response was ignored because of timeout");
 				}
 			} else {
-				CVApiContext.getLogger().warn("Response has a null requestID");
+				AbstractMessage response = processMessage(messageWrapper);
+
+				String id = messageWrapper.getId();
+				if (id != null) {
+					MessageWrapper responseWrapper = MessageWrapper.createResponse(response, id);
+					ctx.writeAndFlush(responseWrapper);
+				}
 			}
-		} else if (msg instanceof MessageWrapper) {
-			MessageWrapper<?> messageWrapper = (MessageWrapper<?>) msg;
-			processMessage(messageWrapper);
 		} else {
-			CVApiContext.getLogger().warn("Message was not recognized");
+			CVApiContext.getLogger().warn("Message couldn't be recognized");
 		}
 	}
 }

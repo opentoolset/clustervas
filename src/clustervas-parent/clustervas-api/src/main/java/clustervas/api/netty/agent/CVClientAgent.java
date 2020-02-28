@@ -10,8 +10,7 @@ import clustervas.api.netty.CVApiContext;
 import clustervas.api.netty.CVApiContext.OperationContext;
 import clustervas.api.netty.MessageDecoder;
 import clustervas.api.netty.MessageEncoder;
-import clustervas.api.netty.RequestWrapper;
-import clustervas.api.netty.ResponseWrapper;
+import clustervas.api.netty.MessageWrapper;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -34,7 +33,7 @@ public class CVClientAgent {
 	private ServerBootstrap bootstrap = new ServerBootstrap();
 
 	public <TReq extends AbstractMessage, TResp extends AbstractMessage> TResp doRequest(TReq request, Class<TResp> classOfResponse) {
-		RequestWrapper requestWrapper = new RequestWrapper(request);
+		MessageWrapper requestWrapper = MessageWrapper.createRequest(request);
 		Thread currentThread = Thread.currentThread();
 
 		OperationContext operationContext = new OperationContext();
@@ -42,17 +41,17 @@ public class CVClientAgent {
 
 		Map<String, OperationContext> waitingRequests = CVApiContext.getInstance().getWaitingRequests();
 		waitingRequests.put(requestWrapper.getId(), operationContext);
-		CVApiContext.getInstance().getNettyChannel().writeAndFlush(requestWrapper);
-		synchronized (currentThread) {
-			try {
+		try {
+			CVApiContext.getInstance().getNettyChannel().writeAndFlush(requestWrapper);
+			synchronized (currentThread) {
 				currentThread.wait(CVApiConstants.REQUST_TIMEOUT_MILLIS);
-			} catch (InterruptedException e) {
-				logger.error("Interrupted", e);
 			}
+		} catch (InterruptedException e) {
+			logger.error("Interrupted", e);
 		}
 
 		operationContext = waitingRequests.remove(requestWrapper.getId());
-		ResponseWrapper responseWrapper = operationContext.getResponseWrapper();
+		MessageWrapper responseWrapper = operationContext.getResponseWrapper();
 		if (responseWrapper != null) {
 			TResp responseMessage = responseWrapper.deserializeMessage(classOfResponse);
 			return responseMessage;

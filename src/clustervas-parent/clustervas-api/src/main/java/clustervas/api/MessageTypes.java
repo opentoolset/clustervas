@@ -14,6 +14,6 @@ public interface MessageTypes {
 		SAMPLE_RESPONSE,
 	}
 
-	MessageType<SampleRequest> SAMPLE_REQUEST = new MessageType<>(SampleRequest.class, Type.SAMPLE_REQUEST, (request, service) -> service.getSampleResponse(request), null);
+	MessageType<SampleRequest> SAMPLE_REQUEST = new MessageType<>(SampleRequest.class, Type.SAMPLE_REQUEST);
 	MessageType<SampleResponse> SAMPLE_RESPONSE = new MessageType<>(SampleResponse.class, Type.SAMPLE_RESPONSE);
 }

@@ -53,14 +53,14 @@ public class CVApiContext {
 
 	public static class OperationContext {
 
-		private ResponseWrapper responseWrapper;
+		private MessageWrapper responseWrapper;
 		private Thread thread;
 
-		public ResponseWrapper getResponseWrapper() {
+		public MessageWrapper getResponseWrapper() {
 			return responseWrapper;
 		}
 
-		public void setResponseWrapper(ResponseWrapper responseWrapper) {
+		public void setResponseWrapper(MessageWrapper responseWrapper) {
 			this.responseWrapper = responseWrapper;
 		}
 

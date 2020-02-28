@@ -5,11 +5,11 @@
 package clustervas.api.netty;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,32 +17,51 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import clustervas.api.MessageType;
 
-public class MessageWrapper<T extends AbstractMessage> {
+public class MessageWrapper {
 
-	private MessageType<T> type;
+	private MessageType<? extends AbstractMessage> type;
 	private String serializedMessage;
 	private Class<? extends AbstractMessage> classOfMessage;
 
-	@JsonIgnore
-	private T message;
+	private String id;
+	private String correlationId;
 
 	// ---
 
 	public MessageWrapper() {
 	}
 
-	public MessageWrapper(T message) {
-		this();
-		this.message = message;
+	public static <T extends AbstractMessage> MessageWrapper create(T message) {
+		MessageWrapper messageWrapper = new MessageWrapper();
+		messageWrapper.type = message.getType();
+		messageWrapper.classOfMessage = message.getClass();
+		messageWrapper.serializedMessage = messageWrapper.serialize(message);
+		return messageWrapper;
+	}
 
-		this.type = message.getType();
-		this.classOfMessage = message.getClass();
-		this.serializedMessage = serialize(message);
+	public static <T extends AbstractMessage> MessageWrapper createRequest(T message) {
+		MessageWrapper messageWrapper = create(message);
+		messageWrapper.id = UUID.randomUUID().toString();
+		return messageWrapper;
+	}
+
+	public static <T extends AbstractMessage> MessageWrapper createResponse(T message, String correlationId) {
+		MessageWrapper messageWrapper = create(message);
+		messageWrapper.correlationId = correlationId;
+		return messageWrapper;
 	}
 
 	// --- Getters:
 
-	public MessageType<T> getType() {
+	public String getId() {
+		return id;
+	}
+
+	public String getCorrelationId() {
+		return correlationId;
+	}
+
+	public MessageType<? extends AbstractMessage> getType() {
 		return type;
 	}
 
@@ -51,10 +70,6 @@ public class MessageWrapper<T extends AbstractMessage> {
 	}
 
 	// --- Helper methods:
-
-	public T getMessage() {
-		return message;
-	}
 
 	public String serialize() {
 		return serialize(this);
@@ -91,9 +106,8 @@ public class MessageWrapper<T extends AbstractMessage> {
 
 	// ---
 
-	public static MessageWrapper<? extends AbstractMessage> deserialize(String serializedMessageWrapper) {
-		@SuppressWarnings("unchecked")
-		MessageWrapper<AbstractMessage> messageWrapper = deserialize(serializedMessageWrapper, MessageWrapper.class);
+	public static MessageWrapper deserialize(String serializedMessageWrapper) {
+		MessageWrapper messageWrapper = deserialize(serializedMessageWrapper, MessageWrapper.class);
 		return messageWrapper;
 	}
 
