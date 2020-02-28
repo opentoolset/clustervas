@@ -84,7 +84,7 @@ public class MessageWrapper<T extends AbstractMessage> {
 			String serializedMessageWrapper = mapper.writeValueAsString(obj);
 			return serializedMessageWrapper;
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			CVApiContext.getLogger().error(e.getLocalizedMessage(), e);
 			return null;
 		}
 	}
@@ -106,7 +106,7 @@ public class MessageWrapper<T extends AbstractMessage> {
 			T message = mapper.readValue(serialized, classOfObj);
 			return message;
 		} catch (IOException e) {
-			e.printStackTrace();
+			CVApiContext.getLogger().error(e.getLocalizedMessage(), e);
 			return null;
 		}
 	}

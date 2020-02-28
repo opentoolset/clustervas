@@ -17,7 +17,19 @@ public abstract class AbstractInboundMessageHandler extends ChannelInboundHandle
 	// ---
 
 	@Override
+	public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+		super.handlerAdded(ctx);
+		CVApiContext.getInstance().setNettyChannel(ctx.channel());
+	}
+
+	@Override
+	public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+		super.handlerRemoved(ctx);
+	}
+
+	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
+		super.channelActive(ctx);
 	}
 
 	@Override

@@ -28,7 +28,7 @@ public class MTCVNettyClient {
 	}
 
 	private static CVClientAgent clientAgent;
-	private static CVServerServiceConsumer cvServiceConsumer;
+	private static CVServerServiceConsumer serverServiceConsumer;
 
 	@Autowired
 	private CVServerAgent serverAgent;
@@ -36,8 +36,7 @@ public class MTCVNettyClient {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		clientAgent = new CVClientAgent();
-
-		cvServiceConsumer = new CVServerServiceConsumer();
+		serverServiceConsumer = new CVServerServiceConsumer();
 	}
 
 	@Test
@@ -46,7 +45,7 @@ public class MTCVNettyClient {
 		Assert.assertTrue(serverAgent.openChannel());
 
 		SampleRequest sampleRequest = new SampleRequest();
-		SampleResponse sampleResponse = cvServiceConsumer.getSampleResponse(sampleRequest);
+		SampleResponse sampleResponse = serverServiceConsumer.getSampleResponse(sampleRequest);
 
 		clientAgent.shutdown();
 		serverAgent.shutdown();

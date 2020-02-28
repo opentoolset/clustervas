@@ -13,8 +13,6 @@ import clustervas.api.netty.MessageEncoder;
 import clustervas.api.netty.RequestWrapper;
 import clustervas.api.netty.ResponseWrapper;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -34,7 +32,6 @@ public class CVClientAgent {
 	private EventLoopGroup workerGroup = new NioEventLoopGroup();
 	private EventLoopGroup bossGroup = new NioEventLoopGroup();
 	private ServerBootstrap bootstrap = new ServerBootstrap();
-	private Channel channel;
 
 	public <TReq extends AbstractMessage, TResp extends AbstractMessage> TResp doRequest(TReq request, Class<TResp> classOfResponse) {
 		RequestWrapper requestWrapper = new RequestWrapper(request);
@@ -45,7 +42,7 @@ public class CVClientAgent {
 
 		Map<String, OperationContext> waitingRequests = CVApiContext.getInstance().getWaitingRequests();
 		waitingRequests.put(requestWrapper.getId(), operationContext);
-		channel.writeAndFlush(requestWrapper);
+		CVApiContext.getInstance().getNettyChannel().writeAndFlush(requestWrapper);
 		synchronized (currentThread) {
 			try {
 				currentThread.wait(CVApiConstants.REQUST_TIMEOUT_MILLIS);
@@ -78,8 +75,7 @@ public class CVClientAgent {
 				}
 			}).option(ChannelOption.SO_BACKLOG, 128).childOption(ChannelOption.SO_KEEPALIVE, true);
 
-			ChannelFuture channelFuture = this.bootstrap.bind(port).sync();
-			this.channel = channelFuture.channel();
+			this.bootstrap.bind(port).sync();
 			return true;
 		} catch (InterruptedException e) {
 			logger.error("Interrupted", e);

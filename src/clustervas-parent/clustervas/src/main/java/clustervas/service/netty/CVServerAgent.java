@@ -17,7 +17,6 @@ import clustervas.api.netty.MessageDecoder;
 import clustervas.api.netty.MessageEncoder;
 import clustervas.utils.CVLogger;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -38,7 +37,6 @@ public class CVServerAgent {
 	private MessageDecoder decoder = new MessageDecoder();
 
 	private Bootstrap bootstrap = new Bootstrap();
-	private Channel channel;
 
 	// ---
 
@@ -56,12 +54,10 @@ public class CVServerAgent {
 				}
 			});
 
-			ChannelFuture channelFuture = null;
-			while ((channelFuture = connectSafe()) == null) {
+			while (connectSafe() == null) {
 				TimeUnit.SECONDS.sleep(1);
 			}
 
-			this.channel = channelFuture.channel();
 			return true;
 		} catch (InterruptedException e) {
 			CVLogger.warn(e, "Interrupted");
