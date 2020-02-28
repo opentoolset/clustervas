@@ -47,7 +47,9 @@ public class MTCVNettyClient {
 
 		SampleRequest sampleRequest = new SampleRequest();
 		SampleResponse sampleResponse = cvServiceConsumer.getSampleResponse(sampleRequest);
+
 		clientAgent.shutdown();
+		serverAgent.shutdown();
 
 		Assert.assertNotNull(sampleResponse);
 	}

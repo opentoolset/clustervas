@@ -70,6 +70,10 @@ public class CVServerAgent {
 		return false;
 	}
 
+	public void shutdown() {
+		this.workerGroup.shutdownGracefully();
+	}
+
 	// ---
 
 	private ChannelFuture connectSafe() throws InterruptedException {
@@ -88,12 +92,6 @@ public class CVServerAgent {
 
 	@PreDestroy
 	private void preDestroy() {
-		try {
-			this.channel.closeFuture().sync();
-		} catch (InterruptedException e) {
-			CVLogger.warn(e, "Interrupted");
-		} finally {
-			this.workerGroup.shutdownGracefully();
-		}
+		shutdown();
 	}
 }

@@ -89,13 +89,7 @@ public class CVClientAgent {
 	}
 
 	public void shutdown() {
-		try {
-			this.channel.closeFuture().sync();
-		} catch (InterruptedException e) {
-			logger.warn("Interrupted", e);
-		} finally {
-			this.workerGroup.shutdownGracefully();
-			this.bossGroup.shutdownGracefully();
-		}
+		this.workerGroup.shutdownGracefully();
+		this.bossGroup.shutdownGracefully();
 	}
 }
