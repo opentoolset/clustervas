@@ -168,7 +168,7 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 		createContainerCmd = createContainerCmd.withTty(true);
 		createContainerCmd = createContainerCmd.withName(containerName);
 
-		String bindStatement = String.format("%s:%s", CVConfig.getContainerInternalDataFolder(), CVConstants.DOCKER_CONTAINER_CLUSTERVAS_DATA_FOLDER);
+		String bindStatement = String.format("%s:%s", CVConfig.getHostDataFolder(), CVConstants.DOCKER_CONTAINER_CLUSTERVAS_DATA_FOLDER);
 		if (dataFolderIsReadonly) {
 			bindStatement += ":ro";
 		}

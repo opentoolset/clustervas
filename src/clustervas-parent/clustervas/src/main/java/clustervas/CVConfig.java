@@ -6,16 +6,17 @@ package clustervas;
 
 import org.apache.commons.lang3.ObjectUtils;
 
+import clustervas.api.netty.CVApiConstants;
 import clustervas.utils.CVConfigProvider;
 
 public final class CVConfig {
 
 	public enum Entry {
 
-		CONTAINER_INTERNAL_DATA_FOLDER("container.data_folder", "/clustervas/data"),
-		TEMPLATE_INTERNAL_SYNC_ENABLED("template.internal_sync.enabled", true),
-		MANAGER_HOST("manager.host", "127.0.0.1"),
-		MANAGER_PORT("manager.port", 4444);
+		HOST_DATA_FOLDER("host.data_folder", CVConstants.DEFAULT_HOST_DATA_FOLDER),
+		TEMPLATE_INTERNAL_SYNC_ENABLED("template.internal_sync.enabled", CVConstants.DEFAULT_TEMPLATE_INTERNAL_SYNC_ENABLED),
+		MANAGER_HOST("manager.host", CVApiConstants.DEFAULT_MANAGER_HOST),
+		MANAGER_PORT("manager.port", CVApiConstants.DEFAULT_MANAGER_PORT);
 
 		private String key;
 
@@ -49,8 +50,8 @@ public final class CVConfig {
 
 	// ---
 
-	public static String getContainerInternalDataFolder() {
-		return getString(Entry.CONTAINER_INTERNAL_DATA_FOLDER);
+	public static String getHostDataFolder() {
+		return getString(Entry.HOST_DATA_FOLDER);
 	}
 
 	public static boolean isTemplateInternalSyncEnabled() {

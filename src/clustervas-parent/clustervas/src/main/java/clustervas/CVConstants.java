@@ -30,6 +30,9 @@ public interface CVConstants {
 
 	String DOCKER_CONTAINER_STATUS_RUNNING = "running";
 
+	String DEFAULT_HOST_DATA_FOLDER = "/clustervas/data";
+	boolean DEFAULT_TEMPLATE_INTERNAL_SYNC_ENABLED = true;
+
 	static String getHomeFolder() {
 		String homeFolderEnv = System.getenv(HOME_ENVIRONMENT_VARIABLE);
 

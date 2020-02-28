@@ -4,6 +4,8 @@
 // ---
 package clustervas.service.netty;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Component;
@@ -28,11 +30,11 @@ public class CVNettyConnectionInitiator {
 
 		EventLoopGroup workerGroup = new NioEventLoopGroup();
 		try {
-			Bootstrap b = new Bootstrap();
-			b.group(workerGroup);
-			b.channel(NioSocketChannel.class);
-			b.option(ChannelOption.SO_KEEPALIVE, true);
-			b.handler(new ChannelInitializer<SocketChannel>() {
+			Bootstrap bootstrap = new Bootstrap();
+			bootstrap.group(workerGroup);
+			bootstrap.channel(NioSocketChannel.class);
+			bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
+			bootstrap.handler(new ChannelInitializer<SocketChannel>() {
 
 				@Override
 				public void initChannel(SocketChannel ch) throws Exception {
@@ -40,9 +42,12 @@ public class CVNettyConnectionInitiator {
 				}
 			});
 
-			ChannelFuture f = b.connect(CVConfig.getManagerHost(), CVConfig.getManagerPort()).sync();
+			ChannelFuture channelFuture = null;
+			while ((channelFuture = connectSafe(bootstrap)) == null) {
+				TimeUnit.SECONDS.sleep(1);
+			}
 
-			f.channel().closeFuture().sync();
+			channelFuture.channel().closeFuture().sync();
 			return true;
 		} catch (InterruptedException e) {
 			CVLogger.warn(e);
@@ -51,6 +56,15 @@ public class CVNettyConnectionInitiator {
 		}
 
 		return false;
+	}
+
+	private ChannelFuture connectSafe(Bootstrap bootstrap) throws InterruptedException {
+		try {
+			return bootstrap.connect(CVConfig.getManagerHost(), CVConfig.getManagerPort()).sync();
+		} catch (Exception e) {
+		}
+
+		return null;
 	}
 
 	// ---

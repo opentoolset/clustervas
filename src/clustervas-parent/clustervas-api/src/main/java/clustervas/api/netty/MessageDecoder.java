@@ -14,7 +14,7 @@ public class MessageDecoder extends ReplayingDecoder<MessageWrapper<AbstractMess
 
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-		String serializedMessageWrapper = in.toString(Constants.DEFAULT_CHARSET);
+		String serializedMessageWrapper = in.toString(CVApiConstants.DEFAULT_CHARSET);
 		MessageWrapper<?> messageWrapper = MessageWrapper.deserialize(serializedMessageWrapper);
 		out.add(messageWrapper);
 	}

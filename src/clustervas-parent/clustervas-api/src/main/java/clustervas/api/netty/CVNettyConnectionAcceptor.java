@@ -19,7 +19,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 public class CVNettyConnectionAcceptor {
 
-	private static int port;
+	private static int port = CVApiConstants.DEFAULT_MANAGER_PORT;
 	private static Channel channel;
 
 	private Map<String, OperationContext> waitingRequests = new ConcurrentHashMap<>();
@@ -62,7 +62,7 @@ public class CVNettyConnectionAcceptor {
 		this.waitingRequests.put(requestWrapper.getId(), operationContext);
 		channel.write(requestWrapper);
 		try {
-			currentThread.wait(Constants.REQUST_TIMEOUT_MILLIS);
+			currentThread.wait(CVApiConstants.REQUST_TIMEOUT_MILLIS);
 		} catch (InterruptedException e) {
 			Context.getInstance().getLogger().error("Interrupted", e);
 		}
