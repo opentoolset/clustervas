@@ -76,6 +76,15 @@ public class CVServerAgent {
 
 	// ---
 
+	@PostConstruct
+	private void postConstruct() {
+	}
+
+	@PreDestroy
+	private void preDestroy() {
+		shutdown();
+	}
+
 	private ChannelFuture connectSafe() throws InterruptedException {
 		try {
 			return this.bootstrap.connect(CVConfig.getManagerHost(), CVConfig.getManagerPort()).sync();
@@ -84,14 +93,5 @@ public class CVServerAgent {
 		}
 
 		return null;
-	}
-
-	@PostConstruct
-	private void postConstruct() {
-	}
-
-	@PreDestroy
-	private void preDestroy() {
-		shutdown();
 	}
 }
