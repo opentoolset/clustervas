@@ -71,7 +71,11 @@ public class CVServerAgent {
 	}
 
 	public void shutdown() {
-		this.workerGroup.shutdownGracefully();
+		try {
+			this.workerGroup.shutdownGracefully();
+		} catch (Exception e) {
+			CVLogger.warn(e);
+		}
 	}
 
 	// ---
