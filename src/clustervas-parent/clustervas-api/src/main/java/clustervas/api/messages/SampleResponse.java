@@ -8,9 +8,10 @@ import clustervas.api.MessageType;
 import clustervas.api.MessageTypes;
 import clustervas.api.netty.AbstractMessage;
 
-public class SampleResponse extends AbstractMessage<SampleResponse> {
+public class SampleResponse extends AbstractMessage {
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public MessageType<SampleResponse> getType() {
 		return MessageTypes.SAMPLE_RESPONSE;
 	}

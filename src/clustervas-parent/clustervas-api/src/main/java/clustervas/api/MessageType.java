@@ -6,13 +6,13 @@ import java.util.function.BiFunction;
 import clustervas.api.MessageTypes.Type;
 import clustervas.api.netty.AbstractMessage;
 
-public class MessageType<T extends AbstractMessage<?>> implements Serializable {
+public class MessageType<T extends AbstractMessage> implements Serializable {
 
 	private static final long serialVersionUID = -8768461042162510516L;
 
 	private Class<T> messageClass;
 	private Type type;
-	private BiFunction<T, CVService, AbstractMessage<?>> requestProcessor;
+	private BiFunction<T, CVService, AbstractMessage> requestProcessor;
 
 	public MessageType() {
 	}
@@ -23,7 +23,7 @@ public class MessageType<T extends AbstractMessage<?>> implements Serializable {
 		this.type = type;
 	}
 
-	public MessageType(Class<T> messageClass, Type type, BiFunction<T, CVService, AbstractMessage<?>> requestProcessor) {
+	public MessageType(Class<T> messageClass, Type type, BiFunction<T, CVService, AbstractMessage> requestProcessor) {
 		this(messageClass, type);
 		this.requestProcessor = requestProcessor;
 	}
@@ -36,7 +36,7 @@ public class MessageType<T extends AbstractMessage<?>> implements Serializable {
 		return type;
 	}
 
-	public BiFunction<T, CVService, AbstractMessage<?>> getRequestProcessor() {
+	public BiFunction<T, CVService, AbstractMessage> getRequestProcessor() {
 		return requestProcessor;
 	}
 }

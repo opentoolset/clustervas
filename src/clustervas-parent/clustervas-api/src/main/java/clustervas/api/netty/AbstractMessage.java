@@ -11,10 +11,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import clustervas.api.MessageType;
 
-public abstract class AbstractMessage<T extends AbstractMessage<?>> {
+public abstract class AbstractMessage {
 
 	@JsonIgnore
-	public abstract MessageType<T> getType();
+	public abstract <T extends AbstractMessage> MessageType<T> getType();
 
 	@Override
 	public String toString() {

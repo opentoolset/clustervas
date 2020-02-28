@@ -10,7 +10,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
 
-public class MessageDecoder extends ReplayingDecoder<MessageWrapper<AbstractMessage<AbstractMessage<?>>>> {
+public class MessageDecoder extends ReplayingDecoder<MessageWrapper<AbstractMessage>> {
 
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
