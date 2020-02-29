@@ -50,7 +50,11 @@ public class CVServerAgent {
 
 				@Override
 				public void initChannel(SocketChannel ch) throws Exception {
-					ch.pipeline().addLast(encoder, decoder, inboundMessageHandler);
+					try {
+						ch.pipeline().addLast(encoder, decoder, inboundMessageHandler);
+					} catch (Exception e) {
+						CVLogger.debug(e, e.getLocalizedMessage());
+					}
 				}
 			});
 
