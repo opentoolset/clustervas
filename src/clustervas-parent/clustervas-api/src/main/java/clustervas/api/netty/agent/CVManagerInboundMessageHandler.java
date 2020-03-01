@@ -9,13 +9,13 @@ import clustervas.api.netty.AbstractMessage;
 import clustervas.api.netty.CVApiContext;
 import clustervas.api.netty.MessageWrapper;
 
-public class CVClientInboundMessageHandler extends AbstractInboundMessageHandler {
+public class CVManagerInboundMessageHandler extends AbstractInboundMessageHandler {
 
 	private CVApiContext apiContext;
 
 	// ---
 
-	public CVClientInboundMessageHandler(CVApiContext apiContext) {
+	public CVManagerInboundMessageHandler(CVApiContext apiContext) {
 		this.apiContext = apiContext;
 	}
 

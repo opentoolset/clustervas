@@ -40,7 +40,7 @@ public class CVManagerAgent {
 			@Override
 			public void initChannel(SocketChannel ch) throws Exception {
 				try {
-					ch.pipeline().addLast(CVManagerAgent.this.encoder, CVManagerAgent.this.decoder, new CVOutboundMessageHandler(), new CVClientInboundMessageHandler(context));
+					ch.pipeline().addLast(CVManagerAgent.this.encoder, CVManagerAgent.this.decoder, new CVOutboundMessageHandler(), new CVManagerInboundMessageHandler(context));
 				} catch (Exception e) {
 					logger.debug(e.getLocalizedMessage(), e);
 				}
