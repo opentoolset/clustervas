@@ -27,6 +27,10 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.codec.ReplayingDecoder;
 
+/**
+ * This class only tests the sample codes in the article named <a href="http://www.baeldung.com/netty">Introduction to Netty</a> in the <a href="http://www.baeldung.com/">Baeldung</a> Web site.<br />
+ * Thanks to the authors and other contributors to this and similar contents on the Web
+ */
 public class MTNettySample {
 
 	@BeforeClass
