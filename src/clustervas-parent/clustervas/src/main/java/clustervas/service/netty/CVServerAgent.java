@@ -4,6 +4,7 @@
 // ---
 package clustervas.service.netty;
 
+import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import clustervas.CVConfig;
+import clustervas.api.netty.CVOutboundMessageHandler;
 import clustervas.api.netty.MessageDecoder;
 import clustervas.api.netty.MessageEncoder;
 import clustervas.utils.CVLogger;
@@ -43,24 +45,30 @@ public class CVServerAgent {
 	public boolean openChannel() {
 
 		try {
-			bootstrap.group(workerGroup);
-			bootstrap.channel(NioSocketChannel.class);
-			bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-			bootstrap.handler(new ChannelInitializer<SocketChannel>() {
+			this.bootstrap.group(workerGroup);
+			this.bootstrap.channel(NioSocketChannel.class);
+			this.bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
+			this.bootstrap.handler(new ChannelInitializer<SocketChannel>() {
 
 				@Override
 				public void initChannel(SocketChannel ch) throws Exception {
 					try {
-						ch.pipeline().addLast(encoder, decoder, inboundMessageHandler);
+						ch.pipeline().addLast(encoder, decoder, inboundMessageHandler, new CVOutboundMessageHandler());
 					} catch (Exception e) {
 						CVLogger.debug(e, e.getLocalizedMessage());
 					}
 				}
 			});
 
-			while (connectSafe() == null) {
+			this.bootstrap.remoteAddress(new InetSocketAddress(CVConfig.getManagerHost(), CVConfig.getManagerPort()));
+
+			ChannelFuture channelFuture = null;
+			while ((channelFuture = connectSafe()) == null) {
 				TimeUnit.SECONDS.sleep(1);
 			}
+
+			ChannelFuture cf = channelFuture;
+			new Thread(() -> close(cf)).start();
 
 			return true;
 		} catch (InterruptedException e) {
@@ -91,11 +99,20 @@ public class CVServerAgent {
 
 	private ChannelFuture connectSafe() throws InterruptedException {
 		try {
-			return this.bootstrap.connect(CVConfig.getManagerHost(), CVConfig.getManagerPort()).sync();
+			return this.bootstrap.connect().sync();
 		} catch (Exception e) {
 			CVLogger.debug(e, e.getLocalizedMessage());
 		}
 
 		return null;
+	}
+
+	private void close(ChannelFuture channelFuture) {
+		try {
+			channelFuture.channel().closeFuture().sync();
+		} catch (InterruptedException e) {
+			CVLogger.error("Interrupted", e);
+		}
+		CVLogger.info("Closed");
 	}
 }

@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 
 public class CVApiContext {
 
@@ -27,7 +27,7 @@ public class CVApiContext {
 
 	private Map<String, OperationContext> waitingRequests = new ConcurrentHashMap<>();
 
-	private Channel nettyChannel;
+	private ChannelHandlerContext channelHandlerContext;
 
 	// ---
 
@@ -41,12 +41,12 @@ public class CVApiContext {
 		return waitingRequests;
 	}
 
-	public Channel getNettyChannel() {
-		return nettyChannel;
+	public ChannelHandlerContext getChannelHandlerContext() {
+		return channelHandlerContext;
 	}
 
-	public void setNettyChannel(Channel nettyChannel) {
-		this.nettyChannel = nettyChannel;
+	public void setChannelHandlerContext(ChannelHandlerContext channelHandlerContext) {
+		this.channelHandlerContext = channelHandlerContext;
 	}
 
 	// ---
