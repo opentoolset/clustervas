@@ -30,6 +30,8 @@ public class MTNettyCommunication {
 		serverAgent.shutdown();
 	}
 
+	// ---
+
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		serverAgent = new ServerAgent();
