@@ -11,7 +11,7 @@ public class Context {
 
 	private static Logger logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 
-	private CVMessageSender messageSender = new CVMessageSender();
+	private MessageSender messageSender = new MessageSender();
 
 	private MessageReceiver messageReceiver = new MessageReceiver();
 
@@ -23,7 +23,7 @@ public class Context {
 
 	// ---
 
-	public CVMessageSender getMessageSender() {
+	public MessageSender getMessageSender() {
 		return messageSender;
 	}
 

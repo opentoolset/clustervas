@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import clustervas.net.Context.OperationContext;
 import io.netty.channel.ChannelHandlerContext;
 
-public class CVMessageSender {
+public class MessageSender {
 
 	private Logger logger = Context.getLogger();
 
@@ -55,7 +55,7 @@ public class CVMessageSender {
 		return null;
 	}
 
-	public <TReq extends AbstractMessage> boolean sendMessage(TReq message) {
+	public <T extends AbstractMessage> boolean sendMessage(T message) {
 		try {
 			MessageWrapper messageWrapper = MessageWrapper.create(message);
 			this.channelHandlerContext.writeAndFlush(messageWrapper);

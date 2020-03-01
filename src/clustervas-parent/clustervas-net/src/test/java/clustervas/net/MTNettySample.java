@@ -2,16 +2,13 @@
 // Copyright 2020 ClusterVAS Team
 // All rights reserved
 // ---
-package clustervas;
+package clustervas.net;
 
 import java.nio.charset.Charset;
 import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
@@ -30,8 +27,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.codec.ReplayingDecoder;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
 public class MTNettySample {
 
 	@BeforeClass
