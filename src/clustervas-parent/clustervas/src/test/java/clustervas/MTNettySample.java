@@ -85,6 +85,8 @@ public class MTNettySample {
 			RequestData msg = new RequestData();
 			msg.setIntValue(123);
 			msg.setStringValue("all work and no play makes jack a dull boy");
+
+			@SuppressWarnings("unused")
 			ChannelFuture future = ctx.writeAndFlush(msg);
 		}
 

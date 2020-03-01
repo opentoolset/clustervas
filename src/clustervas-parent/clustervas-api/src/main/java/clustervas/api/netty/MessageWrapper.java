@@ -15,13 +15,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import clustervas.api.MessageType;
-
 public class MessageWrapper {
 
-	private MessageType<? extends AbstractMessage> type;
-	private String serializedMessage;
 	private Class<? extends AbstractMessage> classOfMessage;
+	private String serializedMessage;
 
 	private String id;
 	private String correlationId;
@@ -33,7 +30,6 @@ public class MessageWrapper {
 
 	public static <T extends AbstractMessage> MessageWrapper create(T message) {
 		MessageWrapper messageWrapper = new MessageWrapper();
-		messageWrapper.type = message.getType();
 		messageWrapper.classOfMessage = message.getClass();
 		messageWrapper.serializedMessage = messageWrapper.serialize(message);
 		return messageWrapper;
@@ -61,8 +57,8 @@ public class MessageWrapper {
 		return correlationId;
 	}
 
-	public MessageType<? extends AbstractMessage> getType() {
-		return type;
+	public Class<? extends AbstractMessage> getClassOfMessage() {
+		return classOfMessage;
 	}
 
 	public String getSerializedMessage() {
@@ -76,12 +72,12 @@ public class MessageWrapper {
 	}
 
 	public AbstractMessage deserializeMessage() {
-		AbstractMessage message = deserialize(this.serializedMessage, classOfMessage);
+		AbstractMessage message = deserialize(this.serializedMessage, this.classOfMessage);
 		return message;
 	}
 
-	public <TMsg extends AbstractMessage> TMsg deserializeMessage(Class<TMsg> classOfMessage) {
-		TMsg message = deserialize(this.serializedMessage, classOfMessage);
+	public <T extends AbstractMessage> T deserializeMessage(Class<T> classOfMessage) {
+		T message = deserialize(this.serializedMessage, classOfMessage);
 		return message;
 	}
 

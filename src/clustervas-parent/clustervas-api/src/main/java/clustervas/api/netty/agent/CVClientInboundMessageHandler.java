@@ -4,28 +4,31 @@
 // ---
 package clustervas.api.netty.agent;
 
-import clustervas.api.CVClientService;
 import clustervas.api.netty.AbstractInboundMessageHandler;
 import clustervas.api.netty.AbstractMessage;
+import clustervas.api.netty.CVApiContext;
 import clustervas.api.netty.MessageWrapper;
 
 public class CVClientInboundMessageHandler extends AbstractInboundMessageHandler {
 
-	private CVClientService clientServiceProvider;
+	private CVApiContext apiContext;
 
-	public void setClientServiceProvider(CVClientService clientServiceProvider) {
-		this.clientServiceProvider = clientServiceProvider;
+	// ---
+
+	public CVClientInboundMessageHandler(CVApiContext apiContext) {
+		this.apiContext = apiContext;
 	}
 
 	// ---
 
 	@Override
 	protected AbstractMessage processMessage(MessageWrapper requestWrapper) {
-		if (this.clientServiceProvider == null) {
-			return null;
-		}
-
 		// Not required yet
 		return null;
+	}
+
+	@Override
+	protected CVApiContext getApiContext() {
+		return apiContext;
 	}
 }

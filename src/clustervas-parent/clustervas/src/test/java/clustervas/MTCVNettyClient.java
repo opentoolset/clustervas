@@ -13,8 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import clustervas.CVContext.Mode;
-import clustervas.api.CVServerService;
-import clustervas.api.messages.SampleRequest;
+import clustervas.api.messages.SampleRequest1;
 import clustervas.api.messages.SampleResponse;
 import clustervas.api.netty.agent.CVManagerAgent;
 import clustervas.service.netty.CVAgent;
@@ -28,7 +27,6 @@ public class MTCVNettyClient {
 	}
 
 	private static CVManagerAgent cvManagerAgent;
-	private static CVServerServiceConsumer serverServiceConsumer;
 
 	@Autowired
 	private CVAgent cvAgent;
@@ -36,28 +34,17 @@ public class MTCVNettyClient {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		cvManagerAgent = new CVManagerAgent();
-		serverServiceConsumer = new CVServerServiceConsumer();
 	}
 
 	@Test
 	public void testCommunication() throws Exception {
-		new Thread(() -> cvManagerAgent.startup()).start();
-		new Thread(() -> cvAgent.startup()).start();
+		cvAgent.startup();
+		cvManagerAgent.startup();
 
-		SampleRequest sampleRequest = new SampleRequest();
-		SampleResponse sampleResponse = serverServiceConsumer.getSampleResponse(sampleRequest);
+		SampleResponse sampleResponse = cvManagerAgent.getContext().getMessageSender().doRequest(new SampleRequest1(), SampleResponse.class);
+		Assert.assertNotNull(sampleResponse);
 
 		cvManagerAgent.shutdown();
 		cvAgent.shutdown();
-
-		Assert.assertNotNull(sampleResponse);
-	}
-
-	private static class CVServerServiceConsumer implements CVServerService {
-
-		@Override
-		public SampleResponse getSampleResponse(SampleRequest request) {
-			return cvManagerAgent.doRequest(request, SampleResponse.class);
-		}
 	}
 }

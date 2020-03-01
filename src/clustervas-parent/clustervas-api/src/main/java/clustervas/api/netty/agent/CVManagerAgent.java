@@ -1,21 +1,14 @@
 package clustervas.api.netty.agent;
 
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 
-import clustervas.api.netty.AbstractMessage;
 import clustervas.api.netty.CVApiConstants;
 import clustervas.api.netty.CVApiContext;
-import clustervas.api.netty.CVApiContext.OperationContext;
 import clustervas.api.netty.CVOutboundMessageHandler;
 import clustervas.api.netty.MessageDecoder;
 import clustervas.api.netty.MessageEncoder;
-import clustervas.api.netty.MessageWrapper;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -25,77 +18,58 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 public class CVManagerAgent {
 
-	private Logger logger = CVApiContext.getLogger();
+	private static Logger logger = CVApiContext.getLogger();
+
+	private CVApiContext context = new CVApiContext();
 
 	private MessageEncoder encoder = new MessageEncoder();
 	private MessageDecoder decoder = new MessageDecoder();
-
 	private EventLoopGroup bossGroup = new NioEventLoopGroup();
 	private EventLoopGroup workerGroup = new NioEventLoopGroup();
 	private ServerBootstrap bootstrap = new ServerBootstrap();
 
-	public <TReq extends AbstractMessage, TResp extends AbstractMessage> TResp doRequest(TReq request, Class<TResp> classOfResponse) {
-		try {
-			ChannelHandlerContext channelHandlerContext = null;
-			while ((channelHandlerContext = CVApiContext.getInstance().getChannelHandlerContext()) == null) {
-				TimeUnit.SECONDS.sleep(1);
-			}
-
-			MessageWrapper requestWrapper = MessageWrapper.createRequest(request);
-			Thread currentThread = Thread.currentThread();
-
-			OperationContext operationContext = new OperationContext();
-			operationContext.setThread(currentThread);
-
-			Map<String, OperationContext> waitingRequests = CVApiContext.getInstance().getWaitingRequests();
-			waitingRequests.put(requestWrapper.getId(), operationContext);
-
-			channelHandlerContext.writeAndFlush(requestWrapper);
-			synchronized (currentThread) {
-				currentThread.wait(CVApiConstants.REQUST_TIMEOUT_MILLIS);
-			}
-
-			operationContext = waitingRequests.remove(requestWrapper.getId());
-			MessageWrapper responseWrapper = operationContext.getResponseWrapper();
-			if (responseWrapper != null) {
-				TResp responseMessage = responseWrapper.deserializeMessage(classOfResponse);
-				return responseMessage;
-			}
-		} catch (InterruptedException e) {
-			logger.error("Interrupted", e);
-		}
-
-		return null;
-	}
+	private boolean shutdownRequested = false;
 
 	public void startup() {
-		try {
-			this.bootstrap.group(this.bossGroup, this.workerGroup);
-			this.bootstrap.channel(NioServerSocketChannel.class);
-			this.bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
+		this.shutdownRequested = false;
 
-				@Override
-				public void initChannel(SocketChannel ch) throws Exception {
-					try {
-						ch.pipeline().addLast(CVManagerAgent.this.encoder, CVManagerAgent.this.decoder, new CVOutboundMessageHandler(), new CVClientInboundMessageHandler());
-					} catch (Exception e) {
-						logger.debug(e.getLocalizedMessage(), e);
-					}
+		this.bootstrap.group(this.bossGroup, this.workerGroup);
+		this.bootstrap.channel(NioServerSocketChannel.class);
+		this.bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
+
+			@Override
+			public void initChannel(SocketChannel ch) throws Exception {
+				try {
+					ch.pipeline().addLast(CVManagerAgent.this.encoder, CVManagerAgent.this.decoder, new CVOutboundMessageHandler(), new CVClientInboundMessageHandler(context));
+				} catch (Exception e) {
+					logger.debug(e.getLocalizedMessage(), e);
 				}
-			});
+			}
+		});
 
-			this.bootstrap.option(ChannelOption.SO_BACKLOG, 128);
-			this.bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
-			// this.bootstrap.localAddress(new InetSocketAddress(CVApiConstants.DEFAULT_MANAGER_HOST, CVApiConstants.DEFAULT_MANAGER_PORT));
+		this.bootstrap.option(ChannelOption.SO_BACKLOG, 128);
+		this.bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
+		// this.bootstrap.localAddress(new InetSocketAddress(CVApiConstants.DEFAULT_MANAGER_HOST, CVApiConstants.DEFAULT_MANAGER_PORT));
+		new Thread(() -> maintainConnection()).start();
+	}
 
-			ChannelFuture channelFuture = this.bootstrap.bind(CVApiConstants.DEFAULT_MANAGER_PORT).sync();
-			channelFuture.channel().closeFuture().sync();
+	private void maintainConnection() {
+		try {
+			while (!shutdownRequested) {
+				ChannelFuture channelFuture = this.bootstrap.bind(CVApiConstants.DEFAULT_MANAGER_PORT).sync();
+				channelFuture.channel().closeFuture().sync();
+			}
 		} catch (InterruptedException e) {
 			logger.error("Interrupted", e);
 		}
+	}
+
+	public CVApiContext getContext() {
+		return context;
 	}
 
 	public void shutdown() {
+		this.context.getMessageSender().shutdown();
 		this.bossGroup.shutdownGracefully();
 		this.workerGroup.shutdownGracefully();
 	}

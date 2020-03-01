@@ -10,14 +10,19 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 
 public abstract class AbstractInboundMessageHandler extends ChannelInboundHandlerAdapter {
 
+	protected abstract CVApiContext getApiContext();
+
 	protected abstract AbstractMessage processMessage(MessageWrapper messageWrapper);
 
 	// ---
 
+	public AbstractInboundMessageHandler() {
+	}
+
 	@Override
 	public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
 		super.handlerAdded(ctx);
-		CVApiContext.getInstance().setChannelHandlerContext(ctx);
+		getApiContext().getMessageSender().setChannelHandlerContext(ctx);
 	}
 
 	@Override
@@ -43,7 +48,7 @@ public abstract class AbstractInboundMessageHandler extends ChannelInboundHandle
 
 			String correlationId = messageWrapper.getCorrelationId();
 			if (correlationId != null) {
-				OperationContext operationContext = CVApiContext.getInstance().getWaitingRequests().get(correlationId);
+				OperationContext operationContext = getApiContext().getMessageSender().getWaitingRequests().get(correlationId);
 				if (operationContext != null) {
 					operationContext.setResponseWrapper(messageWrapper);
 					Thread thread = operationContext.getThread();

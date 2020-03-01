@@ -6,5 +6,5 @@ package clustervas.api.messages;
 
 import clustervas.api.netty.AbstractMessage;
 
-public class SampleResponse extends AbstractMessage {
+public class SampleRequest1 extends AbstractMessage {
 }

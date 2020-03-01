@@ -31,50 +31,46 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 public class CVAgent {
 
 	@Autowired
-	private CVServerInboundMessageHandler inboundMessageHandler;
+	private CVAgentRequestHandler requestHandler;
 
-	private EventLoopGroup workerGroup = new NioEventLoopGroup();
+	@Autowired
+	private CVServerApiContext context;
 
 	private MessageEncoder encoder = new MessageEncoder();
 	private MessageDecoder decoder = new MessageDecoder();
-
+	private EventLoopGroup workerGroup = new NioEventLoopGroup();
 	private Bootstrap bootstrap = new Bootstrap();
+
+	private boolean shutdownRequested = false;
 
 	// ---
 
 	public void startup() {
+		this.shutdownRequested = false;
 
-		try {
-			this.bootstrap.group(workerGroup);
-			this.bootstrap.channel(NioSocketChannel.class);
-			this.bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-			this.bootstrap.handler(new ChannelInitializer<SocketChannel>() {
+		this.bootstrap.group(workerGroup);
+		this.bootstrap.channel(NioSocketChannel.class);
+		this.bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
+		this.bootstrap.handler(new ChannelInitializer<SocketChannel>() {
 
-				@Override
-				public void initChannel(SocketChannel ch) throws Exception {
-					try {
-						ch.pipeline().addLast(encoder, decoder, new CVOutboundMessageHandler(), inboundMessageHandler);
-					} catch (Exception e) {
-						CVLogger.debug(e, e.getLocalizedMessage());
-					}
+			@Override
+			public void initChannel(SocketChannel ch) throws Exception {
+				try {
+					ch.pipeline().addLast(encoder, decoder, new CVOutboundMessageHandler(), requestHandler);
+				} catch (Exception e) {
+					CVLogger.debug(e, e.getLocalizedMessage());
 				}
-			});
-
-			this.bootstrap.remoteAddress(new InetSocketAddress(CVConfig.getManagerHost(), CVConfig.getManagerPort()));
-
-			ChannelFuture channelFuture = null;
-			while ((channelFuture = connectSafe()) == null) {
-				TimeUnit.SECONDS.sleep(1);
 			}
+		});
 
-			channelFuture.channel().closeFuture().sync();
-		} catch (InterruptedException e) {
-			CVLogger.warn(e, "Interrupted");
-		}
+		this.bootstrap.remoteAddress(new InetSocketAddress(CVConfig.getManagerHost(), CVConfig.getManagerPort()));
+		new Thread(() -> maintainConnection()).start();
 	}
 
 	public void shutdown() {
 		try {
+			this.shutdownRequested = true;
+			this.context.getMessageSender().shutdown();
 			this.workerGroup.shutdownGracefully();
 		} catch (Exception e) {
 			CVLogger.warn(e);
@@ -92,9 +88,26 @@ public class CVAgent {
 		shutdown();
 	}
 
+	private void maintainConnection() {
+		try {
+			while (!shutdownRequested) {
+				ChannelFuture channelFuture = null;
+				while ((channelFuture = connectSafe()) == null && !shutdownRequested) {
+					TimeUnit.SECONDS.sleep(1);
+				}
+
+				channelFuture.channel().closeFuture().sync();
+			}
+		} catch (InterruptedException e) {
+			CVLogger.warn(e, "Interrupted");
+		}
+	}
+
 	private ChannelFuture connectSafe() throws InterruptedException {
 		try {
-			return this.bootstrap.connect().sync();
+			if (!shutdownRequested) {
+				return this.bootstrap.connect().sync();
+			}
 		} catch (Exception e) {
 			CVLogger.debug(e, e.getLocalizedMessage());
 		}

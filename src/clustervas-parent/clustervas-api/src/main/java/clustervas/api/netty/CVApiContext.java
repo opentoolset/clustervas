@@ -1,33 +1,13 @@
 package clustervas.api.netty;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.netty.channel.ChannelHandlerContext;
-
 public class CVApiContext {
-
-	// --- Singleton
-
-	private static CVApiContext INSTANCE = new CVApiContext();
-
-	public static CVApiContext getInstance() {
-		return INSTANCE;
-	}
-
-	private CVApiContext() {
-	}
-
-	// ---
 
 	private static Logger logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 
-	private Map<String, OperationContext> waitingRequests = new ConcurrentHashMap<>();
-
-	private ChannelHandlerContext channelHandlerContext;
+	private CVMessageSender messageSender = new CVMessageSender();
 
 	// ---
 
@@ -37,16 +17,8 @@ public class CVApiContext {
 
 	// ---
 
-	public Map<String, OperationContext> getWaitingRequests() {
-		return waitingRequests;
-	}
-
-	public ChannelHandlerContext getChannelHandlerContext() {
-		return channelHandlerContext;
-	}
-
-	public void setChannelHandlerContext(ChannelHandlerContext channelHandlerContext) {
-		this.channelHandlerContext = channelHandlerContext;
+	public CVMessageSender getMessageSender() {
+		return messageSender;
 	}
 
 	// ---
