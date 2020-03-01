@@ -2,7 +2,7 @@
 // Copyright 2020 ClusterVAS Team
 // All rights reserved
 // ---
-package clustervas.api.netty;
+package clustervas.net;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ public class MessageDecoder extends ReplayingDecoder<MessageWrapper> {
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
 		int length = in.readInt();
-		String serializedMessageWrapper = in.readCharSequence(length, CVApiConstants.DEFAULT_CHARSET).toString();
+		String serializedMessageWrapper = in.readCharSequence(length, Constants.DEFAULT_CHARSET).toString();
 		MessageWrapper messageWrapper = MessageWrapper.deserialize(serializedMessageWrapper);
 		out.add(messageWrapper);
 	}

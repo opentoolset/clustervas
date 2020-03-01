@@ -15,8 +15,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import clustervas.CVContext.Mode;
 import clustervas.api.messages.SampleRequest1;
 import clustervas.api.messages.SampleResponse;
-import clustervas.api.netty.agent.CVManagerAgent;
-import clustervas.service.netty.CVAgent;
+import clustervas.net.ServerAgent;
+import clustervas.service.CVAgent;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -26,25 +26,25 @@ public class MTCVNettyClient {
 		CVContext.mode = Mode.UNIT_TEST;
 	}
 
-	private static CVManagerAgent cvManagerAgent;
+	private static ServerAgent managerAgent;
 
 	@Autowired
 	private CVAgent cvAgent;
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
-		cvManagerAgent = new CVManagerAgent();
+		managerAgent = new ServerAgent();
 	}
 
 	@Test
 	public void testCommunication() throws Exception {
 		cvAgent.startup();
-		cvManagerAgent.startup();
+		managerAgent.startup();
 
-		SampleResponse sampleResponse = cvManagerAgent.getContext().getMessageSender().doRequest(new SampleRequest1(), SampleResponse.class);
+		SampleResponse sampleResponse = managerAgent.getContext().getMessageSender().doRequest(new SampleRequest1());
 		Assert.assertNotNull(sampleResponse);
 
-		cvManagerAgent.shutdown();
+		managerAgent.shutdown();
 		cvAgent.shutdown();
 	}
 }

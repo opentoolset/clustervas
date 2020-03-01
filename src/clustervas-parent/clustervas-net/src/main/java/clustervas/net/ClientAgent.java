@@ -2,22 +2,13 @@
 // Copyright 2020 ClusterVAS Team
 // All rights reserved
 // ---
-package clustervas.service.netty;
+package clustervas.net;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import org.slf4j.Logger;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import clustervas.CVConfig;
-import clustervas.api.netty.CVOutboundMessageHandler;
-import clustervas.api.netty.MessageDecoder;
-import clustervas.api.netty.MessageEncoder;
-import clustervas.utils.CVLogger;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -27,23 +18,38 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
-@Component
-public class CVAgent {
+public class ClientAgent {
 
-	@Autowired
-	private CVAgentRequestHandler requestHandler;
-
-	@Autowired
-	private CVServerApiContext context;
+	private static Logger logger = Context.getLogger();
 
 	private MessageEncoder encoder = new MessageEncoder();
 	private MessageDecoder decoder = new MessageDecoder();
 	private EventLoopGroup workerGroup = new NioEventLoopGroup();
 	private Bootstrap bootstrap = new Bootstrap();
 
+	private Context context = new Context();
+	private InboundMessageHandler inboundMessageHandler = new InboundMessageHandler(context);
+
+	private Config config = new Config();
+
 	private boolean shutdownRequested = false;
 
 	// ---
+
+	public Context getContext() {
+		return context;
+	}
+
+	/**
+	 * Configuration object including configuration parameters for this agent.<br />
+	 * Configuration parameters can be changed if needed. <br />
+	 * All configuration adjustments should be made before calling the method "startup".
+	 * 
+	 * @return Configuration object
+	 */
+	public Config getConfig() {
+		return config;
+	}
 
 	public void startup() {
 		this.shutdownRequested = false;
@@ -56,14 +62,14 @@ public class CVAgent {
 			@Override
 			public void initChannel(SocketChannel ch) throws Exception {
 				try {
-					ch.pipeline().addLast(encoder, decoder, new CVOutboundMessageHandler(), requestHandler);
+					ch.pipeline().addLast(encoder, decoder, inboundMessageHandler);
 				} catch (Exception e) {
-					CVLogger.debug(e, e.getLocalizedMessage());
+					logger.debug(e.getLocalizedMessage(), e);
 				}
 			}
 		});
 
-		this.bootstrap.remoteAddress(new InetSocketAddress(CVConfig.getManagerHost(), CVConfig.getManagerPort()));
+		this.bootstrap.remoteAddress(new InetSocketAddress(config.getRemoteHost(), config.getRemotePort()));
 		new Thread(() -> maintainConnection()).start();
 	}
 
@@ -73,20 +79,11 @@ public class CVAgent {
 			this.context.getMessageSender().shutdown();
 			this.workerGroup.shutdownGracefully();
 		} catch (Exception e) {
-			CVLogger.warn(e);
+			logger.warn(e.getLocalizedMessage(), e);
 		}
 	}
 
 	// ---
-
-	@PostConstruct
-	private void postConstruct() {
-	}
-
-	@PreDestroy
-	private void preDestroy() {
-		shutdown();
-	}
 
 	private void maintainConnection() {
 		try {
@@ -99,7 +96,7 @@ public class CVAgent {
 				channelFuture.channel().closeFuture().sync();
 			}
 		} catch (InterruptedException e) {
-			CVLogger.warn(e, "Interrupted");
+			logger.debug(e.getLocalizedMessage(), e);
 		}
 	}
 
@@ -109,9 +106,39 @@ public class CVAgent {
 				return this.bootstrap.connect().sync();
 			}
 		} catch (Exception e) {
-			CVLogger.debug(e, e.getLocalizedMessage());
+			logger.debug(e.getLocalizedMessage(), e);
 		}
 
 		return null;
+	}
+
+	// ---
+
+	public class Config {
+
+		private String remoteHost = Constants.DEFAULT_SERVER_HOST;
+		private int remotePort = Constants.DEFAULT_SERVER_PORT;
+
+		// ---
+
+		public String getRemoteHost() {
+			return remoteHost;
+		}
+
+		public int getRemotePort() {
+			return remotePort;
+		}
+
+		// ---
+
+		public Config setRemoteHost(String remoteHost) {
+			this.remoteHost = remoteHost;
+			return this;
+		}
+
+		public Config setRemotePort(int remotePort) {
+			this.remotePort = remotePort;
+			return this;
+		}
 	}
 }

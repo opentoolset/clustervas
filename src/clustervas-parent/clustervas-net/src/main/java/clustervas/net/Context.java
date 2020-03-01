@@ -1,13 +1,19 @@
-package clustervas.api.netty;
+package clustervas.net;
 
+// ---
+// Copyright 2020 ClusterVAS Team
+// All rights reserved
+// ---
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CVApiContext {
+public class Context {
 
 	private static Logger logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 
 	private CVMessageSender messageSender = new CVMessageSender();
+
+	private MessageReceiver messageReceiver = new MessageReceiver();
 
 	// ---
 
@@ -21,20 +27,16 @@ public class CVApiContext {
 		return messageSender;
 	}
 
+	public MessageReceiver getMessageReceiver() {
+		return messageReceiver;
+	}
+
 	// ---
 
 	public static class OperationContext {
 
-		private MessageWrapper responseWrapper;
 		private Thread thread;
-
-		public MessageWrapper getResponseWrapper() {
-			return responseWrapper;
-		}
-
-		public void setResponseWrapper(MessageWrapper responseWrapper) {
-			this.responseWrapper = responseWrapper;
-		}
+		private MessageWrapper responseWrapper;
 
 		public Thread getThread() {
 			return thread;
@@ -42,6 +44,14 @@ public class CVApiContext {
 
 		public void setThread(Thread thread) {
 			this.thread = thread;
+		}
+
+		public MessageWrapper getResponseWrapper() {
+			return responseWrapper;
+		}
+
+		public void setResponseWrapper(MessageWrapper responseWrapper) {
+			this.responseWrapper = responseWrapper;
 		}
 	}
 }

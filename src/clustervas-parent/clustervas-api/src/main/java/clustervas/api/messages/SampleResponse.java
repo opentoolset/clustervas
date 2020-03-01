@@ -4,7 +4,7 @@
 // ---
 package clustervas.api.messages;
 
-import clustervas.api.netty.AbstractMessage;
+import clustervas.net.AbstractMessage;
 
 public class SampleResponse extends AbstractMessage {
 }

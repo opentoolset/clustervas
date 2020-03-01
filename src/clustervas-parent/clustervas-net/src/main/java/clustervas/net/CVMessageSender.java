@@ -1,4 +1,8 @@
-package clustervas.api.netty;
+// ---
+// Copyright 2020 ClusterVAS Team
+// All rights reserved
+// ---
+package clustervas.net;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -6,12 +10,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 
-import clustervas.api.netty.CVApiContext.OperationContext;
+import clustervas.net.Context.OperationContext;
 import io.netty.channel.ChannelHandlerContext;
 
 public class CVMessageSender {
 
-	private Logger logger = CVApiContext.getLogger();
+	private Logger logger = Context.getLogger();
 
 	private Map<String, OperationContext> waitingRequests = new ConcurrentHashMap<>();
 
@@ -19,7 +23,7 @@ public class CVMessageSender {
 
 	// ---
 
-	public <TReq extends AbstractMessage, TResp extends AbstractMessage> TResp doRequest(TReq request, Class<TResp> classOfResponse) {
+	public <TReq extends AbstractRequest<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request) {
 		try {
 			while (this.channelHandlerContext == null) {
 				TimeUnit.SECONDS.sleep(1);
@@ -35,13 +39,13 @@ public class CVMessageSender {
 
 			this.channelHandlerContext.writeAndFlush(requestWrapper);
 			synchronized (currentThread) {
-				currentThread.wait(CVApiConstants.REQUST_TIMEOUT_MILLIS);
+				currentThread.wait(Constants.REQUST_TIMEOUT_MILLIS);
 			}
 
 			operationContext = this.waitingRequests.remove(requestWrapper.getId());
 			MessageWrapper responseWrapper = operationContext.getResponseWrapper();
 			if (responseWrapper != null) {
-				TResp responseMessage = responseWrapper.deserializeMessage(classOfResponse);
+				TResp responseMessage = responseWrapper.deserializeMessage(request.getResponseClass());
 				return responseMessage;
 			}
 		} catch (InterruptedException e) {

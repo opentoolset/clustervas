@@ -2,7 +2,7 @@
 // Copyright 2020 ClusterVAS Team
 // All rights reserved
 // ---
-package clustervas.api.netty;
+package clustervas.net;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -35,7 +35,7 @@ public class MessageWrapper {
 		return messageWrapper;
 	}
 
-	public static <T extends AbstractMessage> MessageWrapper createRequest(T message) {
+	public static <T extends AbstractRequest<?>> MessageWrapper createRequest(T message) {
 		MessageWrapper messageWrapper = create(message);
 		messageWrapper.id = UUID.randomUUID().toString();
 		return messageWrapper;
@@ -95,7 +95,7 @@ public class MessageWrapper {
 			String serializedMessageWrapper = mapper.writeValueAsString(obj);
 			return serializedMessageWrapper;
 		} catch (JsonProcessingException e) {
-			CVApiContext.getLogger().error(e.getLocalizedMessage(), e);
+			Context.getLogger().error(e.getLocalizedMessage(), e);
 			return null;
 		}
 	}
@@ -116,7 +116,7 @@ public class MessageWrapper {
 			T message = mapper.readValue(serialized, classOfObj);
 			return message;
 		} catch (IOException e) {
-			CVApiContext.getLogger().error(e.getLocalizedMessage(), e);
+			Context.getLogger().error(e.getLocalizedMessage(), e);
 			return null;
 		}
 	}

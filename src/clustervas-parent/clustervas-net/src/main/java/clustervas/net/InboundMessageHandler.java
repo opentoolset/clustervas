@@ -2,27 +2,30 @@
 // Copyright 2020 ClusterVAS Team
 // All rights reserved
 // ---
-package clustervas.api.netty;
+package clustervas.net;
 
-import clustervas.api.netty.CVApiContext.OperationContext;
+import org.slf4j.Logger;
+
+import clustervas.net.Context.OperationContext;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
-public abstract class AbstractInboundMessageHandler extends ChannelInboundHandlerAdapter {
+public class InboundMessageHandler extends ChannelInboundHandlerAdapter {
 
-	protected abstract CVApiContext getApiContext();
+	private static Logger logger = Context.getLogger();
 
-	protected abstract AbstractMessage processMessage(MessageWrapper messageWrapper);
+	private Context context;
 
 	// ---
 
-	public AbstractInboundMessageHandler() {
+	public InboundMessageHandler(Context context) {
+		this.context = context;
 	}
 
 	@Override
 	public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
 		super.handlerAdded(ctx);
-		getApiContext().getMessageSender().setChannelHandlerContext(ctx);
+		context.getMessageSender().setChannelHandlerContext(ctx);
 	}
 
 	@Override
@@ -37,7 +40,7 @@ public abstract class AbstractInboundMessageHandler extends ChannelInboundHandle
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		CVApiContext.getLogger().error(cause.getLocalizedMessage(), cause);
+		logger.error(cause.getLocalizedMessage(), cause);
 		// ctx.close();
 	}
 
@@ -48,7 +51,7 @@ public abstract class AbstractInboundMessageHandler extends ChannelInboundHandle
 
 			String correlationId = messageWrapper.getCorrelationId();
 			if (correlationId != null) {
-				OperationContext operationContext = getApiContext().getMessageSender().getWaitingRequests().get(correlationId);
+				OperationContext operationContext = context.getMessageSender().getWaitingRequests().get(correlationId);
 				if (operationContext != null) {
 					operationContext.setResponseWrapper(messageWrapper);
 					Thread thread = operationContext.getThread();
@@ -58,19 +61,20 @@ public abstract class AbstractInboundMessageHandler extends ChannelInboundHandle
 						}
 					}
 				} else {
-					CVApiContext.getLogger().warn("Response was ignored because of timeout");
+					logger.warn("Response was ignored because of timeout");
 				}
 			} else {
-				AbstractMessage response = processMessage(messageWrapper);
-
 				String id = messageWrapper.getId();
 				if (id != null) {
+					AbstractMessage response = context.getMessageReceiver().handleRequest(messageWrapper);
 					MessageWrapper responseWrapper = MessageWrapper.createResponse(response, id);
 					ctx.writeAndFlush(responseWrapper);
+				} else {
+					context.getMessageReceiver().handleMessage(messageWrapper);
 				}
 			}
 		} else {
-			CVApiContext.getLogger().warn("Message couldn't be recognized");
+			logger.warn("Message couldn't be recognized");
 		}
 	}
 }

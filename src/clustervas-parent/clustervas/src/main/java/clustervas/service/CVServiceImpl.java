@@ -11,23 +11,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import clustervas.api.messages.SampleRequest1;
-import clustervas.api.messages.SampleRequest2;
 import clustervas.api.messages.SampleResponse;
-import clustervas.service.netty.CVAgentRequestHandler;
+import clustervas.net.MessageReceiver;
 
 @Service
 public class CVServiceImpl extends AbstractService {
 
 	@Autowired
-	private CVAgentRequestHandler requestHandler;
+	private CVAgent cvAgent;
 
 	@PostConstruct
 	private void postConstruct() {
-		requestHandler.setHandler(SampleRequest1.class, request -> new SampleResponse());
-		requestHandler.setHandler(SampleRequest2.class, request -> new SampleResponse());
+		MessageReceiver messageReceiver = this.cvAgent.getContext().getMessageReceiver();
+		messageReceiver.setRequestHandler(SampleRequest1.class, request -> handle(request));
 	}
 
 	@PreDestroy
 	private void preDestroy() {
+	}
+
+	private SampleResponse handle(SampleRequest1 request) {
+		return new SampleResponse();
 	}
 }

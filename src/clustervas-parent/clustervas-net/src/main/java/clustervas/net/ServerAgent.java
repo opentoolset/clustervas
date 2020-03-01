@@ -1,12 +1,7 @@
-package clustervas.api.netty.agent;
+package clustervas.net;
 
 import org.slf4j.Logger;
 
-import clustervas.api.netty.CVApiConstants;
-import clustervas.api.netty.CVApiContext;
-import clustervas.api.netty.CVOutboundMessageHandler;
-import clustervas.api.netty.MessageDecoder;
-import clustervas.api.netty.MessageEncoder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -16,11 +11,9 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
-public class CVManagerAgent {
+public class ServerAgent {
 
-	private static Logger logger = CVApiContext.getLogger();
-
-	private CVApiContext context = new CVApiContext();
+	private static Logger logger = Context.getLogger();
 
 	private MessageEncoder encoder = new MessageEncoder();
 	private MessageDecoder decoder = new MessageDecoder();
@@ -28,7 +21,29 @@ public class CVManagerAgent {
 	private EventLoopGroup workerGroup = new NioEventLoopGroup();
 	private ServerBootstrap bootstrap = new ServerBootstrap();
 
+	private Context context = new Context();
+	private InboundMessageHandler inboundMessageHandler = new InboundMessageHandler(context);
+
+	private Config config = new Config();
+
 	private boolean shutdownRequested = false;
+
+	// ---
+
+	public Context getContext() {
+		return context;
+	}
+
+	/**
+	 * Configuration object including configuration parameters for this agent.<br />
+	 * Configuration parameters can be changed if needed. <br />
+	 * All configuration adjustments should be made before calling the method "startup".
+	 * 
+	 * @return Configuration object
+	 */
+	public Config getConfig() {
+		return config;
+	}
 
 	public void startup() {
 		this.shutdownRequested = false;
@@ -40,7 +55,7 @@ public class CVManagerAgent {
 			@Override
 			public void initChannel(SocketChannel ch) throws Exception {
 				try {
-					ch.pipeline().addLast(CVManagerAgent.this.encoder, CVManagerAgent.this.decoder, new CVOutboundMessageHandler(), new CVManagerInboundMessageHandler(context));
+					ch.pipeline().addLast(ServerAgent.this.encoder, ServerAgent.this.decoder, inboundMessageHandler);
 				} catch (Exception e) {
 					logger.debug(e.getLocalizedMessage(), e);
 				}
@@ -53,10 +68,18 @@ public class CVManagerAgent {
 		new Thread(() -> maintainConnection()).start();
 	}
 
+	public void shutdown() {
+		this.context.getMessageSender().shutdown();
+		this.bossGroup.shutdownGracefully();
+		this.workerGroup.shutdownGracefully();
+	}
+
+	// ---
+
 	private void maintainConnection() {
 		try {
 			while (!shutdownRequested) {
-				ChannelFuture channelFuture = this.bootstrap.bind(CVApiConstants.DEFAULT_MANAGER_PORT).sync();
+				ChannelFuture channelFuture = this.bootstrap.bind(this.config.getLocalPort()).sync();
 				channelFuture.channel().closeFuture().sync();
 			}
 		} catch (InterruptedException e) {
@@ -64,13 +87,23 @@ public class CVManagerAgent {
 		}
 	}
 
-	public CVApiContext getContext() {
-		return context;
-	}
+	// ---
 
-	public void shutdown() {
-		this.context.getMessageSender().shutdown();
-		this.bossGroup.shutdownGracefully();
-		this.workerGroup.shutdownGracefully();
+	public class Config {
+
+		private int localPort = Constants.DEFAULT_SERVER_PORT;
+
+		// ---
+
+		public int getLocalPort() {
+			return localPort;
+		}
+
+		// ---
+
+		public Config setLocalPort(int localPort) {
+			this.localPort = localPort;
+			return this;
+		}
 	}
 }

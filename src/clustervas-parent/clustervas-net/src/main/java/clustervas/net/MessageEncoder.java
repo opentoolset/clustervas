@@ -2,7 +2,7 @@
 // Copyright 2020 ClusterVAS Team
 // All rights reserved
 // ---
-package clustervas.api.netty;
+package clustervas.net;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -14,6 +14,6 @@ public class MessageEncoder extends MessageToByteEncoder<MessageWrapper> {
 	protected void encode(ChannelHandlerContext ctx, MessageWrapper messageWrapper, ByteBuf out) throws Exception {
 		String serializedMessageWrapper = messageWrapper.serialize();
 		out.writeInt(serializedMessageWrapper.length());
-		out.writeCharSequence(serializedMessageWrapper, CVApiConstants.DEFAULT_CHARSET);
+		out.writeCharSequence(serializedMessageWrapper, Constants.DEFAULT_CHARSET);
 	}
 }
