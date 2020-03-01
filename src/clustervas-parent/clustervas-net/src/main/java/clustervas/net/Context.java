@@ -1,3 +1,7 @@
+// ---
+// Copyright 2020 ClusterVAS Team
+// All rights reserved
+// ---
 package clustervas.net;
 
 // ---
