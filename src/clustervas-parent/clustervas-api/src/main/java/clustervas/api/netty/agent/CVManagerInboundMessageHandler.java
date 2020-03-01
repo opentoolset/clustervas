@@ -20,15 +20,15 @@ public class CVManagerInboundMessageHandler extends AbstractInboundMessageHandle
 	}
 
 	// ---
+	
+	@Override
+	protected CVApiContext getApiContext() {
+		return apiContext;
+	}
 
 	@Override
 	protected AbstractMessage processMessage(MessageWrapper requestWrapper) {
 		// Not required yet
 		return null;
-	}
-
-	@Override
-	protected CVApiContext getApiContext() {
-		return apiContext;
 	}
 }
