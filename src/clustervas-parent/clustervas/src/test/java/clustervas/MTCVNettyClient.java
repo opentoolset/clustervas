@@ -16,8 +16,8 @@ import clustervas.CVContext.Mode;
 import clustervas.api.CVServerService;
 import clustervas.api.messages.SampleRequest;
 import clustervas.api.messages.SampleResponse;
-import clustervas.api.netty.agent.CVClientAgent;
-import clustervas.service.netty.CVServerAgent;
+import clustervas.api.netty.agent.CVManagerAgent;
+import clustervas.service.netty.CVAgent;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -27,28 +27,28 @@ public class MTCVNettyClient {
 		CVContext.mode = Mode.UNIT_TEST;
 	}
 
-	private static CVClientAgent clientAgent;
+	private static CVManagerAgent cvManagerAgent;
 	private static CVServerServiceConsumer serverServiceConsumer;
 
 	@Autowired
-	private CVServerAgent serverAgent;
+	private CVAgent cvAgent;
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
-		clientAgent = new CVClientAgent();
+		cvManagerAgent = new CVManagerAgent();
 		serverServiceConsumer = new CVServerServiceConsumer();
 	}
 
 	@Test
 	public void testCommunication() throws Exception {
-		Assert.assertTrue(clientAgent.startup());
-		Assert.assertTrue(serverAgent.openChannel());
+		new Thread(() -> cvManagerAgent.startup()).start();
+		new Thread(() -> cvAgent.startup()).start();
 
 		SampleRequest sampleRequest = new SampleRequest();
 		SampleResponse sampleResponse = serverServiceConsumer.getSampleResponse(sampleRequest);
 
-		clientAgent.shutdown();
-		serverAgent.shutdown();
+		cvManagerAgent.shutdown();
+		cvAgent.shutdown();
 
 		Assert.assertNotNull(sampleResponse);
 	}
@@ -57,7 +57,7 @@ public class MTCVNettyClient {
 
 		@Override
 		public SampleResponse getSampleResponse(SampleRequest request) {
-			return clientAgent.doRequest(request, SampleResponse.class);
+			return cvManagerAgent.doRequest(request, SampleResponse.class);
 		}
 	}
 }

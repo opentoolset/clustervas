@@ -28,7 +28,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 @Component
-public class CVServerAgent {
+public class CVAgent {
 
 	@Autowired
 	private CVServerInboundMessageHandler inboundMessageHandler;
@@ -42,7 +42,7 @@ public class CVServerAgent {
 
 	// ---
 
-	public boolean openChannel() {
+	public void startup() {
 
 		try {
 			this.bootstrap.group(workerGroup);
@@ -53,7 +53,7 @@ public class CVServerAgent {
 				@Override
 				public void initChannel(SocketChannel ch) throws Exception {
 					try {
-						ch.pipeline().addLast(encoder, decoder, inboundMessageHandler, new CVOutboundMessageHandler());
+						ch.pipeline().addLast(encoder, decoder, new CVOutboundMessageHandler(), inboundMessageHandler);
 					} catch (Exception e) {
 						CVLogger.debug(e, e.getLocalizedMessage());
 					}
@@ -67,15 +67,10 @@ public class CVServerAgent {
 				TimeUnit.SECONDS.sleep(1);
 			}
 
-			ChannelFuture cf = channelFuture;
-			new Thread(() -> close(cf)).start();
-
-			return true;
+			channelFuture.channel().closeFuture().sync();
 		} catch (InterruptedException e) {
 			CVLogger.warn(e, "Interrupted");
 		}
-
-		return false;
 	}
 
 	public void shutdown() {
@@ -105,14 +100,5 @@ public class CVServerAgent {
 		}
 
 		return null;
-	}
-
-	private void close(ChannelFuture channelFuture) {
-		try {
-			channelFuture.channel().closeFuture().sync();
-		} catch (InterruptedException e) {
-			CVLogger.error("Interrupted", e);
-		}
-		CVLogger.info("Closed");
 	}
 }

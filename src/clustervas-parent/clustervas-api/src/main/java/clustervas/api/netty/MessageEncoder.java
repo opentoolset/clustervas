@@ -13,6 +13,7 @@ public class MessageEncoder extends MessageToByteEncoder<MessageWrapper> {
 	@Override
 	protected void encode(ChannelHandlerContext ctx, MessageWrapper messageWrapper, ByteBuf out) throws Exception {
 		String serializedMessageWrapper = messageWrapper.serialize();
+		out.writeInt(serializedMessageWrapper.length());
 		out.writeCharSequence(serializedMessageWrapper, CVApiConstants.DEFAULT_CHARSET);
 	}
 }
