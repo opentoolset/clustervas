@@ -24,6 +24,10 @@ public class MessageSender {
 	// ---
 
 	public <TReq extends AbstractRequest<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request) {
+		return doRequest(request, Constants.DEFAULT_REQUEST_TIMEOUT_MILLIS);
+	}
+
+	public <TReq extends AbstractRequest<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request, long timeoutMillis) {
 		try {
 			while (this.channelHandlerContext == null) {
 				TimeUnit.SECONDS.sleep(1);
@@ -39,7 +43,7 @@ public class MessageSender {
 
 			this.channelHandlerContext.writeAndFlush(requestWrapper);
 			synchronized (currentThread) {
-				currentThread.wait(Constants.REQUST_TIMEOUT_MILLIS);
+				currentThread.wait(timeoutMillis);
 			}
 
 			operationContext = this.waitingRequests.remove(requestWrapper.getId());
