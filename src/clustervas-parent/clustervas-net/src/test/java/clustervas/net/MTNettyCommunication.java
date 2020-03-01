@@ -13,22 +13,7 @@ public class MTNettyCommunication {
 	private static ServerAgent serverAgent;
 	private static ClientAgent clientAgent;
 
-	@BeforeClass
-	public static void beforeClass() throws Exception {
-		serverAgent = new ServerAgent();
-		MessageReceiver messageReceiver = serverAgent.getContext().getMessageReceiver();
-		messageReceiver.setMessageHandler(SampleMessage.class, message -> System.out.printf("Message received: %s\n", message));
-		messageReceiver.setRequestHandler(SampleRequest.class, request -> handleRequest(request));
-
-		clientAgent = new ClientAgent();
-	}
-
-	private static SampleResponse handleRequest(SampleRequest request) {
-		System.out.printf("Request received: %s\n", request);
-		SampleResponse response = new SampleResponse();
-		System.out.printf("Response sending: %s\n", response);
-		return response;
-	}
+	// ---
 
 	@Test
 	public void testCommunication() throws Exception {
@@ -43,6 +28,27 @@ public class MTNettyCommunication {
 
 		clientAgent.shutdown();
 		serverAgent.shutdown();
+	}
+
+	@BeforeClass
+	public static void beforeClass() throws Exception {
+		serverAgent = new ServerAgent();
+		MessageReceiver messageReceiver = serverAgent.getContext().getMessageReceiver();
+		messageReceiver.setMessageHandler(SampleMessage.class, message -> handleMessage(message));
+		messageReceiver.setRequestHandler(SampleRequest.class, request -> handleRequest(request));
+
+		clientAgent = new ClientAgent();
+	}
+
+	private static void handleMessage(SampleMessage message) {
+		System.out.printf("Message received: %s\n", message);
+	}
+
+	private static SampleResponse handleRequest(SampleRequest request) {
+		System.out.printf("Request received: %s\n", request);
+		SampleResponse response = new SampleResponse();
+		System.out.printf("Response sending: %s\n", response);
+		return response;
 	}
 
 	// ---
