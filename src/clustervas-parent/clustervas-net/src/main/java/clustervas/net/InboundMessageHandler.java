@@ -6,7 +6,7 @@ package clustervas.net;
 
 import org.slf4j.Logger;
 
-import clustervas.net.Context.OperationContext;
+import clustervas.net.MessageSender.OperationContext;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -23,25 +23,8 @@ public class InboundMessageHandler extends ChannelInboundHandlerAdapter {
 	}
 
 	@Override
-	public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-		super.handlerAdded(ctx);
-		context.getMessageSender().setChannelHandlerContext(ctx);
-	}
-
-	@Override
-	public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-		super.handlerRemoved(ctx);
-	}
-
-	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		super.channelActive(ctx);
-	}
-
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		logger.error(cause.getLocalizedMessage(), cause);
-		// ctx.close();
 	}
 
 	@Override

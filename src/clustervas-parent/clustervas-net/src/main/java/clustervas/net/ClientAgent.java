@@ -7,10 +7,10 @@ package clustervas.net;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -18,27 +18,18 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
-public class ClientAgent {
+public class ClientAgent extends AbstractAgent {
 
-	private static Logger logger = Context.getLogger();
-
-	private MessageEncoder encoder = new MessageEncoder();
-	private MessageDecoder decoder = new MessageDecoder();
 	private EventLoopGroup workerGroup = new NioEventLoopGroup();
 	private Bootstrap bootstrap = new Bootstrap();
 
-	private Context context = new Context();
-	private InboundMessageHandler inboundMessageHandler = new InboundMessageHandler(context);
-
 	private Config config = new Config();
+
+	private PeerContext peerContext = new PeerContext();
 
 	private boolean shutdownRequested = false;
 
 	// ---
-
-	public Context getContext() {
-		return context;
-	}
 
 	/**
 	 * Configuration object including configuration parameters for this agent.<br />
@@ -63,6 +54,23 @@ public class ClientAgent {
 			public void initChannel(SocketChannel ch) throws Exception {
 				try {
 					ch.pipeline().addLast(encoder, decoder, inboundMessageHandler);
+					ch.pipeline().addLast(new ChannelHandler() {
+
+						@Override
+						public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+							ClientAgent.this.peerContext.setChannelHandlerContext(ctx);
+						}
+
+						@Override
+						public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+							ctx.close();
+							ClientAgent.this.peerContext.setChannelHandlerContext(null);
+						}
+
+						@Override
+						public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+						}
+					});
 				} catch (Exception e) {
 					logger.debug(e.getLocalizedMessage(), e);
 				}
@@ -76,11 +84,28 @@ public class ClientAgent {
 	public void shutdown() {
 		try {
 			this.shutdownRequested = true;
-			this.context.getMessageSender().shutdown();
+
+			ChannelHandlerContext channelHandlerContext = this.peerContext.getChannelHandlerContext();
+			if (channelHandlerContext != null) {
+				channelHandlerContext.close();
+			}
+
 			this.workerGroup.shutdownGracefully();
 		} catch (Exception e) {
 			logger.warn(e.getLocalizedMessage(), e);
 		}
+	}
+
+	public <TReq extends AbstractRequest<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request) {
+		return this.context.getMessageSender().doRequest(request, this.peerContext);
+	}
+
+	public <TReq extends AbstractRequest<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request, long timeoutMillis) {
+		return this.context.getMessageSender().doRequest(request, this.peerContext, timeoutMillis);
+	}
+
+	public void sendMessage(AbstractMessage message) {
+		this.context.getMessageSender().sendMessage(message, this.peerContext);
 	}
 
 	// ---

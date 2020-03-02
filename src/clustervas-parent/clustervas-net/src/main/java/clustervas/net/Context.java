@@ -4,10 +4,6 @@
 // ---
 package clustervas.net;
 
-// ---
-// Copyright 2020 ClusterVAS Team
-// All rights reserved
-// ---
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,29 +29,5 @@ public class Context {
 
 	public MessageReceiver getMessageReceiver() {
 		return messageReceiver;
-	}
-
-	// ---
-
-	public static class OperationContext {
-
-		private Thread thread;
-		private MessageWrapper responseWrapper;
-
-		public Thread getThread() {
-			return thread;
-		}
-
-		public void setThread(Thread thread) {
-			this.thread = thread;
-		}
-
-		public MessageWrapper getResponseWrapper() {
-			return responseWrapper;
-		}
-
-		public void setResponseWrapper(MessageWrapper responseWrapper) {
-			this.responseWrapper = responseWrapper;
-		}
 	}
 }

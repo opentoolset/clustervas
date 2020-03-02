@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import clustervas.api.messages.SampleRequest1;
 import clustervas.api.messages.SampleResponse;
-import clustervas.net.MessageReceiver;
 
 @Service
 public class CVServiceImpl extends AbstractService {
@@ -22,8 +21,7 @@ public class CVServiceImpl extends AbstractService {
 
 	@PostConstruct
 	private void postConstruct() {
-		MessageReceiver messageReceiver = this.cvAgent.getContext().getMessageReceiver();
-		messageReceiver.setRequestHandler(SampleRequest1.class, request -> handle(request));
+		this.cvAgent.setRequestHandler(SampleRequest1.class, request -> handle(request));
 	}
 
 	@PreDestroy
