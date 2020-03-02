@@ -58,7 +58,7 @@ public class ServerAgent extends AbstractAgent {
 			@Override
 			public void initChannel(SocketChannel ch) throws Exception {
 				try {
-					ch.pipeline().addLast(ServerAgent.this.encoder, ServerAgent.this.decoder, inboundMessageHandler);
+					ch.pipeline().addLast(new MessageEncoder(), new MessageDecoder(), new InboundMessageHandler(context));
 					ch.pipeline().addLast(new ChannelHandler() {
 
 						@Override

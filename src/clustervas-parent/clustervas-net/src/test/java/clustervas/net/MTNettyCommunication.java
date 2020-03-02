@@ -24,7 +24,7 @@ public class MTNettyCommunication {
 	// ---
 
 	@Test
-	public void testCommunication() throws Exception {
+	public void test() throws Exception {
 		serverAgent.startup();
 		clientAgent.startup();
 

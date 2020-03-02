@@ -11,10 +11,6 @@ public abstract class AbstractAgent {
 
 	protected Context context = new Context();
 
-	protected MessageEncoder encoder = new MessageEncoder();
-	protected MessageDecoder decoder = new MessageDecoder();
-	protected InboundMessageHandler inboundMessageHandler = new InboundMessageHandler(context);
-
 	public <TReq extends AbstractRequest<TResp>, TResp extends AbstractMessage> void setRequestHandler(Class<TReq> classOfRequest, Function<TReq, TResp> function) {
 		this.context.getMessageReceiver().setRequestHandler(classOfRequest, function);
 	}
