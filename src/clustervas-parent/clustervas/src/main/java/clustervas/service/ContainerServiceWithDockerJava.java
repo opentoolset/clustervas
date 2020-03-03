@@ -97,7 +97,7 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 	}
 
 	@Override
-	public boolean saveClusterVASImage(Supplier<Boolean> stopRequestProvider) {
+	public boolean saveClusterVASImage(Supplier<Boolean> stopRequestIndicator) {
 		String templateContainerName = CVConstants.DOCKER_CONTAINER_CLUSTERVAS_TEMPLATE_NAME;
 		Container container = getContainerByName(templateContainerName);
 		if (container == null) {
@@ -106,7 +106,7 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 
 		// Returns true if ready to snapshot/commit the clustervas image from template container
 		Supplier<Boolean> testerForQuitingLoop = () -> {
-			boolean quitLoop = Optional.ofNullable(stopRequestProvider.get()).orElse(false);
+			boolean quitLoop = Optional.ofNullable(stopRequestIndicator.get()).orElse(false);
 			quitLoop = quitLoop || containerServiceLocalShell.checkIfGvmdIsReady(templateContainerName);
 			return quitLoop;
 		};
@@ -117,7 +117,7 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 				CVLogger.info("Waiting for 1 second...");
 			}
 
-			if (Optional.ofNullable(stopRequestProvider.get()).orElse(false)) {
+			if (Optional.ofNullable(stopRequestIndicator.get()).orElse(false)) {
 				return false;
 			}
 		} catch (InterruptedException e) {

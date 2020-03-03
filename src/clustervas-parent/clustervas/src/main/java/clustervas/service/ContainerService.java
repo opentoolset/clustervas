@@ -15,7 +15,7 @@ public interface ContainerService {
 
 	boolean removeTemplateContainer();
 
-	boolean saveClusterVASImage(Supplier<Boolean> stopRequestProvider);
+	boolean saveClusterVASImage(Supplier<Boolean> stopRequestIndicator);
 
 	CVContainer loadNewNodeContainer();
 
