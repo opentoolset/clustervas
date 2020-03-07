@@ -16,12 +16,12 @@ public class Utils {
 	 */
 	public static class TimeOutIndicator implements Supplier<Boolean> {
 
+		private Instant start;
 		private long duration;
 		private TimeUnit timeUnit;
 
-		private Instant start = Instant.now();
-
 		public TimeOutIndicator(long duration, TimeUnit timeUnit) {
+			this.start = Instant.now();
 			this.duration = duration;
 			this.timeUnit = timeUnit;
 		}
