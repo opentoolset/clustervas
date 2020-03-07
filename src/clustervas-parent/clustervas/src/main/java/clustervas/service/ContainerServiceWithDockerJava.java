@@ -6,9 +6,7 @@ package clustervas.service;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import javax.annotation.PostConstruct;
@@ -77,24 +75,7 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 			return false;
 		}
 
-		// Returns true if ready to snapshot/commit the clustervas image from template container
-		Supplier<Boolean> testerForQuitingLoop = () -> {
-			boolean quitLoop = Optional.ofNullable(stopRequestIndicator.get()).orElse(false);
-			quitLoop = quitLoop || containerServiceLocalShell.checkIfGvmdIsReady(templateContainerName);
-			return quitLoop;
-		};
-
-		try {
-			while (!testerForQuitingLoop.get()) {
-				TimeUnit.SECONDS.sleep(1);
-				CVLogger.info("Waiting for 1 second...");
-			}
-
-			if (Optional.ofNullable(stopRequestIndicator.get()).orElse(false)) {
-				return false;
-			}
-		} catch (InterruptedException e) {
-			CVLogger.warn(e);
+		if (!this.containerServiceLocalShell.waitUntilGvmdIsReady(templateContainerName, stopRequestIndicator)) {
 			return false;
 		}
 
@@ -133,6 +114,12 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 	@Override
 	public boolean removeNodeContainer(String containerName) {
 		return removeContainer(containerName);
+	}
+
+	@Override
+	public boolean isContainerRunning(String containerName) {
+		Container container = getContainerIfRunning(containerName);
+		return container != null;
 	}
 
 	// ---
@@ -183,7 +170,7 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 
 		Container container = getContainerByName(containerName);
 
-		// TODO [hadi] Wait until reaching a running container state.
+		// TODO [hadi] Wait until reaching a running container state if needed
 
 		return container;
 	}
@@ -200,7 +187,6 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 		return result;
 	}
 
-	@SuppressWarnings("unused")
 	private Container getContainerIfRunning(String containerName) {
 		ListContainersCmd cmd = this.dockerClient.listContainersCmd();
 		cmd = cmd.withNameFilter(Arrays.asList(containerName));

@@ -21,6 +21,8 @@ public interface ContainerService {
 
 	boolean removeNodeContainer(String containerName);
 
+	boolean isContainerRunning(String containerName);
+
 	// ---
 
 	enum Status {

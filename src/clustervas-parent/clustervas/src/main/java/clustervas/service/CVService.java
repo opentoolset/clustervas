@@ -4,6 +4,8 @@
 // ---
 package clustervas.service;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -19,6 +21,7 @@ import clustervas.api.messages.RemoveNodeResponse;
 import clustervas.net.Constants;
 import clustervas.service.ContainerService.CVContainer;
 import clustervas.utils.CmdExecutor;
+import clustervas.utils.Utils;
 
 @Service
 public class CVService extends AbstractService {
@@ -50,11 +53,26 @@ public class CVService extends AbstractService {
 		LoadNewNodeResponse response = new LoadNewNodeResponse();
 
 		CVContainer cvContainer = this.containerService.loadNewNodeContainer();
-		if (cvContainer != null) {
-			response.setSuccessfull(true);
-			response.setNodeName(cvContainer.getName());
+		if (cvContainer == null) {
+			return response;
 		}
 
+		String nodeName = cvContainer.getName();
+
+		if (!this.containerService.isContainerRunning(nodeName)) {
+			this.containerService.removeNodeContainer(nodeName);
+			// TODO [hadi] inform user through response message about failure
+			return response;
+		}
+
+		if (!this.containerServiceLocalShell.waitUntilGvmdIsReady(nodeName, new Utils.TimeOutIndicator(120, TimeUnit.SECONDS))) {
+			this.containerService.removeNodeContainer(nodeName);
+			// TODO [hadi] inform user through response message about failure
+			return response;
+		}
+
+		response.setSuccessfull(true);
+		response.setNodeName(nodeName);
 		return response;
 	}
 
@@ -68,6 +86,16 @@ public class CVService extends AbstractService {
 
 	public GvmCliResponse handle(GvmCliRequest request) {
 		GvmCliResponse gvmResponse = new GvmCliResponse();
+
+		if (!this.containerService.isContainerRunning(request.getNodeName())) {
+			// TODO [hadi] inform user through response message about illegal state
+			return gvmResponse;
+		}
+
+		if (!this.containerServiceLocalShell.waitUntilGvmdIsReady(request.getNodeName(), new Utils.TimeOutIndicator(10, TimeUnit.SECONDS))) {
+			// TODO [hadi] inform user through response message about illegal state
+			return gvmResponse;
+		}
 
 		CmdExecutor.Response response = this.containerServiceLocalShell.dockerExec(request.getNodeName(), GVM_COMMAND, request.getXml());
 		gvmResponse.setSuccessfull(response.isSuccessful());

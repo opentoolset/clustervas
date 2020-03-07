@@ -4,6 +4,10 @@
 // ---
 package clustervas.service;
 
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+
 import org.springframework.stereotype.Service;
 
 import clustervas.utils.CVLogger;
@@ -66,6 +70,31 @@ public class ContainerServiceLocalShell extends AbstractService {
 				return false;
 			}
 		}
+		return true;
+	}
+
+	public boolean waitUntilGvmdIsReady(String containerName, Supplier<Boolean> stopRequestIndicator) {
+		// Returns true if ready to snapshot/commit the clustervas image from template container
+		Supplier<Boolean> testerForQuitingLoop = () -> {
+			boolean quitLoop = Optional.ofNullable(stopRequestIndicator.get()).orElse(false);
+			quitLoop = quitLoop || checkIfGvmdIsReady(containerName);
+			return quitLoop;
+		};
+
+		try {
+			while (!testerForQuitingLoop.get()) {
+				TimeUnit.SECONDS.sleep(1);
+				CVLogger.debug("Waiting for 1 second...");
+			}
+
+			if (Optional.ofNullable(stopRequestIndicator.get()).orElse(false)) {
+				return false;
+			}
+		} catch (InterruptedException e) {
+			CVLogger.warn(e);
+			return false;
+		}
+
 		return true;
 	}
 
