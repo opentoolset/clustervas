@@ -6,6 +6,7 @@ package clustervas.utils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -16,6 +17,8 @@ public class CmdExecutor {
 
 	private static final int DEFAULT_TIMEOUT_SEC = 30;
 
+	private static final Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
+
 	public static Response exec(String cmd) {
 		return exec(cmd, DEFAULT_TIMEOUT_SEC);
 	}
@@ -25,10 +28,24 @@ public class CmdExecutor {
 	}
 
 	public static Response exec(String cmd, Map<String, String> envMap, long timeoutSec) {
+		return execAndWrite(cmd, envMap, null, timeoutSec);
+	}
+
+	public static Response execAndWrite(String cmd, String dataToStdin) {
+		return execAndWrite(cmd, dataToStdin, DEFAULT_TIMEOUT_SEC);
+	}
+
+	public static Response execAndWrite(String cmd, String dataToStdin, long timeoutSec) {
+		return execAndWrite(cmd, new HashMap<>(), dataToStdin, timeoutSec);
+	}
+
+	public static Response execAndWrite(String cmd, Map<String, String> envMap, String dataToStdin, long timeoutSec) {
 		Response response = new Response();
 		response.setExitStatus(Response.FAILURE);
 		try {
 			Process process = start(cmd, envMap);
+			IOUtils.write(dataToStdin, process.getOutputStream(), DEFAULT_CHARSET);
+			process.getOutputStream().close();
 			if (process.waitFor(timeoutSec, TimeUnit.SECONDS)) {
 				int exitValue = process.exitValue();
 				response.setExitStatus(exitValue);

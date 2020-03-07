@@ -19,6 +19,8 @@ public interface ContainerService {
 
 	CVContainer loadNewNodeContainer();
 
+	boolean removeNodeContainer(String containerName);
+
 	// ---
 
 	enum Status {

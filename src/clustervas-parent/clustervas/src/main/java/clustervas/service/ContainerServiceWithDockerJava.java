@@ -66,34 +66,7 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 
 	@Override
 	public boolean removeTemplateContainer() {
-		try {
-			Container container = getContainerByName(CVConstants.DOCKER_CONTAINER_CLUSTERVAS_TEMPLATE_NAME);
-			if (container != null) {
-				this.dockerClient.removeContainerCmd(container.getId()).withForce(true).exec();
-			}
-
-			return true;
-		} catch (Exception e) {
-			CVLogger.error(e);
-			return false;
-		}
-	}
-
-	@Override
-	public CVContainer loadNewNodeContainer() {
-		synchronized (getLock()) {
-			if (!checkDockerImageClusterVASLoaded()) {
-				return null;
-			}
-
-			String nodeName = String.format("%s-%s", CVConstants.DOCKER_CONTAINER_CLUSTERVAS_NODE_PREFIX, UUID.randomUUID().toString());
-			Container container = runClusterVASContainer(nodeName, true);
-			if (container == null) {
-				return null;
-			}
-
-			return new CVContainer(nodeName, container.getId());
-		}
+		return removeContainer(CVConstants.DOCKER_CONTAINER_CLUSTERVAS_TEMPLATE_NAME);
 	}
 
 	@Override
@@ -140,10 +113,32 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 		return true;
 	}
 
+	@Override
+	public CVContainer loadNewNodeContainer() {
+		synchronized (getLock()) {
+			if (!checkDockerImageClusterVASLoaded()) {
+				return null;
+			}
+
+			String nodeName = String.format("%s-%s", CVConstants.DOCKER_CONTAINER_CLUSTERVAS_NODE_PREFIX, UUID.randomUUID().toString());
+			Container container = runClusterVASContainer(nodeName, true);
+			if (container == null) {
+				return null;
+			}
+
+			return new CVContainer(nodeName, container.getId());
+		}
+	}
+
+	@Override
+	public boolean removeNodeContainer(String containerName) {
+		return removeContainer(containerName);
+	}
+
 	// ---
 
 	@PostConstruct
-	private void init() {
+	private void postConstruct() {
 		DefaultDockerClientConfig.Builder config = DefaultDockerClientConfig.createDefaultConfigBuilder();
 		this.dockerClient = DockerClientBuilder.getInstance(config).build();
 	}
@@ -213,5 +208,21 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 		List<Container> containers = cmd.exec();
 		Container container = containers.stream().findFirst().orElse(null);
 		return container;
+	}
+
+	private boolean removeContainer(String containerName) {
+		synchronized (getLock()) {
+			try {
+				Container container = getContainerByName(containerName);
+				if (container != null) {
+					this.dockerClient.removeContainerCmd(container.getId()).withForce(true).exec();
+				}
+
+				return true;
+			} catch (Exception e) {
+				CVLogger.error(e);
+				return false;
+			}
+		}
 	}
 }

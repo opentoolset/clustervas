@@ -10,16 +10,25 @@ import clustervas.utils.CmdExecutor.Response;
 public class ContainerServiceLocalShell extends AbstractService {
 
 	private static final String CMD_DOCKER_EXEC_PREFIX_TEMPLATE = "docker exec %s bash -c";
+	private static final String CMD_DOCKER_EXEC_WITH_STDIN_PREFIX_TEMPLATE = "docker exec -i %s bash -c";
 	private static final String CMD_DOCKER_COMMIT_TEMPLATE = "docker commit %s %s";
 	private static final String CMD_DOCKER_TAG_TEMPLATE = "docker tag %s %s";
 	private static final String CMD_DOCKER_RMI_TEMPLATE = "docker rmi -f %s";
-	private static final String CMD_GVMD_PROCESS_INFO = "'ps $(pidof gvmd) | grep gvmd'";
+	private static final String CMD_GVMD_PROCESS_INFO = "ps $(pidof gvmd) | grep gvmd";
 
 	public Response dockerExec(String containerName, String cmd) {
 		String dockerExecPrefix = String.format(CMD_DOCKER_EXEC_PREFIX_TEMPLATE, containerName);
-		String wrapperCmd = String.format("%s %s", dockerExecPrefix, cmd);
+		String wrapperCmd = String.format("%s '%s'", dockerExecPrefix, cmd);
 
 		Response response = CmdExecutor.exec(wrapperCmd);
+		return response;
+	}
+
+	public Response dockerExec(String containerName, String cmd, String data) {
+		String dockerExecPrefix = String.format(CMD_DOCKER_EXEC_WITH_STDIN_PREFIX_TEMPLATE, containerName);
+		String wrapperCmd = String.format("%s '%s'", dockerExecPrefix, cmd);
+
+		Response response = CmdExecutor.execAndWrite(wrapperCmd, data);
 		return response;
 	}
 
