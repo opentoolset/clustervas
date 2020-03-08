@@ -140,6 +140,8 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 		}
 
 		synchronized (lockForTempImage) {
+			removeImage(CVConstants.DOCKER_IMAGE_CLUSTERVAS_TEMP_NAME, true);
+
 			if (!this.containerServiceLocalShell.commitDockerImage(templateContainerName, CVConstants.DOCKER_IMAGE_CLUSTERVAS_TEMP_NAME)) {
 				return false;
 			}
@@ -149,6 +151,20 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 		}
 
 		return true;
+	}
+
+	@Override
+	public boolean removeImage(String imageName, boolean force) {
+		try {
+			Image tempImage = getImageByName(imageName);
+			if (tempImage != null) {
+				this.dockerClient.removeImageCmd(tempImage.getId()).withForce(force).exec();
+			}
+			return true;
+		} catch (Exception e) {
+			CVLogger.warn(e);
+		}
+		return false;
 	}
 
 	@Override
@@ -195,6 +211,7 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 			List<String> nodeNames = response.getNodeNames();
 			// TODO [hadi] Remove inactive node containers here
 		} catch (Exception e) {
+			CVLogger.debug(e, "Active nodes couln't be gathered");
 		}
 
 		synchronized (lockForTempImage) {

@@ -6,7 +6,6 @@ package clustervas.net;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 
@@ -19,13 +18,13 @@ public class MessageSender {
 	// ---
 
 	public <TReq extends AbstractRequest<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request, PeerContext peerContext) {
-		return doRequest(request, peerContext, Constants.DEFAULT_REQUEST_TIMEOUT_MILLIS);
+		return doRequest(request, peerContext, Constants.DEFAULT_REQUEST_TIMEOUT_SEC);
 	}
 
-	public <TReq extends AbstractRequest<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request, PeerContext peerContext, long timeoutMillis) {
+	public <TReq extends AbstractRequest<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request, PeerContext peerContext, int timeoutSec) {
 		try {
-			while (peerContext.getChannelHandlerContext() == null) {
-				TimeUnit.SECONDS.sleep(1);
+			if (Utils.waitUntil(() -> peerContext.getChannelHandlerContext() != null, Constants.DEFAULT_CHANNEL_WAIT_SEC)) {
+				return null;
 			}
 
 			MessageWrapper requestWrapper = MessageWrapper.createRequest(request);
@@ -38,7 +37,7 @@ public class MessageSender {
 
 			peerContext.getChannelHandlerContext().writeAndFlush(requestWrapper);
 			synchronized (currentThread) {
-				currentThread.wait(timeoutMillis);
+				currentThread.wait(timeoutSec * 1000);
 			}
 
 			operationContext = this.waitingRequests.remove(requestWrapper.getId());

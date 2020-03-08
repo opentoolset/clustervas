@@ -21,6 +21,8 @@ public interface ContainerService {
 
 	boolean saveClusterVASImage(Supplier<Boolean> stopRequestIndicator);
 
+	boolean removeImage(String imageName, boolean force);
+
 	CVContainer loadNewNodeContainer();
 
 	boolean removeNodeContainer(String containerName);

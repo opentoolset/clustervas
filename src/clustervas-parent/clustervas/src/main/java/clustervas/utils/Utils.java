@@ -31,4 +31,19 @@ public class Utils {
 			return Duration.between(start, Instant.now()).toMillis() > timeUnit.toMillis(duration);
 		}
 	};
+
+	public static boolean waitUntil(Supplier<Boolean> tester, int timeoutSec) {
+		try {
+			for (int i = 0; i < timeoutSec; i++) {
+				if (tester.get()) {
+					break;
+				}
+				TimeUnit.SECONDS.sleep(1);
+			}
+		} catch (InterruptedException e) {
+			CVLogger.warn(e);
+		}
+
+		return tester.get();
+	}
 }

@@ -99,8 +99,8 @@ public class ServerAgent extends AbstractAgent {
 		return this.context.getMessageSender().doRequest(request, peerContext);
 	}
 
-	public <TReq extends AbstractRequest<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request, PeerContext peerContext, long timeoutMillis) {
-		return this.context.getMessageSender().doRequest(request, peerContext, timeoutMillis);
+	public <TReq extends AbstractRequest<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request, PeerContext peerContext, int timeoutSec) {
+		return this.context.getMessageSender().doRequest(request, peerContext, timeoutSec);
 	}
 
 	public void sendMessage(AbstractMessage message, PeerContext peerContext) {
