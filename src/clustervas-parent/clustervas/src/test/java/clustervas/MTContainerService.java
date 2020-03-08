@@ -30,15 +30,20 @@ public class MTContainerService {
 	private ContainerService service;
 
 	@Test
-	public void testLoadTemplate() throws IOException {
-		boolean loaded = service.loadTemplateContainer();
+	public void testLoadTemplateIfNeeded() throws IOException {
+		boolean loaded = service.loadTemplateContainerIfNeeded();
 		Assert.assertTrue(loaded);
 	}
 
 	@Test
 	public void testSaveTemplate() throws IOException {
-		Assert.assertTrue(service.loadTemplateContainer());
+		Assert.assertTrue(service.loadTemplateContainerIfNeeded());
 		Assert.assertTrue(service.saveClusterVASImage(() -> false));
+	}
+
+	@Test
+	public void testInternalNVTSync() throws IOException {
+		Assert.assertTrue(service.doInternalNVTSync());
 	}
 
 	@Test

@@ -25,18 +25,26 @@ public class ContainerServiceLocalShell extends AbstractService {
 	private static final String CMD_GVMD_PROCESS_INFO = "ps $(pidof gvmd) | grep gvmd";
 
 	public Response dockerExec(String containerName, String cmd) {
+		return dockerExec(containerName, cmd, CmdExecutor.DEFAULT_TIMEOUT_SEC);
+	}
+
+	public Response dockerExec(String containerName, String cmd, long timeoutSec) {
 		String dockerExecPrefix = String.format(CMD_DOCKER_EXEC_PREFIX_TEMPLATE, containerName);
 		String wrapperCmd = String.format("%s '%s'", dockerExecPrefix, cmd);
 
-		Response response = CmdExecutor.exec(wrapperCmd);
+		Response response = CmdExecutor.exec(wrapperCmd, timeoutSec);
 		return response;
 	}
 
 	public Response dockerExec(String containerName, String cmd, String data) {
+		return dockerExec(containerName, cmd, data, CmdExecutor.DEFAULT_TIMEOUT_SEC);
+	}
+
+	public Response dockerExec(String containerName, String cmd, String data, long timeoutSec) {
 		String dockerExecPrefix = String.format(CMD_DOCKER_EXEC_WITH_STDIN_PREFIX_TEMPLATE, containerName);
 		String wrapperCmd = String.format("%s '%s'", dockerExecPrefix, cmd);
 
-		Response response = CmdExecutor.execAndWrite(wrapperCmd, data);
+		Response response = CmdExecutor.execAndWrite(wrapperCmd, data, timeoutSec);
 		return response;
 	}
 

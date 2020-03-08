@@ -11,9 +11,11 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 public interface ContainerService {
 
-	boolean loadTemplateContainer();
+	boolean loadTemplateContainerIfNeeded();
 
 	boolean removeTemplateContainer();
+
+	boolean doInternalNVTSync();
 
 	boolean saveClusterVASImage(Supplier<Boolean> stopRequestIndicator);
 

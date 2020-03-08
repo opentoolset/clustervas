@@ -15,7 +15,7 @@ import org.apache.commons.io.IOUtils;
 
 public class CmdExecutor {
 
-	private static final int DEFAULT_TIMEOUT_SEC = 30;
+	public static final int DEFAULT_TIMEOUT_SEC = 30;
 
 	private static final Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
 
