@@ -17,6 +17,8 @@ public interface ContainerService {
 
 	boolean doInternalNVTSync();
 
+	boolean doPostSyncOperations();
+
 	boolean saveClusterVASImage(Supplier<Boolean> stopRequestIndicator);
 
 	CVContainer loadNewNodeContainer();

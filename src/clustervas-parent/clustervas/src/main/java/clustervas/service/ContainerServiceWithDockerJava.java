@@ -35,6 +35,8 @@ import com.google.common.collect.Lists;
 
 import clustervas.CVConfig;
 import clustervas.CVConstants;
+import clustervas.api.messages.GetActiveNodesRequest;
+import clustervas.api.messages.GetActiveNodesResponse;
 import clustervas.utils.CVLogger;
 import clustervas.utils.CmdExecutor.Response;
 
@@ -45,6 +47,9 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 
 	@Autowired
 	private ContainerServiceLocalShell containerServiceLocalShell;
+
+	@Autowired
+	private CVAgent cvAgent;
 
 	private DockerClient dockerClient;
 
@@ -106,13 +111,20 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 			return false;
 		}
 
+		return doPostSyncOperations();
+	}
+
+	@Override
+	public boolean doPostSyncOperations() {
+		if (!loadTemplateContainerIfNeeded()) {
+			return false;
+		}
+
 		if (!this.containerServiceLocalShell.waitUntilGvmdIsReady(CVConstants.DOCKER_CONTAINER_CLUSTERVAS_TEMPLATE_NAME, () -> false)) {
 			return false;
 		}
 
-		saveClusterVASImage(() -> false);
-
-		return true;
+		return saveClusterVASImage(() -> false);
 	}
 
 	@Override
@@ -178,6 +190,13 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 	}
 
 	private void maintaintenance() {
+		try {
+			GetActiveNodesResponse response = this.cvAgent.doRequest(new GetActiveNodesRequest());
+			List<String> nodeNames = response.getNodeNames();
+			// TODO [hadi] Remove inactive node containers here
+		} catch (Exception e) {
+		}
+
 		synchronized (lockForTempImage) {
 			if (this.nodeImageChangeRequired) {
 				this.nodeImageChangeRequired = !this.containerServiceLocalShell.renameDockerImage(CVConstants.DOCKER_IMAGE_CLUSTERVAS_TEMP_NAME, CVConstants.DOCKER_IMAGE_CLUSTERVAS_NODE_NAME);
