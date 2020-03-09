@@ -11,6 +11,9 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opentoolset.clustervas.net.ClientAgent;
+import org.opentoolset.clustervas.net.PeerContext;
+import org.opentoolset.clustervas.net.ServerAgent;
 
 import clustervas.net.TestData.SampleMessage;
 import clustervas.net.TestData.SampleRequest;

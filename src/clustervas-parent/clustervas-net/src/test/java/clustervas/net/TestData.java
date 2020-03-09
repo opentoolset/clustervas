@@ -1,5 +1,8 @@
 package clustervas.net;
 
+import org.opentoolset.clustervas.net.AbstractMessage;
+import org.opentoolset.clustervas.net.AbstractRequest;
+
 public interface TestData {
 
 	public static class SampleMessage extends AbstractMessage {
