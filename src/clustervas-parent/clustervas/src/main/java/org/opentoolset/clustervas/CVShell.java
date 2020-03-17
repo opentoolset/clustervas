@@ -25,8 +25,7 @@ public class CVShell {
 
 	@ShellMethod("Mevcut bir musterinin lisansini yeniden uretir")
 	public void renewLicense(String guid, int validMonthCount, @ShellOption(defaultValue = "-1") int hostLimit) {
-		
-		
+
 	}
 
 	// ------
