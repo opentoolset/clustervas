@@ -4,9 +4,11 @@
 // ---
 package org.opentoolset.clustervas.api.messages;
 
-import org.opentoolset.clustervas.net.AbstractRequest;
+import org.opentoolset.nettyagents.AbstractRequest;
 
 public class RemoveNodeResponse extends AbstractRequest<LoadNewNodeResponse> {
+
+	private static final long serialVersionUID = -4741917937426676207L;
 
 	private boolean successfull = false;
 

@@ -1,8 +1,10 @@
 package org.opentoolset.clustervas.api.messages;
 
-import org.opentoolset.clustervas.net.AbstractMessage;
+import org.opentoolset.nettyagents.AbstractMessage;
 
 public class LoadNewNodeResponse extends AbstractMessage {
+
+	private static final long serialVersionUID = 4639909206630009303L;
 
 	private boolean successfull = false;
 

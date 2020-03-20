@@ -9,13 +9,13 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.opentoolset.clustervas.CVConstants;
 import org.opentoolset.clustervas.api.messages.GvmCliRequest;
 import org.opentoolset.clustervas.api.messages.GvmCliResponse;
 import org.opentoolset.clustervas.api.messages.LoadNewNodeRequest;
 import org.opentoolset.clustervas.api.messages.LoadNewNodeResponse;
 import org.opentoolset.clustervas.api.messages.RemoveNodeRequest;
 import org.opentoolset.clustervas.api.messages.RemoveNodeResponse;
-import org.opentoolset.clustervas.net.Constants;
 import org.opentoolset.clustervas.service.ContainerService.CVContainer;
 import org.opentoolset.clustervas.utils.CmdExecutor;
 import org.opentoolset.clustervas.utils.Utils;
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 public class CVService extends AbstractService {
 
 	private static String GVM_COMMAND_TEMPLATE = "gvm-cli socket --gmp-username %s --gmp-password %s";
-	private static String GVM_COMMAND = String.format(GVM_COMMAND_TEMPLATE, Constants.DEFAULT_GVM_DEFAULT_USER, Constants.DEFAULT_GVM_DEFAULT_PASSWORD);
+	private static String GVM_COMMAND = String.format(GVM_COMMAND_TEMPLATE, CVConstants.DEFAULT_GVM_DEFAULT_USER, CVConstants.DEFAULT_GVM_DEFAULT_PASSWORD);
 
 	@Autowired
 	private ContainerService containerService;

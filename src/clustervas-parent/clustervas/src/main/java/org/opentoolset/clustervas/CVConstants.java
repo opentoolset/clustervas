@@ -33,6 +33,11 @@ public interface CVConstants {
 	String DEFAULT_HOST_DATA_FOLDER = "/clustervas/data";
 	boolean DEFAULT_TEMPLATE_INTERNAL_SYNC_ENABLED = true;
 
+	String DEFAULT_SERVER_HOST = "127.0.0.1";
+	int DEFAULT_SERVER_PORT = 4444;
+	String DEFAULT_GVM_DEFAULT_USER = "admin";
+	String DEFAULT_GVM_DEFAULT_PASSWORD = "admin";
+
 	static String getHomeFolder() {
 		String homeFolderEnv = System.getenv(HOME_ENVIRONMENT_VARIABLE);
 

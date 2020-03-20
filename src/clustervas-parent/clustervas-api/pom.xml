@@ -12,9 +12,8 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>clustervas-net</artifactId>
-			<version>${project.version}</version>
+			<groupId>org.opentoolset</groupId>
+			<artifactId>netty-agents</artifactId>
 		</dependency>
 	</dependencies>
 </project>

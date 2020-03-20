@@ -4,7 +4,7 @@
 // ---
 package org.opentoolset.clustervas.service;
 
-import org.opentoolset.clustervas.net.ClientAgent;
+import org.opentoolset.nettyagents.agents.ClientAgent;
 import org.springframework.stereotype.Component;
 
 @Component

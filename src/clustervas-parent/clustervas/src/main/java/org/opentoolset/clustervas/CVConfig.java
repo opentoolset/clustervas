@@ -5,7 +5,6 @@
 package org.opentoolset.clustervas;
 
 import org.apache.commons.lang3.ObjectUtils;
-import org.opentoolset.clustervas.net.Constants;
 import org.opentoolset.clustervas.utils.CVConfigProvider;
 
 public final class CVConfig {
@@ -14,8 +13,8 @@ public final class CVConfig {
 
 		HOST_DATA_FOLDER("host.data_folder", CVConstants.DEFAULT_HOST_DATA_FOLDER),
 		TEMPLATE_INTERNAL_SYNC_ENABLED("template.internal_sync.enabled", CVConstants.DEFAULT_TEMPLATE_INTERNAL_SYNC_ENABLED),
-		MANAGER_HOST("manager.host", Constants.DEFAULT_SERVER_HOST),
-		MANAGER_PORT("manager.port", Constants.DEFAULT_SERVER_PORT);
+		MANAGER_HOST("manager.host", CVConstants.DEFAULT_SERVER_HOST),
+		MANAGER_PORT("manager.port", CVConstants.DEFAULT_SERVER_PORT);
 
 		private String key;
 

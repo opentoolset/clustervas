@@ -4,9 +4,11 @@
 // ---
 package org.opentoolset.clustervas.api.messages;
 
-import org.opentoolset.clustervas.net.AbstractMessage;
+import org.opentoolset.nettyagents.AbstractMessage;
 
 public class GvmCliResponse extends AbstractMessage {
+
+	private static final long serialVersionUID = -5854931190418980436L;
 
 	private boolean successfull = false;
 
