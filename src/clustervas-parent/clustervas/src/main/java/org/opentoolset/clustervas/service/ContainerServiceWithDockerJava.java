@@ -18,8 +18,8 @@ import javax.annotation.PostConstruct;
 
 import org.opentoolset.clustervas.CVConfig;
 import org.opentoolset.clustervas.CVConstants;
-import org.opentoolset.clustervas.api.messages.GetActiveNodesRequest;
-import org.opentoolset.clustervas.api.messages.GetActiveNodesResponse;
+import org.opentoolset.clustervas.api.messages.cv.GetActiveNodesRequest;
+import org.opentoolset.clustervas.api.messages.cv.GetActiveNodesResponse;
 import org.opentoolset.clustervas.utils.CVLogger;
 import org.opentoolset.clustervas.utils.CmdExecutor.Response;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +48,7 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 	private ContainerServiceLocalShell containerServiceLocalShell;
 
 	@Autowired
-	private CVAgent cvAgent;
+	private CVManagerAgent cvAgent;
 
 	private DockerClient dockerClient;
 

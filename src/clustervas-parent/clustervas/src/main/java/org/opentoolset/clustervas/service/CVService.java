@@ -10,8 +10,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.opentoolset.clustervas.CVConstants;
-import org.opentoolset.clustervas.api.messages.GvmCliRequest;
-import org.opentoolset.clustervas.api.messages.GvmCliResponse;
+import org.opentoolset.clustervas.api.messages.GMPRequest;
+import org.opentoolset.clustervas.api.messages.GMPResponse;
 import org.opentoolset.clustervas.api.messages.LoadNewNodeRequest;
 import org.opentoolset.clustervas.api.messages.LoadNewNodeResponse;
 import org.opentoolset.clustervas.api.messages.RemoveNodeRequest;
@@ -35,11 +35,11 @@ public class CVService extends AbstractService {
 	private ContainerServiceLocalShell containerServiceLocalShell;
 
 	@Autowired
-	private CVAgent cvAgent;
+	private CVManagerAgent cvAgent;
 
 	@PostConstruct
 	private void postConstruct() {
-		this.cvAgent.setRequestHandler(GvmCliRequest.class, request -> handle(request));
+		this.cvAgent.setRequestHandler(GMPRequest.class, request -> handle(request));
 		this.cvAgent.setRequestHandler(LoadNewNodeRequest.class, request -> handle(request));
 		this.cvAgent.setRequestHandler(RemoveNodeRequest.class, request -> handle(request));
 	}
@@ -83,8 +83,8 @@ public class CVService extends AbstractService {
 		return response;
 	}
 
-	public GvmCliResponse handle(GvmCliRequest request) {
-		GvmCliResponse gvmResponse = new GvmCliResponse();
+	public GMPResponse handle(GMPRequest request) {
+		GMPResponse gvmResponse = new GMPResponse();
 
 		if (!this.containerService.isContainerRunning(request.getNodeName())) {
 			// TODO [hadi] inform user through response message about illegal state

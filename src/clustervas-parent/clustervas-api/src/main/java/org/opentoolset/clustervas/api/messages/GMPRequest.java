@@ -6,7 +6,7 @@ package org.opentoolset.clustervas.api.messages;
 
 import org.opentoolset.nettyagents.AbstractRequest;
 
-public class GvmCliRequest extends AbstractRequest<GvmCliResponse> {
+public class GMPRequest extends AbstractRequest<GMPResponse> {
 
 	private static final long serialVersionUID = 7081137175920247788L;
 
@@ -31,7 +31,7 @@ public class GvmCliRequest extends AbstractRequest<GvmCliResponse> {
 	}
 
 	@Override
-	public Class<GvmCliResponse> getResponseClass() {
-		return GvmCliResponse.class;
+	public Class<GMPResponse> getResponseClass() {
+		return GMPResponse.class;
 	}
 }

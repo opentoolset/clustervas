@@ -11,8 +11,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opentoolset.clustervas.CVContext;
 import org.opentoolset.clustervas.CVContext.Mode;
-import org.opentoolset.clustervas.api.messages.GvmCliRequest;
-import org.opentoolset.clustervas.api.messages.GvmCliResponse;
+import org.opentoolset.clustervas.api.messages.GMPRequest;
+import org.opentoolset.clustervas.api.messages.GMPResponse;
 import org.opentoolset.clustervas.api.messages.LoadNewNodeRequest;
 import org.opentoolset.clustervas.api.messages.LoadNewNodeResponse;
 import org.opentoolset.clustervas.api.messages.RemoveNodeRequest;
@@ -47,10 +47,10 @@ public class MTCVService {
 		}
 
 		try {
-			GvmCliRequest gvmCliRequest = new GvmCliRequest();
+			GMPRequest gvmCliRequest = new GMPRequest();
 			gvmCliRequest.setNodeName(nodeName);
 			gvmCliRequest.setXml("<get_configs />");
-			GvmCliResponse response = this.service.handle(gvmCliRequest);
+			GMPResponse response = this.service.handle(gvmCliRequest);
 			Assert.assertTrue(response.isSuccessfull());
 			CVLogger.info(response.getXml());
 		} finally {

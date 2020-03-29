@@ -1,12 +1,11 @@
-package org.opentoolset.clustervas;
+package org.opentoolset.clustervas.demo;
 
 import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 
-import org.opentoolset.clustervas.CVContext.Mode;
-import org.opentoolset.clustervas.utils.CVLogger;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -14,21 +13,18 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.shell.jline.InteractiveShellApplicationRunner;
 import org.springframework.util.StringUtils;
 
 @SpringBootApplication
 @EnableScheduling
 @EnableAutoConfiguration()
-public class CVApplication implements CommandLineRunner {
+public class CVDemoApplication implements CommandLineRunner {
 
-	@Autowired
-	private ConfigurableEnvironment environment;
+	public static final Logger logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 
 	public static void main(String[] args) {
-		SpringApplicationBuilder appBuilder = new SpringApplicationBuilder(CVApplication.class);
+		SpringApplicationBuilder appBuilder = new SpringApplicationBuilder(CVDemoApplication.class);
 		{
 			String[] disabledCommands = { "--spring.shell.command.quit.enabled=false" };
 			String[] fullArgs = StringUtils.concatenateStringArrays(args, disabledCommands);
@@ -47,24 +43,19 @@ public class CVApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		if (CVContext.mode == Mode.SERVER) {
-			CVLogger.info("run-1");
-		}
+		logger.info("run-1");
 	}
 
 	// ---
 
+	// ---
+
 	private void run(ApplicationContext ctx, String[] args) throws IOException, InterruptedException {
-		if (CVContext.mode == Mode.SERVER) {
-			CVLogger.info("run-2");
-		}
+		logger.info("run-2");
 	}
 
 	@PostConstruct
 	private void start() {
-		CVLogger.info("ClusterVAS Manager is starting...");
-		if (CVContext.mode == Mode.UNIT_TEST) {
-			InteractiveShellApplicationRunner.disable(environment);
-		}
+		logger.info("ClusterVAS Demo Manager is starting...");
 	}
 }

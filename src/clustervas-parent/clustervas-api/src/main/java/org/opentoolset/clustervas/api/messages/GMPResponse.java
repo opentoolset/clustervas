@@ -6,7 +6,7 @@ package org.opentoolset.clustervas.api.messages;
 
 import org.opentoolset.nettyagents.AbstractMessage;
 
-public class GvmCliResponse extends AbstractMessage {
+public class GMPResponse extends AbstractMessage {
 
 	private static final long serialVersionUID = -5854931190418980436L;
 
