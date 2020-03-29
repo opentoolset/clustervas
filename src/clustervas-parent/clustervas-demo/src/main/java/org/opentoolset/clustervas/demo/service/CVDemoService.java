@@ -17,25 +17,19 @@ import org.opentoolset.clustervas.api.messages.RemoveNodeRequest;
 import org.opentoolset.clustervas.api.messages.RemoveNodeResponse;
 import org.opentoolset.clustervas.api.messages.cv.GetActiveNodesRequest;
 import org.opentoolset.clustervas.api.messages.cv.GetActiveNodesResponse;
-import org.opentoolset.nettyagents.Constants;
 import org.opentoolset.nettyagents.PeerContext;
-import org.opentoolset.nettyagents.Utils;
-import org.opentoolset.nettyagents.agents.ServerAgent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import io.netty.handler.ssl.util.SelfSignedCertificate;
 
 @Service
 public class CVDemoService {
 
 	@Autowired
-	private ServerAgent agent;
+	private CVDemoAgent agent;
 
 	private List<PeerContext> nodeManagersWaiting = new ArrayList<>();
 	private List<PeerContext> nodeManagersTrusted = new ArrayList<>();
-
 	private Map<String, PeerContext> connectedNodeManagers = new HashMap<>();
 	private Map<String, List<String>> activeNodesGroupedByNodeManagers = new HashMap<>();
 
@@ -47,12 +41,12 @@ public class CVDemoService {
 		return this.nodeManagersTrusted;
 	}
 
-	public void activateCommunication() {
+	public void stopPeerIdentificationMode() {
 		this.agent.stopPeerIdentificationMode();
 	}
 
-	public boolean isCommunicationActive() {
-		return !this.agent.getContext().isTrustNegotiationMode();
+	public boolean isInPeerIdentificationMode() {
+		return !this.agent.isInPeerIdentificationMode();
 	}
 
 	public String sendLoadNewNodeRequest(String nodeManagerId) {
@@ -91,14 +85,6 @@ public class CVDemoService {
 
 	@PostConstruct
 	private void postContruct() throws CertificateException, InvalidKeyException {
-		SelfSignedCertificate cert = new SelfSignedCertificate();
-		String priKeyStr = Utils.base64Encode(cert.key().getEncoded());
-		String certStr = Utils.base64Encode(cert.cert().getEncoded());
-
-		this.agent.getConfig().setTlsEnabled(true);
-		this.agent.getConfig().setPriKey(priKeyStr);
-		this.agent.getConfig().setCert(certStr);
-		this.agent.getConfig().setLocalPort(Constants.DEFAULT_SERVER_PORT);
 		this.agent.setRequestHandler(GetActiveNodesRequest.class, request -> handle(request));
 		this.agent.startPeerIdentificationMode();
 		this.agent.startup();

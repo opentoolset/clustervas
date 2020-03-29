@@ -47,7 +47,7 @@ public class CVApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		if (CVContext.mode == Mode.SERVER) {
+		if (CVContext.mode == Mode.LIVE) {
 			CVLogger.info("run-1");
 		}
 	}
@@ -55,7 +55,7 @@ public class CVApplication implements CommandLineRunner {
 	// ---
 
 	private void run(ApplicationContext ctx, String[] args) throws IOException, InterruptedException {
-		if (CVContext.mode == Mode.SERVER) {
+		if (CVContext.mode == Mode.LIVE) {
 			CVLogger.info("run-2");
 		}
 	}

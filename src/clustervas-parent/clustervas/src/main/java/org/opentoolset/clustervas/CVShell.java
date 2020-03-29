@@ -1,6 +1,6 @@
 package org.opentoolset.clustervas;
 
-import org.opentoolset.clustervas.service.CVManagerAgent;
+import org.opentoolset.clustervas.service.CVNodeManager;
 import org.opentoolset.clustervas.service.CVService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellComponent;
@@ -13,7 +13,7 @@ public class CVShell {
 	private CVService cvService;
 
 	@Autowired
-	private CVManagerAgent agent;
+	private CVNodeManager agent;
 
 	@ShellMethod("Generate key-pair")
 	public void genKeys() throws Exception {

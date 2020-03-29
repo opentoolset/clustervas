@@ -25,8 +25,8 @@ import org.apache.commons.configuration2.reloading.ReloadingController;
 import org.apache.commons.configuration2.reloading.ReloadingEvent;
 import org.glassfish.jersey.internal.guava.Lists;
 import org.opentoolset.clustervas.CVConfig;
-import org.opentoolset.clustervas.CVConstants;
 import org.opentoolset.clustervas.CVConfig.Entry;
+import org.opentoolset.clustervas.CVConstants;
 
 public final class CVConfigProvider {
 

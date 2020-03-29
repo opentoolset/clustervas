@@ -48,7 +48,7 @@ public class ContainerServiceWithDockerJava extends AbstractService implements C
 	private ContainerServiceLocalShell containerServiceLocalShell;
 
 	@Autowired
-	private CVManagerAgent cvAgent;
+	private CVNodeManager cvAgent;
 
 	private DockerClient dockerClient;
 

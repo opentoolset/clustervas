@@ -35,18 +35,9 @@ public class CVService extends AbstractService {
 	private ContainerServiceLocalShell containerServiceLocalShell;
 
 	@Autowired
-	private CVManagerAgent cvAgent;
+	private CVNodeManager agent;
 
-	@PostConstruct
-	private void postConstruct() {
-		this.cvAgent.setRequestHandler(GMPRequest.class, request -> handle(request));
-		this.cvAgent.setRequestHandler(LoadNewNodeRequest.class, request -> handle(request));
-		this.cvAgent.setRequestHandler(RemoveNodeRequest.class, request -> handle(request));
-	}
-
-	@PreDestroy
-	private void preDestroy() {
-	}
+	// ---
 
 	public LoadNewNodeResponse handle(LoadNewNodeRequest request) {
 		LoadNewNodeResponse response = new LoadNewNodeResponse();
@@ -100,5 +91,20 @@ public class CVService extends AbstractService {
 		gvmResponse.setSuccessfull(response.isSuccessful());
 		gvmResponse.setXml(response.getOutput());
 		return gvmResponse;
+	}
+
+	// ---
+
+	@PostConstruct
+	private void postConstruct() {
+		this.agent.setRequestHandler(GMPRequest.class, request -> handle(request));
+		this.agent.setRequestHandler(LoadNewNodeRequest.class, request -> handle(request));
+		this.agent.setRequestHandler(RemoveNodeRequest.class, request -> handle(request));
+		this.agent.startPeerIdentificationMode();
+		this.agent.startup();
+	}
+
+	@PreDestroy
+	private void preDestroy() {
 	}
 }

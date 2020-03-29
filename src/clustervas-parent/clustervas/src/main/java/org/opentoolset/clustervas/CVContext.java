@@ -7,10 +7,9 @@ package org.opentoolset.clustervas;
 public class CVContext {
 
 	public enum Mode {
-		SERVER, // Server mode
+		LIVE, // Server mode
 		UNIT_TEST, // Unit test mode
 	}
 
-	public static Mode mode = Mode.SERVER;
-
+	public static Mode mode = Mode.LIVE;
 }

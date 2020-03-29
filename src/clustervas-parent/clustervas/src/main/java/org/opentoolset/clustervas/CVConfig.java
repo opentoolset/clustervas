@@ -11,10 +11,12 @@ public final class CVConfig {
 
 	public enum Entry {
 
+		TLS_PRIVATE_KEY("tls.private_key", null),
+		TLS_CERTIFICATE("tls.certificate", null),
 		HOST_DATA_FOLDER("host.data_folder", CVConstants.DEFAULT_HOST_DATA_FOLDER),
 		TEMPLATE_INTERNAL_SYNC_ENABLED("template.internal_sync.enabled", CVConstants.DEFAULT_TEMPLATE_INTERNAL_SYNC_ENABLED),
-		MANAGER_HOST("manager.host", CVConstants.DEFAULT_SERVER_HOST),
-		MANAGER_PORT("manager.port", CVConstants.DEFAULT_SERVER_PORT);
+		SERVER_HOST("server.host", CVConstants.DEFAULT_SERVER_HOST),
+		SERVER_PORT("server.port", CVConstants.DEFAULT_SERVER_PORT);
 
 		private String key;
 
@@ -39,6 +41,7 @@ public final class CVConfig {
 					return true;
 				}
 			}
+
 			return false;
 		}
 	}
@@ -48,6 +51,14 @@ public final class CVConfig {
 
 	// ---
 
+	public static String getTLSPrivateKey() {
+		return getString(Entry.TLS_PRIVATE_KEY);
+	}
+
+	public static String getTLSCertificate() {
+		return getString(Entry.TLS_CERTIFICATE);
+	}
+
 	public static String getHostDataFolder() {
 		return getString(Entry.HOST_DATA_FOLDER);
 	}
@@ -56,12 +67,12 @@ public final class CVConfig {
 		return getBoolean(Entry.TEMPLATE_INTERNAL_SYNC_ENABLED);
 	}
 
-	public static String getManagerHost() {
-		return getString(Entry.MANAGER_HOST);
+	public static String getServerHost() {
+		return getString(Entry.SERVER_HOST);
 	}
 
-	public static Integer getManagerPort() {
-		return getInteger(Entry.MANAGER_PORT);
+	public static Integer getServerPort() {
+		return getInteger(Entry.SERVER_PORT);
 	}
 
 	// ---
