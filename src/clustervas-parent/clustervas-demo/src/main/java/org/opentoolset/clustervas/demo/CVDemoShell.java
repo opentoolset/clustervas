@@ -26,14 +26,14 @@ public class CVDemoShell {
 	public void listNodeManagersWaitingToBeTrusted() throws Exception {
 		List<NodeManagerContext> nodeManagers = this.service.getNodeManagersWaiting();
 		String result = nodeManagers.stream().map(nm -> buildNodeManagerStr(nm)).collect(Collectors.joining("\n"));
-		print(result);
+		println(result);
 	}
 
 	@ShellMethod("List trusted node managers")
 	public void listNodeManagersTrusted() throws Exception {
 		List<NodeManagerContext> nodeManagers = this.service.getNodeManagersTrusted();
 		String result = nodeManagers.stream().map(nm -> buildNodeManagerStr(nm)).collect(Collectors.joining("\n"));
-		print(result);
+		println(result);
 	}
 
 	@ShellMethod("Select and approve trust to a node manager")
@@ -41,15 +41,15 @@ public class CVDemoShell {
 		List<NodeManagerContext> nodeManagers = this.service.getNodeManagersWaiting();
 		String result = IntStream.range(1, nodeManagers.size() + 1).boxed().map(index -> String.format("%s - %s", index, buildNodeManagerStr(nodeManagers.get(index - 1)))).collect(Collectors.joining("\n"));
 		if (StringUtils.isEmpty(result)) {
-			print("There is no node manager waiting to be trusted");
+			println("There is no node manager waiting to be trusted");
 			return;
 		}
 
-		print(result);
+		println(result);
 		selectAndPerform(nodeManagers, selection -> {
 			NodeManagerContext nodeManager = nodeManagers.get(selection - 1);
 			nodeManager.getPeerContext().setTrusted(true);
-			print("Node manager is now trusted by you: %s", buildNodeManagerStr(nodeManager));
+			println("Node manager is now trusted by you: %s", buildNodeManagerStr(nodeManager));
 		});
 	}
 
@@ -57,14 +57,14 @@ public class CVDemoShell {
 	public void revokeTrust() throws Exception {
 		List<NodeManagerContext> nodeManagers = this.service.getNodeManagersTrusted();
 		if (nodeManagers.isEmpty()) {
-			print("There is no trusted node manager");
+			println("There is no trusted node manager");
 			return;
 		}
 
 		selectAndPerform(nodeManagers, selection -> {
 			NodeManagerContext nodeManager = nodeManagers.get(selection - 1);
 			nodeManager.getPeerContext().setTrusted(false);
-			print("Node manager is now not trusted by you: %s", buildNodeManagerStr(nodeManager));
+			println("Node manager is now not trusted by you: %s", buildNodeManagerStr(nodeManager));
 		});
 	}
 
@@ -72,7 +72,7 @@ public class CVDemoShell {
 
 	private void selectAndPerform(List<NodeManagerContext> nodeManagers, Consumer<Integer> performer) throws IOException {
 		String nodeManagerListStr = IntStream.range(1, nodeManagers.size() + 1).boxed().map(index -> String.format("%s - %s", index, buildNodeManagerStr(nodeManagers.get(index - 1)))).collect(Collectors.joining("\n"));
-		print(nodeManagerListStr);
+		println(nodeManagerListStr);
 
 		ConsoleReader consoleReader = new ConsoleReader();
 		while (true) {
@@ -93,9 +93,12 @@ public class CVDemoShell {
 	}
 
 	private String buildNodeManagerStr(NodeManagerContext nodeManager) {
-		byte[] fingerprint = Utils.getFingerprint(nodeManager.getPeerContext().getCert());
-		String result = String.format("id: %s, fingerprint: %s", nodeManager.getPeerContext().getId(), fingerprint);
+		String result = String.format("id: %s, fingerprint: %s", nodeManager.getPeerContext().getId(), Utils.getFingerprintAsHex(nodeManager.getPeerContext().getCert()));
 		return result;
+	}
+
+	private void println(String format, Object... args) {
+		print(format + "\n", args);
 	}
 
 	private void print(String format, Object... args) {

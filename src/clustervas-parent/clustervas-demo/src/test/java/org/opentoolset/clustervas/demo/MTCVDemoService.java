@@ -46,8 +46,7 @@ public class MTCVDemoService {
 	// ---
 
 	private String buildNodeManagerStr(NodeManagerContext nodeManager) {
-		byte[] fingerprint = Utils.getFingerprint(nodeManager.getPeerContext().getCert());
-		String result = String.format("id: %s, fingerprint: %s", nodeManager.getPeerContext().getId(), fingerprint);
+		String result = String.format("id: %s, fingerprint: %s", nodeManager.getPeerContext().getId(), Utils.getFingerprintAsHex(nodeManager.getPeerContext().getCert()));
 		return result;
 	}
 

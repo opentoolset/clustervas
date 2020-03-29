@@ -5,8 +5,8 @@
 package org.opentoolset.clustervas.sdk;
 
 import java.net.SocketAddress;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +26,7 @@ public class CVAgent {
 
 	private ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 
-	private Map<String, NodeManagerContext> nodeManagers = new ConcurrentHashMap<>();
+	private Map<String, NodeManagerContext> nodeManagers = new HashMap<>();
 
 	public CVAgent() {
 		Config config = this.agent.getConfig();
