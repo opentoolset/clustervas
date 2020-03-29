@@ -11,6 +11,7 @@ public final class CVConfig {
 
 	public enum Entry {
 
+		ID("id", null),
 		TLS_PRIVATE_KEY("tls.private_key", null),
 		TLS_CERTIFICATE("tls.certificate", null),
 		HOST_DATA_FOLDER("host.data_folder", CVConstants.DEFAULT_HOST_DATA_FOLDER),
@@ -50,6 +51,10 @@ public final class CVConfig {
 	}
 
 	// ---
+
+	public static String getId() {
+		return getString(Entry.ID);
+	}
 
 	public static String getTLSPrivateKey() {
 		return getString(Entry.TLS_PRIVATE_KEY);

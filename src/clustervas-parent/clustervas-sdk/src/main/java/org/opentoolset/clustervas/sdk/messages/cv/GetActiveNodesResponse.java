@@ -1,4 +1,4 @@
-package org.opentoolset.clustervas.api.messages.cv;
+package org.opentoolset.clustervas.sdk.messages.cv;
 
 import java.util.ArrayList;
 import java.util.List;

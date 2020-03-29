@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opentoolset.clustervas.demo.CVDemoApplication.Mode;
 import org.opentoolset.clustervas.demo.service.CVDemoService;
-import org.opentoolset.nettyagents.PeerContext;
+import org.opentoolset.clustervas.sdk.NodeManagerContext;
 import org.opentoolset.nettyagents.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,7 +37,7 @@ public class MTCVDemoService {
 		}
 
 		{
-			List<PeerContext> nodeManagers = this.service.getNodeManagersWaiting();
+			List<NodeManagerContext> nodeManagers = this.service.getNodeManagersWaiting();
 			String result = nodeManagers.stream().map(nm -> buildNodeManagerStr(nm)).collect(Collectors.joining("\n"));
 			print(result);
 		}
@@ -45,9 +45,9 @@ public class MTCVDemoService {
 
 	// ---
 
-	private String buildNodeManagerStr(PeerContext nodeManager) {
-		byte[] fingerprint = Utils.getFingerprint(nodeManager.getCert());
-		String result = String.format("id: %s, fingerprint: %s", nodeManager.getId(), fingerprint);
+	private String buildNodeManagerStr(NodeManagerContext nodeManager) {
+		byte[] fingerprint = Utils.getFingerprint(nodeManager.getPeerContext().getCert());
+		String result = String.format("id: %s, fingerprint: %s", nodeManager.getPeerContext().getId(), fingerprint);
 		return result;
 	}
 

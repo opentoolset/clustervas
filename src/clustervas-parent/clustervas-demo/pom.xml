@@ -12,7 +12,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>clustervas-api</artifactId>
+			<artifactId>clustervas-sdk</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 

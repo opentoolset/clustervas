@@ -6,13 +6,14 @@ package org.opentoolset.clustervas.service;
 
 import java.security.InvalidKeyException;
 import java.security.cert.CertificateException;
+import java.util.UUID;
 import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
 import org.opentoolset.clustervas.CVConfig;
-import org.opentoolset.clustervas.api.messages.cv.AbstractRequestFromNodeManager;
+import org.opentoolset.clustervas.sdk.messages.cv.AbstractRequestFromNodeManager;
 import org.opentoolset.clustervas.utils.CVConfigProvider;
 import org.opentoolset.nettyagents.AbstractMessage;
 import org.opentoolset.nettyagents.AbstractRequest;
@@ -28,12 +29,12 @@ public class CVNodeManager {
 	private ClientAgent agent = new ClientAgent();
 
 	public <TReq extends AbstractRequestFromNodeManager<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request) {
-		request.setSenderId("");
+		request.setSenderId(CVConfig.getId());
 		return this.agent.doRequest(request);
 	}
 
 	public <TReq extends AbstractRequestFromNodeManager<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request, int timeoutSec) {
-		request.setSenderId("");
+		request.setSenderId(CVConfig.getId());
 		return this.agent.doRequest(request, timeoutSec);
 	}
 
@@ -43,6 +44,11 @@ public class CVNodeManager {
 
 	@PostConstruct
 	private void postContruct() throws CertificateException, InvalidKeyException {
+		String id = CVConfig.getId();
+		if (StringUtils.isEmpty(id)) {
+			CVConfigProvider.setAndSave(CVConfig.Entry.ID, UUID.randomUUID().toString());
+		}
+
 		String priKeyStr = CVConfig.getTLSPrivateKey();
 		String certStr = CVConfig.getTLSCertificate();
 

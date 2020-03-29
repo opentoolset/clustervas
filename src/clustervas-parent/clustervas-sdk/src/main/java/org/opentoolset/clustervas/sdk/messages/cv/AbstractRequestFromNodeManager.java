@@ -1,4 +1,4 @@
-package org.opentoolset.clustervas.api.messages.cv;
+package org.opentoolset.clustervas.sdk.messages.cv;
 
 import org.opentoolset.nettyagents.AbstractMessage;
 import org.opentoolset.nettyagents.AbstractRequest;

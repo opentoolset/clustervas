@@ -5,7 +5,7 @@ import java.security.cert.CertificateException;
 
 import javax.annotation.PostConstruct;
 
-import org.opentoolset.clustervas.api.CVAgent;
+import org.opentoolset.clustervas.sdk.CVAgent;
 import org.opentoolset.nettyagents.Constants;
 import org.opentoolset.nettyagents.Utils;
 import org.springframework.stereotype.Component;

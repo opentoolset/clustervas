@@ -28,7 +28,7 @@
 
 	<modules>
 		<module>clustervas</module>
-		<module>clustervas-api</module>
+		<module>clustervas-sdk</module>
 		<module>clustervas-demo</module>
 	</modules>
 

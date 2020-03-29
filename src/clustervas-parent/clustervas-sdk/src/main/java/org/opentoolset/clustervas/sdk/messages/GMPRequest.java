@@ -2,7 +2,7 @@
 // Copyright 2020 ClusterVAS Team
 // All rights reserved
 // ---
-package org.opentoolset.clustervas.api.messages;
+package org.opentoolset.clustervas.sdk.messages;
 
 import org.opentoolset.nettyagents.AbstractRequest;
 

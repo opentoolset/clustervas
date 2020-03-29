@@ -10,12 +10,12 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.opentoolset.clustervas.CVConstants;
-import org.opentoolset.clustervas.api.messages.GMPRequest;
-import org.opentoolset.clustervas.api.messages.GMPResponse;
-import org.opentoolset.clustervas.api.messages.LoadNewNodeRequest;
-import org.opentoolset.clustervas.api.messages.LoadNewNodeResponse;
-import org.opentoolset.clustervas.api.messages.RemoveNodeRequest;
-import org.opentoolset.clustervas.api.messages.RemoveNodeResponse;
+import org.opentoolset.clustervas.sdk.messages.GMPRequest;
+import org.opentoolset.clustervas.sdk.messages.GMPResponse;
+import org.opentoolset.clustervas.sdk.messages.LoadNewNodeRequest;
+import org.opentoolset.clustervas.sdk.messages.LoadNewNodeResponse;
+import org.opentoolset.clustervas.sdk.messages.RemoveNodeRequest;
+import org.opentoolset.clustervas.sdk.messages.RemoveNodeResponse;
 import org.opentoolset.clustervas.service.ContainerService.CVContainer;
 import org.opentoolset.clustervas.utils.CmdExecutor;
 import org.opentoolset.clustervas.utils.Utils;
