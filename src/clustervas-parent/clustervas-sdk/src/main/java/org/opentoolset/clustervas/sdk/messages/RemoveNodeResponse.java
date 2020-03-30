@@ -4,24 +4,7 @@
 // ---
 package org.opentoolset.clustervas.sdk.messages;
 
-import org.opentoolset.nettyagents.AbstractRequest;
-
-public class RemoveNodeResponse extends AbstractRequest<LoadNewNodeResponse> {
+public class RemoveNodeResponse extends AbstractResponse {
 
 	private static final long serialVersionUID = -4741917937426676207L;
-
-	private boolean successfull = false;
-
-	public boolean isSuccessfull() {
-		return successfull;
-	}
-
-	public void setSuccessfull(boolean successfull) {
-		this.successfull = successfull;
-	}
-
-	@Override
-	public Class<LoadNewNodeResponse> getResponseClass() {
-		return LoadNewNodeResponse.class;
-	}
 }

@@ -23,8 +23,8 @@ import org.opentoolset.clustervas.CVConstants;
 import org.opentoolset.clustervas.sdk.messages.cv.GetActiveNodesRequest;
 import org.opentoolset.clustervas.sdk.messages.cv.GetActiveNodesResponse;
 import org.opentoolset.clustervas.utils.CVLogger;
-import org.opentoolset.clustervas.utils.ContainerUtils;
 import org.opentoolset.clustervas.utils.CmdExecutor.Response;
+import org.opentoolset.clustervas.utils.ContainerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -192,14 +192,16 @@ public class ContainerService extends AbstractService {
 		DefaultDockerClientConfig.Builder config = DefaultDockerClientConfig.createDefaultConfigBuilder();
 		this.dockerClient = DockerClientBuilder.getInstance(config).build();
 
-		this.scheduledExecutor.scheduleWithFixedDelay(() -> maintaintenance(), 0, 5, TimeUnit.SECONDS);
+		this.scheduledExecutor.scheduleWithFixedDelay(() -> maintaintenance(), 0, 10, TimeUnit.SECONDS);
 	}
 
 	private void maintaintenance() {
 		try {
 			GetActiveNodesResponse response = this.cvAgent.doRequest(new GetActiveNodesRequest());
-			List<String> nodeNames = response.getNodeNames();
-			// TODO [hadi] Remove inactive node containers here
+			if (response.isSuccessfull()) {
+				List<String> nodeNames = response.getNodeNames();
+				// TODO [hadi] Remove inactive node containers here
+			}
 		} catch (Exception e) {
 			CVLogger.debug(e, "Active nodes couln't be gathered");
 		}

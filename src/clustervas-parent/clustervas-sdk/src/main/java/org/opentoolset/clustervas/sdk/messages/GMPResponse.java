@@ -4,23 +4,11 @@
 // ---
 package org.opentoolset.clustervas.sdk.messages;
 
-import org.opentoolset.nettyagents.AbstractMessage;
-
-public class GMPResponse extends AbstractMessage {
+public class GMPResponse extends AbstractResponse {
 
 	private static final long serialVersionUID = -5854931190418980436L;
 
-	private boolean successfull = false;
-
 	private String xml;
-
-	public boolean isSuccessfull() {
-		return successfull;
-	}
-
-	public void setSuccessfull(boolean successfull) {
-		this.successfull = successfull;
-	}
 
 	public String getXml() {
 		return xml;
