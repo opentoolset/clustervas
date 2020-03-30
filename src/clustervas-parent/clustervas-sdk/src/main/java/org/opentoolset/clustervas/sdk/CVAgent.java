@@ -5,6 +5,7 @@
 package org.opentoolset.clustervas.sdk;
 
 import java.net.SocketAddress;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -12,11 +13,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import org.apache.commons.lang3.StringUtils;
 import org.opentoolset.clustervas.sdk.messages.cv.AbstractRequestFromNodeManager;
 import org.opentoolset.nettyagents.AbstractMessage;
 import org.opentoolset.nettyagents.AbstractRequest;
 import org.opentoolset.nettyagents.Constants;
 import org.opentoolset.nettyagents.PeerContext;
+import org.opentoolset.nettyagents.Utils;
 import org.opentoolset.nettyagents.agents.ServerAgent;
 import org.opentoolset.nettyagents.agents.ServerAgent.Config;
 
@@ -26,7 +29,7 @@ public class CVAgent {
 
 	private ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 
-	private Map<String, NodeManagerContext> nodeManagers = new HashMap<>();
+	private Map<SocketAddress, NodeManagerContext> nodeManagers = new HashMap<>();
 
 	public CVAgent() {
 		Config config = this.agent.getConfig();
@@ -82,8 +85,30 @@ public class CVAgent {
 		return this.agent.doRequest(request, nodeManager.getPeerContext(), timeoutSec);
 	}
 
-	public Map<String, NodeManagerContext> getNodeManagers() {
+	public Map<SocketAddress, NodeManagerContext> getNodeManagers() {
 		return nodeManagers;
+	}
+
+	public NodeManagerContext getNodeManager(String nodeManagerId) {
+		if (StringUtils.isEmpty(nodeManagerId)) {
+			return null;
+		}
+
+		for (NodeManagerContext nodeManager : this.nodeManagers.values()) {
+			if (nodeManagerId.equals(nodeManager.getPeerContext().getId())) {
+				return nodeManager;
+			}
+		}
+
+		return null;
+	}
+
+	public void setTrusted(NodeManagerContext nodeManager, boolean trusted) {
+		PeerContext peerContext = nodeManager.getPeerContext();
+		peerContext.setTrusted(true);
+		X509Certificate cert = peerContext.getCert();
+		String fingerprint = Utils.getFingerprintAsHex(cert);
+		this.agent.getContext().getTrustedCerts().put(fingerprint, cert);
 	}
 
 	// ---
@@ -105,14 +130,14 @@ public class CVAgent {
 			Map<SocketAddress, PeerContext> clients = this.agent.getClients();
 			for (SocketAddress socketAddress : clients.keySet()) {
 				PeerContext peerContext = clients.get(socketAddress);
-				this.nodeManagers.compute(peerContext.getId(), (key, value) -> addOrUpdateNodeManagerContext(key, value, socketAddress, peerContext));
+				this.nodeManagers.compute(socketAddress, (key, value) -> addOrUpdateNodeManagerContext(key, value, peerContext));
 			}
 
 			// TODO [hadidilek] Here, perform cleanup for old untrusted connections...
 		}
 	}
 
-	private NodeManagerContext addOrUpdateNodeManagerContext(String id, NodeManagerContext nodeManager, SocketAddress socketAddress, PeerContext peerContext) {
+	private NodeManagerContext addOrUpdateNodeManagerContext(SocketAddress socketAddress, NodeManagerContext nodeManager, PeerContext peerContext) {
 		nodeManager = nodeManager != null ? nodeManager : new NodeManagerContext();
 		nodeManager.setSocketAddress(socketAddress);
 		nodeManager.setPeerContext(peerContext);

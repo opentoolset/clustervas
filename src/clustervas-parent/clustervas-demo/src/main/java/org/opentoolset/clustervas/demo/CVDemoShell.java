@@ -21,6 +21,7 @@ public class CVDemoShell {
 
 	@Autowired
 	private CVDemoService service;
+	private ConsoleReader consoleReader;
 
 	@ShellMethod("List node managers waiting to be trusted")
 	public void listNodeManagersWaitingToBeTrusted() throws Exception {
@@ -45,15 +46,14 @@ public class CVDemoShell {
 			return;
 		}
 
-		println(result);
 		selectAndPerform(nodeManagers, selection -> {
 			NodeManagerContext nodeManager = nodeManagers.get(selection - 1);
-			nodeManager.getPeerContext().setTrusted(true);
+			this.service.setTrusted(nodeManager, true);
 			println("Node manager is now trusted by you: %s", buildNodeManagerStr(nodeManager));
 		});
 	}
 
-	@ShellMethod("Generate key-pair")
+	@ShellMethod("Select and revoke trust to a node manager")
 	public void revokeTrust() throws Exception {
 		List<NodeManagerContext> nodeManagers = this.service.getNodeManagersTrusted();
 		if (nodeManagers.isEmpty()) {
@@ -63,8 +63,60 @@ public class CVDemoShell {
 
 		selectAndPerform(nodeManagers, selection -> {
 			NodeManagerContext nodeManager = nodeManagers.get(selection - 1);
-			nodeManager.getPeerContext().setTrusted(false);
+			this.service.setTrusted(nodeManager, false);
 			println("Node manager is now not trusted by you: %s", buildNodeManagerStr(nodeManager));
+		});
+	}
+
+	@ShellMethod("Start peer identification mode")
+	public void startPeerIdentificationMode() {
+		this.service.startPeerIdentificationMode();
+		println("started");
+	}
+
+	@ShellMethod("Stop peer identification mode")
+	public void stopPeerIdentificationMode() {
+		this.service.stopPeerIdentificationMode();
+		println("stopped");
+	}
+
+	@ShellMethod("Load new node")
+	public void loadNewNode() throws IOException {
+		List<NodeManagerContext> nodeManagers = this.service.getNodeManagersTrusted();
+		if (nodeManagers.isEmpty()) {
+			println("There is no trusted node manager");
+			return;
+		}
+
+		selectAndPerform(nodeManagers, selection -> {
+			NodeManagerContext nodeManager = nodeManagers.get(selection - 1);
+			String sendLoadNewNodeRequest = this.service.sendLoadNewNodeRequest(nodeManager);
+			println("New node name: %s", sendLoadNewNodeRequest);
+		});
+	}
+
+	@ShellMethod("Load new node")
+	public void removeNode() throws IOException {
+		List<NodeManagerContext> nodeManagers = this.service.getNodeManagersTrusted();
+		if (nodeManagers.isEmpty()) {
+			println("There is no trusted node manager");
+			return;
+		}
+
+		selectAndPerform(nodeManagers, selection -> {
+			NodeManagerContext nodeManager = nodeManagers.get(selection - 1);
+
+			String result = IntStream.range(1, nodeManagers.size() + 1).boxed().map(index -> String.format("%s - %s", index, buildNodeManagerStr(nodeManagers.get(index - 1)))).collect(Collectors.joining("\n"));
+
+			nodeManager.getActiveNodes();
+
+			try {
+				String nodeName = consoleReader.readLine("Enter node name to revoke: ");
+				boolean removed = this.service.sendRemoveNodeRequest(nodeManager, nodeName);
+				println("Removed: %s", removed);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		});
 	}
 
@@ -74,9 +126,9 @@ public class CVDemoShell {
 		String nodeManagerListStr = IntStream.range(1, nodeManagers.size() + 1).boxed().map(index -> String.format("%s - %s", index, buildNodeManagerStr(nodeManagers.get(index - 1)))).collect(Collectors.joining("\n"));
 		println(nodeManagerListStr);
 
-		ConsoleReader consoleReader = new ConsoleReader();
+		this.consoleReader = new ConsoleReader();
 		while (true) {
-			String selectionStr = consoleReader.readLine("Select node manager number to revoke trust (0 to exit): ");
+			String selectionStr = this.consoleReader.readLine("Select node manager number to revoke trust (0 to exit): ");
 			try {
 				int selection = Integer.parseInt(selectionStr);
 				if (selection == 0) {

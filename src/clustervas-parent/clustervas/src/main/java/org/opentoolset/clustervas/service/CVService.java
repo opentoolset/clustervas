@@ -18,6 +18,7 @@ import org.opentoolset.clustervas.sdk.messages.RemoveNodeRequest;
 import org.opentoolset.clustervas.sdk.messages.RemoveNodeResponse;
 import org.opentoolset.clustervas.service.ContainerService.CVContainer;
 import org.opentoolset.clustervas.utils.CmdExecutor;
+import org.opentoolset.clustervas.utils.ContainerUtils;
 import org.opentoolset.clustervas.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,9 +31,6 @@ public class CVService extends AbstractService {
 
 	@Autowired
 	private ContainerService containerService;
-
-	@Autowired
-	private ContainerServiceLocalShell containerServiceLocalShell;
 
 	@Autowired
 	private CVNodeManager agent;
@@ -55,7 +53,7 @@ public class CVService extends AbstractService {
 			return response;
 		}
 
-		if (!this.containerServiceLocalShell.waitUntilGvmdIsReady(nodeName, new Utils.TimeOutIndicator(120, TimeUnit.SECONDS))) {
+		if (!ContainerUtils.waitUntilGvmdIsReady(nodeName, new Utils.TimeOutIndicator(120, TimeUnit.SECONDS))) {
 			this.containerService.removeNodeContainer(nodeName);
 			// TODO [hadi] inform user through response message about failure
 			return response;
@@ -82,12 +80,12 @@ public class CVService extends AbstractService {
 			return gvmResponse;
 		}
 
-		if (!this.containerServiceLocalShell.waitUntilGvmdIsReady(request.getNodeName(), new Utils.TimeOutIndicator(10, TimeUnit.SECONDS))) {
+		if (!ContainerUtils.waitUntilGvmdIsReady(request.getNodeName(), new Utils.TimeOutIndicator(10, TimeUnit.SECONDS))) {
 			// TODO [hadi] inform user through response message about illegal state
 			return gvmResponse;
 		}
 
-		CmdExecutor.Response response = this.containerServiceLocalShell.dockerExec(request.getNodeName(), GVM_COMMAND, request.getXml());
+		CmdExecutor.Response response = ContainerUtils.dockerExec(request.getNodeName(), GVM_COMMAND, request.getXml());
 		gvmResponse.setSuccessfull(response.isSuccessful());
 		gvmResponse.setXml(response.getOutput());
 		return gvmResponse;

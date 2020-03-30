@@ -34,6 +34,10 @@ public class CVDemoService {
 		return this.agent.getNodeManagers().values().stream().filter(nm -> nm.getPeerContext().isTrusted()).collect(Collectors.toList());
 	}
 
+	public void startPeerIdentificationMode() {
+		this.agent.startPeerIdentificationMode();
+	}
+
 	public void stopPeerIdentificationMode() {
 		this.agent.stopPeerIdentificationMode();
 	}
@@ -42,8 +46,11 @@ public class CVDemoService {
 		return !this.agent.isInPeerIdentificationMode();
 	}
 
-	public String sendLoadNewNodeRequest(String nodeManagerId) {
-		NodeManagerContext nodeManager = this.agent.getNodeManagers().get(nodeManagerId);
+	public void setTrusted(NodeManagerContext nodeManager, boolean trusted) {
+		this.agent.setTrusted(nodeManager, trusted);
+	}
+
+	public String sendLoadNewNodeRequest(NodeManagerContext nodeManager) {
 		LoadNewNodeResponse response = this.agent.doRequest(new LoadNewNodeRequest(), nodeManager);
 		if (response != null && response.isSuccessfull()) {
 			String newNodeName = response.getNodeName();
@@ -54,11 +61,10 @@ public class CVDemoService {
 		return null;
 	}
 
-	public boolean sendRemoveNodeRequest(String nodeManagerId, String nodeName) {
+	public boolean sendRemoveNodeRequest(NodeManagerContext nodeManager, String nodeName) {
 		RemoveNodeRequest request = new RemoveNodeRequest();
 		request.setNodeName(nodeName);
 
-		NodeManagerContext nodeManager = this.agent.getNodeManagers().get(nodeManagerId);
 		RemoveNodeResponse response = this.agent.doRequest(request, nodeManager);
 		if (response != null && response.isSuccessfull()) {
 			nodeManager.getActiveNodes().remove(nodeName);
@@ -73,7 +79,7 @@ public class CVDemoService {
 		request.setNodeName(nodeName);
 		request.setXml(commandXML);
 
-		NodeManagerContext nodeManager = this.agent.getNodeManagers().get(nodeManagerId);
+		NodeManagerContext nodeManager = this.agent.getNodeManager(nodeManagerId);
 		GMPResponse response = this.agent.doRequest(request, nodeManager);
 		return response.isSuccessfull() ? response.getXml() : null;
 	}
@@ -95,7 +101,7 @@ public class CVDemoService {
 			return response;
 		}
 
-		NodeManagerContext nodeManager = this.agent.getNodeManagers().get(nodeManagerId);
+		NodeManagerContext nodeManager = this.agent.getNodeManager(nodeManagerId);
 		response.getNodeNames().addAll(nodeManager.getActiveNodes());
 		return response;
 	}

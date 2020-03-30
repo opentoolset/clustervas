@@ -2,19 +2,15 @@
 // Copyright 2020 ClusterVAS Team
 // All rights reserved
 // ---
-package org.opentoolset.clustervas.service;
+package org.opentoolset.clustervas.utils;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import org.opentoolset.clustervas.utils.CVLogger;
-import org.opentoolset.clustervas.utils.CmdExecutor;
 import org.opentoolset.clustervas.utils.CmdExecutor.Response;
-import org.springframework.stereotype.Service;
 
-@Service
-public class ContainerServiceLocalShell extends AbstractService {
+public final class ContainerUtils {
 
 	private static final String CMD_DOCKER_EXEC_PREFIX_TEMPLATE = "docker exec %s bash -c";
 	private static final String CMD_DOCKER_EXEC_WITH_STDIN_PREFIX_TEMPLATE = "docker exec -i %s bash -c";
@@ -23,11 +19,14 @@ public class ContainerServiceLocalShell extends AbstractService {
 	private static final String CMD_DOCKER_RMI_TEMPLATE = "docker rmi -f %s";
 	private static final String CMD_GVMD_PROCESS_INFO = "ps $(pidof gvmd) | grep gvmd";
 
-	public Response dockerExec(String containerName, String cmd) {
+	private ContainerUtils() {
+	}
+
+	public static Response dockerExec(String containerName, String cmd) {
 		return dockerExec(containerName, cmd, CmdExecutor.DEFAULT_TIMEOUT_SEC);
 	}
 
-	public Response dockerExec(String containerName, String cmd, long timeoutSec) {
+	public static Response dockerExec(String containerName, String cmd, long timeoutSec) {
 		String dockerExecPrefix = String.format(CMD_DOCKER_EXEC_PREFIX_TEMPLATE, containerName);
 		String wrapperCmd = String.format("%s '%s'", dockerExecPrefix, cmd);
 
@@ -35,11 +34,11 @@ public class ContainerServiceLocalShell extends AbstractService {
 		return response;
 	}
 
-	public Response dockerExec(String containerName, String cmd, String data) {
+	public static Response dockerExec(String containerName, String cmd, String data) {
 		return dockerExec(containerName, cmd, data, CmdExecutor.DEFAULT_TIMEOUT_SEC);
 	}
 
-	public Response dockerExec(String containerName, String cmd, String data, long timeoutSec) {
+	public static Response dockerExec(String containerName, String cmd, String data, long timeoutSec) {
 		String dockerExecPrefix = String.format(CMD_DOCKER_EXEC_WITH_STDIN_PREFIX_TEMPLATE, containerName);
 		String wrapperCmd = String.format("%s '%s'", dockerExecPrefix, cmd);
 
@@ -47,7 +46,7 @@ public class ContainerServiceLocalShell extends AbstractService {
 		return response;
 	}
 
-	public String getGvmdProcessInfo(String containerName) {
+	public static String getGvmdProcessInfo(String containerName) {
 		Response response = dockerExec(containerName, CMD_GVMD_PROCESS_INFO);
 		if (!response.isSuccessful()) {
 			CVLogger.warn(response.getOutput());
@@ -65,7 +64,7 @@ public class ContainerServiceLocalShell extends AbstractService {
 	 * @param containerName
 	 * @return true if there is no gvmd processes in operation (ie. not waiting).
 	 */
-	public boolean checkIfGvmdIsReady(String containerName) {
+	public static boolean checkIfGvmdIsReady(String containerName) {
 		String processInfo = getGvmdProcessInfo(containerName);
 		if (processInfo == null) {
 			return false;
@@ -80,7 +79,7 @@ public class ContainerServiceLocalShell extends AbstractService {
 		return true;
 	}
 
-	public boolean waitUntilGvmdIsReady(String containerName, Supplier<Boolean> stopRequestIndicator) {
+	public static boolean waitUntilGvmdIsReady(String containerName, Supplier<Boolean> stopRequestIndicator) {
 		// Returns true if ready to snapshot/commit the clustervas image from template container
 		Supplier<Boolean> testerForQuitingLoop = () -> {
 			boolean quitLoop = Optional.ofNullable(stopRequestIndicator.get()).orElse(false);
@@ -105,7 +104,7 @@ public class ContainerServiceLocalShell extends AbstractService {
 		return true;
 	}
 
-	public boolean commitDockerImage(String containerName, String targetImageName) {
+	public static boolean commitDockerImage(String containerName, String targetImageName) {
 		String cmd = String.format(CMD_DOCKER_COMMIT_TEMPLATE, containerName, targetImageName);
 		Response response = CmdExecutor.exec(cmd);
 		if (!response.isSuccessful()) {
@@ -115,7 +114,7 @@ public class ContainerServiceLocalShell extends AbstractService {
 		return response.isSuccessful();
 	}
 
-	public boolean tagDockerImage(String imageName, String newTag) {
+	public static boolean tagDockerImage(String imageName, String newTag) {
 		String cmd = String.format(CMD_DOCKER_TAG_TEMPLATE, imageName, newTag);
 		Response response = CmdExecutor.exec(cmd);
 		if (!response.isSuccessful()) {
@@ -125,7 +124,7 @@ public class ContainerServiceLocalShell extends AbstractService {
 		return response.isSuccessful();
 	}
 
-	public boolean removeDockerImage(String imageName) {
+	public static boolean removeDockerImage(String imageName) {
 		String cmd = String.format(CMD_DOCKER_RMI_TEMPLATE, imageName);
 		Response response = CmdExecutor.exec(cmd);
 		if (!response.isSuccessful()) {
@@ -135,7 +134,7 @@ public class ContainerServiceLocalShell extends AbstractService {
 		return response.isSuccessful();
 	}
 
-	public boolean renameDockerImage(String oldName, String newName) {
+	public static boolean renameDockerImage(String oldName, String newName) {
 		boolean result;
 		result = tagDockerImage(oldName, newName);
 		result = result & removeDockerImage(oldName);
