@@ -9,11 +9,14 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.opentoolset.clustervas.CVConfig;
 import org.opentoolset.clustervas.CVConstants;
 import org.opentoolset.clustervas.sdk.messages.GMPRequest;
 import org.opentoolset.clustervas.sdk.messages.GMPResponse;
 import org.opentoolset.clustervas.sdk.messages.LoadNewNodeRequest;
 import org.opentoolset.clustervas.sdk.messages.LoadNewNodeResponse;
+import org.opentoolset.clustervas.sdk.messages.NodeManagerInfoRequest;
+import org.opentoolset.clustervas.sdk.messages.NodeManagerInfoResponse;
 import org.opentoolset.clustervas.sdk.messages.RemoveNodeRequest;
 import org.opentoolset.clustervas.sdk.messages.RemoveNodeResponse;
 import org.opentoolset.clustervas.service.ContainerService.CVContainer;
@@ -36,6 +39,13 @@ public class CVService extends AbstractService {
 	private CVNodeManager agent;
 
 	// ---
+
+	public NodeManagerInfoResponse handle(NodeManagerInfoRequest request) {
+		NodeManagerInfoResponse response = new NodeManagerInfoResponse();
+		response.setId(CVConfig.getId());
+		response.setSuccessfull(true);
+		return response;
+	}
 
 	public LoadNewNodeResponse handle(LoadNewNodeRequest request) {
 		LoadNewNodeResponse response = new LoadNewNodeResponse();
@@ -95,9 +105,10 @@ public class CVService extends AbstractService {
 
 	@PostConstruct
 	private void postConstruct() {
-		this.agent.setRequestHandler(GMPRequest.class, request -> handle(request));
+		this.agent.setRequestHandler(NodeManagerInfoRequest.class, request -> handle(request));
 		this.agent.setRequestHandler(LoadNewNodeRequest.class, request -> handle(request));
 		this.agent.setRequestHandler(RemoveNodeRequest.class, request -> handle(request));
+		this.agent.setRequestHandler(GMPRequest.class, request -> handle(request));
 		this.agent.startPeerIdentificationMode();
 		this.agent.startup();
 	}

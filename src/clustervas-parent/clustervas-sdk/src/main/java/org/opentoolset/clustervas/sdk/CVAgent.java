@@ -14,6 +14,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
+import org.opentoolset.clustervas.sdk.messages.NodeManagerInfoRequest;
+import org.opentoolset.clustervas.sdk.messages.NodeManagerInfoResponse;
 import org.opentoolset.clustervas.sdk.messages.cv.AbstractRequestFromNodeManager;
 import org.opentoolset.nettyagents.AbstractMessage;
 import org.opentoolset.nettyagents.AbstractRequest;
@@ -69,7 +71,7 @@ public class CVAgent {
 
 	public <TReq extends AbstractRequest<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request, NodeManagerContext nodeManager) {
 		if (!nodeManager.getPeerContext().isTrusted()) {
-			// TODO [mhdilrk] Exception may make more sense here
+			// TODO [mhdilrk] Throwing an exception may make more sense here
 			return null;
 		}
 
@@ -78,7 +80,7 @@ public class CVAgent {
 
 	public <TReq extends AbstractRequest<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request, NodeManagerContext nodeManager, int timeoutSec) {
 		if (!nodeManager.getPeerContext().isTrusted()) {
-			// TODO [mhdilrk] Exception may make more sense here
+			// TODO [mhdilrk] Throwing an exception may make more sense here
 			return null;
 		}
 
@@ -139,6 +141,15 @@ public class CVAgent {
 
 	private NodeManagerContext addOrUpdateNodeManagerContext(SocketAddress socketAddress, NodeManagerContext nodeManager, PeerContext peerContext) {
 		nodeManager = nodeManager != null ? nodeManager : new NodeManagerContext();
+		if (StringUtils.isEmpty(peerContext.getId()) && peerContext.isTrusted()) {
+			try {
+				NodeManagerInfoResponse response = doRequest(new NodeManagerInfoRequest(), nodeManager);
+				if (response.isSuccessfull()) {
+					peerContext.setId(response.getId());
+				}
+			} catch (Exception e) {
+			}
+		}
 		nodeManager.setSocketAddress(socketAddress);
 		nodeManager.setPeerContext(peerContext);
 		return nodeManager;
