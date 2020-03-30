@@ -103,6 +103,7 @@ public class CVDemoService {
 
 		NodeManagerContext nodeManager = this.agent.getNodeManager(nodeManagerId);
 		response.getNodeNames().addAll(nodeManager.getActiveNodes());
+		response.setSuccessfull(true);
 		return response;
 	}
 }
