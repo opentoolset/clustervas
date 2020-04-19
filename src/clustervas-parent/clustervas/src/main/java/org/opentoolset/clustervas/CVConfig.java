@@ -52,32 +52,64 @@ public final class CVConfig {
 
 	// ---
 
+	public static void save() {
+		CVConfigProvider.save();
+	}
+
 	public static String getId() {
 		return getString(Entry.ID);
+	}
+
+	public static void setId(String id) {
+		set(Entry.ID, id);
 	}
 
 	public static String getTLSPrivateKey() {
 		return getString(Entry.TLS_PRIVATE_KEY);
 	}
 
+	public static void setTLSPrivateKey(String id) {
+		set(Entry.TLS_PRIVATE_KEY, id);
+	}
+
 	public static String getTLSCertificate() {
 		return getString(Entry.TLS_CERTIFICATE);
+	}
+
+	public static void setTLSCertificate(String id) {
+		set(Entry.TLS_CERTIFICATE, id);
 	}
 
 	public static String getHostDataFolder() {
 		return getString(Entry.HOST_DATA_FOLDER);
 	}
 
+	public static void setHostDataFolder(String id) {
+		set(Entry.HOST_DATA_FOLDER, id);
+	}
+
 	public static boolean isTemplateInternalSyncEnabled() {
 		return getBoolean(Entry.TEMPLATE_INTERNAL_SYNC_ENABLED);
+	}
+
+	public static void setTemplateInternalSyncEnabled(String id) {
+		set(Entry.TEMPLATE_INTERNAL_SYNC_ENABLED, id);
 	}
 
 	public static String getServerHost() {
 		return getString(Entry.SERVER_HOST);
 	}
 
+	public static void setServerHost(String id) {
+		set(Entry.SERVER_HOST, id);
+	}
+
 	public static Integer getServerPort() {
 		return getInteger(Entry.SERVER_PORT);
+	}
+
+	public static void setServerPort(String id) {
+		set(Entry.SERVER_PORT, id);
 	}
 
 	// ---
@@ -92,5 +124,9 @@ public final class CVConfig {
 
 	private static Integer getInteger(Entry key) {
 		return CVConfigProvider.getInteger(key);
+	}
+
+	private static void set(Entry key, Object value) {
+		CVConfigProvider.set(key, value);
 	}
 }

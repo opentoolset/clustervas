@@ -14,7 +14,6 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.opentoolset.clustervas.CVConfig;
 import org.opentoolset.clustervas.sdk.messages.cv.AbstractRequestFromNodeManager;
-import org.opentoolset.clustervas.utils.CVConfigProvider;
 import org.opentoolset.nettyagents.AbstractMessage;
 import org.opentoolset.nettyagents.AbstractRequest;
 import org.opentoolset.nettyagents.Utils;
@@ -46,7 +45,8 @@ public class CVNodeManager {
 	private void postContruct() throws CertificateException, InvalidKeyException {
 		String id = CVConfig.getId();
 		if (StringUtils.isEmpty(id)) {
-			CVConfigProvider.setAndSave(CVConfig.Entry.ID, UUID.randomUUID().toString());
+			CVConfig.setId(UUID.randomUUID().toString());
+			CVConfig.save();
 		}
 
 		String priKeyStr = CVConfig.getTLSPrivateKey();
@@ -57,9 +57,9 @@ public class CVNodeManager {
 			priKeyStr = Utils.base64Encode(cert.key().getEncoded());
 			certStr = Utils.base64Encode(cert.cert().getEncoded());
 
-			CVConfigProvider.set(CVConfig.Entry.TLS_PRIVATE_KEY, priKeyStr);
-			CVConfigProvider.set(CVConfig.Entry.TLS_CERTIFICATE, certStr);
-			CVConfigProvider.save();
+			CVConfig.setTLSPrivateKey(priKeyStr);
+			CVConfig.setTLSPrivateKey(certStr);
+			CVConfig.save();
 		}
 
 		this.agent.getConfig().setTlsEnabled(true);
