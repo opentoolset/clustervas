@@ -10,9 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.net.SyslogAppender;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.ConsoleAppender;
 
 public class CVLogger {
 
@@ -23,14 +25,17 @@ public class CVLogger {
 
 		if (genericLogger instanceof ch.qos.logback.classic.Logger) {
 			logger = (ch.qos.logback.classic.Logger) genericLogger;
+			logger.setLevel(Level.INFO);
 
 			boolean addSyslogAppender = true;
 			Iterator<Appender<ILoggingEvent>> appenders = logger.iteratorForAppenders();
 			while (appenders.hasNext()) {
 				Appender<ILoggingEvent> appender = appenders.next();
+				if (appender instanceof ConsoleAppender) {
+					logger.detachAppender(appender);
+				}
 				if (appender instanceof SyslogAppender) {
 					addSyslogAppender = false;
-					break;
 				}
 			}
 

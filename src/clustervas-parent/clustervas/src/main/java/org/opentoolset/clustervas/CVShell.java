@@ -54,7 +54,7 @@ public class CVShell {
 		agent.startPeerIdentificationMode();
 		agent.startup();
 
-		Utils.waitUntil(() -> agent.getServer() != null && agent.getServer().getCert() != null, 10);
+		Utils.waitUntil(() -> agent.getServer() != null, 10);
 		PeerContext server = agent.getServer();
 		if (server == null) {
 			println("The orchestrator couln't be connected. Please retry.");
