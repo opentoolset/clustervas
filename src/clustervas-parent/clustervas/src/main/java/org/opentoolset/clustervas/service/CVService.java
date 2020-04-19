@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.apache.commons.lang3.StringUtils;
 import org.opentoolset.clustervas.CVConfig;
 import org.opentoolset.clustervas.CVConstants;
 import org.opentoolset.clustervas.sdk.messages.GMPRequest;
@@ -109,8 +110,17 @@ public class CVService extends AbstractService {
 		this.agent.setRequestHandler(LoadNewNodeRequest.class, request -> handle(request));
 		this.agent.setRequestHandler(RemoveNodeRequest.class, request -> handle(request));
 		this.agent.setRequestHandler(GMPRequest.class, request -> handle(request));
-		this.agent.startPeerIdentificationMode();
-		this.agent.startup();
+
+		boolean prepared = true;
+		prepared = prepared && StringUtils.isBlank(CVConfig.getTLSPrivateKey());
+		prepared = prepared && StringUtils.isBlank(CVConfig.getTLSCertificate());
+		prepared = prepared && StringUtils.isBlank(CVConfig.getOrchestratorHost());
+		prepared = prepared && CVConfig.getOrchestratorPort() != null;
+		prepared = prepared && StringUtils.isBlank(CVConfig.getOrchestratorTLSCertificate());
+
+		if (prepared) {
+			this.agent.startup();
+		}
 	}
 
 	@PreDestroy

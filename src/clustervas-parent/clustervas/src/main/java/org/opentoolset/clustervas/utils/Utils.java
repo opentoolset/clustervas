@@ -7,6 +7,7 @@ package org.opentoolset.clustervas.utils;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class Utils {
@@ -45,5 +46,14 @@ public class Utils {
 		}
 
 		return tester.get();
+	}
+	
+	public static boolean noExcepion(Supplier<Object> supplier) {
+		try {
+			supplier.get();
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 }

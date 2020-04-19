@@ -71,7 +71,7 @@ public class CVAgent {
 
 	public <TReq extends AbstractRequest<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request, NodeManagerContext nodeManager) {
 		if (!nodeManager.getPeerContext().isTrusted()) {
-			// TODO [mhdilrk] Throwing an exception may make more sense here
+			// TODO [hadidilek] Throwing an exception may make more sense here
 			return null;
 		}
 
@@ -80,7 +80,7 @@ public class CVAgent {
 
 	public <TReq extends AbstractRequest<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request, NodeManagerContext nodeManager, int timeoutSec) {
 		if (!nodeManager.getPeerContext().isTrusted()) {
-			// TODO [mhdilrk] Throwing an exception may make more sense here
+			// TODO [hadidilek] Throwing an exception may make more sense here
 			return null;
 		}
 

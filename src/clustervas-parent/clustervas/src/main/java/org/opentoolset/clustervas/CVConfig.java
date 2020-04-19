@@ -16,8 +16,9 @@ public final class CVConfig {
 		TLS_CERTIFICATE("tls.certificate", null),
 		HOST_DATA_FOLDER("host.data_folder", CVConstants.DEFAULT_HOST_DATA_FOLDER),
 		TEMPLATE_INTERNAL_SYNC_ENABLED("template.internal_sync.enabled", CVConstants.DEFAULT_TEMPLATE_INTERNAL_SYNC_ENABLED),
-		SERVER_HOST("server.host", CVConstants.DEFAULT_SERVER_HOST),
-		SERVER_PORT("server.port", CVConstants.DEFAULT_SERVER_PORT);
+		ORCHESTRATOR_HOST("orchestrator.host", CVConstants.DEFAULT_SERVER_HOST),
+		ORCHESTRATOR_PORT("orchestrator.port", CVConstants.DEFAULT_SERVER_PORT),
+		ORCHESTRATOR_TLS_CERTIFICATE("orchestrator.tls.certificate", null);
 
 		private String key;
 
@@ -68,48 +69,56 @@ public final class CVConfig {
 		return getString(Entry.TLS_PRIVATE_KEY);
 	}
 
-	public static void setTLSPrivateKey(String id) {
-		set(Entry.TLS_PRIVATE_KEY, id);
+	public static void setTLSPrivateKey(String key) {
+		set(Entry.TLS_PRIVATE_KEY, key);
 	}
 
 	public static String getTLSCertificate() {
 		return getString(Entry.TLS_CERTIFICATE);
 	}
 
-	public static void setTLSCertificate(String id) {
-		set(Entry.TLS_CERTIFICATE, id);
+	public static void setTLSCertificate(String cert) {
+		set(Entry.TLS_CERTIFICATE, cert);
 	}
 
 	public static String getHostDataFolder() {
 		return getString(Entry.HOST_DATA_FOLDER);
 	}
 
-	public static void setHostDataFolder(String id) {
-		set(Entry.HOST_DATA_FOLDER, id);
+	public static void setHostDataFolder(String folder) {
+		set(Entry.HOST_DATA_FOLDER, folder);
 	}
 
 	public static boolean isTemplateInternalSyncEnabled() {
 		return getBoolean(Entry.TEMPLATE_INTERNAL_SYNC_ENABLED);
 	}
 
-	public static void setTemplateInternalSyncEnabled(String id) {
-		set(Entry.TEMPLATE_INTERNAL_SYNC_ENABLED, id);
+	public static void setTemplateInternalSyncEnabled(String enabled) {
+		set(Entry.TEMPLATE_INTERNAL_SYNC_ENABLED, enabled);
 	}
 
-	public static String getServerHost() {
-		return getString(Entry.SERVER_HOST);
+	public static String getOrchestratorHost() {
+		return getString(Entry.ORCHESTRATOR_HOST);
 	}
 
-	public static void setServerHost(String id) {
-		set(Entry.SERVER_HOST, id);
+	public static void setOrchestratorHost(String host) {
+		set(Entry.ORCHESTRATOR_HOST, host);
 	}
 
-	public static Integer getServerPort() {
-		return getInteger(Entry.SERVER_PORT);
+	public static Integer getOrchestratorPort() {
+		return getInteger(Entry.ORCHESTRATOR_PORT);
 	}
 
-	public static void setServerPort(String id) {
-		set(Entry.SERVER_PORT, id);
+	public static void setOrchestratorPort(String port) {
+		set(Entry.ORCHESTRATOR_PORT, port);
+	}
+
+	public static String getOrchestratorTLSCertificate() {
+		return getString(Entry.ORCHESTRATOR_TLS_CERTIFICATE);
+	}
+
+	public static void setOrchestratorTLSCertificate(String id) {
+		set(Entry.ORCHESTRATOR_TLS_CERTIFICATE, id);
 	}
 
 	// ---

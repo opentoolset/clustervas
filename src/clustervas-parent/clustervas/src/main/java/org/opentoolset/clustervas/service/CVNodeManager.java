@@ -6,6 +6,7 @@ package org.opentoolset.clustervas.service;
 
 import java.security.InvalidKeyException;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -16,8 +17,10 @@ import org.opentoolset.clustervas.CVConfig;
 import org.opentoolset.clustervas.sdk.messages.cv.AbstractRequestFromNodeManager;
 import org.opentoolset.nettyagents.AbstractMessage;
 import org.opentoolset.nettyagents.AbstractRequest;
+import org.opentoolset.nettyagents.PeerContext;
 import org.opentoolset.nettyagents.Utils;
 import org.opentoolset.nettyagents.agents.ClientAgent;
+import org.opentoolset.nettyagents.agents.ClientAgent.Config;
 import org.springframework.stereotype.Component;
 
 import io.netty.handler.ssl.util.SelfSignedCertificate;
@@ -65,15 +68,50 @@ public class CVNodeManager {
 		this.agent.getConfig().setTlsEnabled(true);
 		this.agent.getConfig().setPriKey(priKeyStr);
 		this.agent.getConfig().setCert(certStr);
-		this.agent.getConfig().setRemoteHost(CVConfig.getServerHost());
-		this.agent.getConfig().setRemotePort(CVConfig.getServerPort());
+		this.agent.getConfig().setRemoteHost(CVConfig.getOrchestratorHost());
+		this.agent.getConfig().setRemotePort(CVConfig.getOrchestratorPort());
+
+		String orchestratorCert = CVConfig.getOrchestratorTLSCertificate();
+		if (!StringUtils.isBlank(orchestratorCert)) {
+			X509Certificate cert = Utils.buildCert(orchestratorCert);
+			setTrustedCert(cert);
+		}
 	}
 
 	public void startPeerIdentificationMode() {
 		this.agent.startPeerIdentificationMode();
 	}
 
+	public void stopPeerIdentificationMode() {
+		this.agent.stopPeerIdentificationMode();
+	}
+
+	public Config getConfig() {
+		return this.agent.getConfig();
+	}
+
+	public void setTrustedCert(X509Certificate orchestratorCert) {
+		String fingerprint = Utils.getFingerprintAsHex(orchestratorCert);
+
+		this.agent.getContext().getTrustedCerts().clear();
+		this.agent.getContext().getTrustedCerts().put(fingerprint, orchestratorCert);
+	}
+
 	public void startup() {
 		this.agent.startup();
+	}
+
+	public void shutdown() {
+		this.agent.shutdown();
+	}
+
+	public PeerContext getServer() {
+		return this.agent.getServer();
+	}
+
+	public void setTrusted(PeerContext server, String orchestratorFingerprint, X509Certificate orchestratorCert) {
+		this.agent.getContext().getTrustedCerts().clear();
+		this.agent.getContext().getTrustedCerts().put(orchestratorFingerprint, orchestratorCert);
+		server.setTrusted(true);
 	}
 }

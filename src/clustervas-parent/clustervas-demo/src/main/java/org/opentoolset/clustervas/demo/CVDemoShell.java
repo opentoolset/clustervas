@@ -1,13 +1,17 @@
 package org.opentoolset.clustervas.demo;
 
 import java.io.IOException;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
 import org.opentoolset.clustervas.demo.service.CVDemoService;
+import org.opentoolset.clustervas.sdk.CVAgent;
 import org.opentoolset.clustervas.sdk.NodeManagerContext;
 import org.opentoolset.nettyagents.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +25,19 @@ public class CVDemoShell {
 
 	@Autowired
 	private CVDemoService service;
+
+	@Autowired
+	private CVAgent agent;
+
 	private ConsoleReader consoleReader;
 
+	@ShellMethod("Show fingerprint of our TLS certificate")
+	public void showFingerprint() throws Exception {
+		X509Certificate cert = agent.getConfig().getCert();
+		String fingerprint = Utils.getFingerprintAsHex(cert);
+		println(fingerprint);
+	}
+	
 	@ShellMethod("List node managers waiting to be trusted")
 	public void listNodeManagersWaitingToBeTrusted() throws Exception {
 		List<NodeManagerContext> nodeManagers = this.service.getNodeManagersWaiting();
@@ -122,11 +137,15 @@ public class CVDemoShell {
 
 	// ------
 
+	@PostConstruct
+	private void postConstruct() throws IOException {
+		this.consoleReader = new ConsoleReader();
+	}
+
 	private void selectAndPerform(List<NodeManagerContext> nodeManagers, Consumer<Integer> performer) throws IOException {
 		String nodeManagerListStr = IntStream.range(1, nodeManagers.size() + 1).boxed().map(index -> String.format("%s - %s", index, buildNodeManagerStr(nodeManagers.get(index - 1)))).collect(Collectors.joining("\n"));
 		println(nodeManagerListStr);
 
-		this.consoleReader = new ConsoleReader();
 		while (true) {
 			String selectionStr = this.consoleReader.readLine("Select node manager number to revoke trust (0 to exit): ");
 			try {
