@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opentoolset.clustervas.demo.CVDemoApplication.Mode;
+import org.opentoolset.clustervas.demo.CVDemoOrchestratorApplication.Mode;
 import org.opentoolset.clustervas.demo.service.CVDemoService;
 import org.opentoolset.clustervas.sdk.NodeManagerContext;
 import org.opentoolset.nettyagents.Utils;
@@ -24,7 +24,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class MTCVDemoService {
 
 	static {
-		CVDemoApplication.mode = Mode.UNIT_TEST;
+		CVDemoOrchestratorApplication.mode = Mode.UNIT_TEST;
 	}
 
 	@Autowired

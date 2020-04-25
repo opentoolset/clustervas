@@ -7,14 +7,15 @@
 <setAttribute key="name.schedenig.eclipse.grepconsole.StatisticsDisabledIds"/>
 <setAttribute key="name.schedenig.eclipse.grepconsole.StatisticsEnabledIds"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/clustervas-demo/src/main/java/org/opentoolset/clustervas/demo/CVDemoApplication.java"/>
+<listEntry value="/clustervas-demo"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="1"/>
+<listEntry value="4"/>
 </listAttribute>
 <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.opentoolset.clustervas.demo.CVDemoApplication"/>
+<stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="clustervas-demo"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="clustervas-demo"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
 </launchConfiguration>

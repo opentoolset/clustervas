@@ -22,7 +22,7 @@ import org.springframework.shell.standard.ShellMethod;
 
 import jline.console.ConsoleReader;
 
-@ShellComponent
+@ShellComponent(value = "ClusterVAS Node Manager Shell")
 public class CVShell {
 
 	@Autowired
@@ -32,6 +32,13 @@ public class CVShell {
 	private CVNodeManager agent;
 
 	private ConsoleReader consoleReader;
+
+	@ShellMethod("Show fingerprint of our TLS certificate")
+	public void showCertFingerprint() throws Exception {
+		X509Certificate cert = this.agent.getConfig().getCert();
+		String fingerprint = org.opentoolset.nettyagents.Utils.getFingerprintAsHex(cert);
+		println(fingerprint);
+	}
 
 	@ShellMethod("Connect to an orchestrator")
 	public void connect() throws Exception {
@@ -48,14 +55,14 @@ public class CVShell {
 
 		int port = parser.apply(portStr);
 
-		agent.shutdown();
-		agent.getConfig().setRemoteHost(host);
-		agent.getConfig().setRemotePort(port);
-		agent.startPeerIdentificationMode();
-		agent.startup();
+		this.agent.shutdown();
+		this.agent.getConfig().setRemoteHost(host);
+		this.agent.getConfig().setRemotePort(port);
+		this.agent.startPeerIdentificationMode();
+		this.agent.startup();
 
-		Utils.waitUntil(() -> agent.getServer() != null, 10);
-		PeerContext server = agent.getServer();
+		Utils.waitUntil(() -> this.agent.getServer() != null, 10);
+		PeerContext server = this.agent.getServer();
 		if (server == null) {
 			println("The orchestrator couln't be connected. Please retry.");
 			return;
@@ -69,8 +76,8 @@ public class CVShell {
 		String trustOrNot = getInput("Trust (Y) or not (N)?", input -> input.matches("[ynYN]"));
 		switch (trustOrNot) {
 			case "Y":
-				agent.setTrusted(server, fingerprint, orchestratorCert);
-				agent.stopPeerIdentificationMode();
+				this.agent.setTrusted(server, fingerprint, orchestratorCert);
+				this.agent.stopPeerIdentificationMode();
 				break;
 
 			default:

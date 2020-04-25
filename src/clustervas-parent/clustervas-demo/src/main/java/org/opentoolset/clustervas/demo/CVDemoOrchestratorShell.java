@@ -21,7 +21,7 @@ import org.springframework.shell.standard.ShellMethod;
 import jline.console.ConsoleReader;
 
 @ShellComponent
-public class CVDemoShell {
+public class CVDemoOrchestratorShell {
 
 	@Autowired
 	private CVDemoService service;
@@ -32,7 +32,7 @@ public class CVDemoShell {
 	private ConsoleReader consoleReader;
 
 	@ShellMethod("Show fingerprint of our TLS certificate")
-	public void showFingerprint() throws Exception {
+	public void showCertFingerprint() throws Exception {
 		X509Certificate cert = agent.getConfig().getCert();
 		String fingerprint = Utils.getFingerprintAsHex(cert);
 		println(fingerprint);

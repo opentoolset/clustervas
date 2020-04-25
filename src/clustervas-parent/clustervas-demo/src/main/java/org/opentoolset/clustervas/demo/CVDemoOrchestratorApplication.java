@@ -22,7 +22,7 @@ import org.springframework.util.StringUtils;
 @SpringBootApplication
 @EnableScheduling
 @EnableAutoConfiguration()
-public class CVDemoApplication implements CommandLineRunner {
+public class CVDemoOrchestratorApplication implements CommandLineRunner {
 
 	public static final Logger logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 
@@ -41,7 +41,7 @@ public class CVDemoApplication implements CommandLineRunner {
 	// ---
 
 	public static void main(String[] args) {
-		SpringApplicationBuilder appBuilder = new SpringApplicationBuilder(CVDemoApplication.class);
+		SpringApplicationBuilder appBuilder = new SpringApplicationBuilder(CVDemoOrchestratorApplication.class);
 		{
 			String[] disabledCommands = { "--spring.shell.command.quit.enabled=false" };
 			String[] fullArgs = StringUtils.concatenateStringArrays(args, disabledCommands);
@@ -72,7 +72,7 @@ public class CVDemoApplication implements CommandLineRunner {
 	@PostConstruct
 	private void start() {
 		logger.info("ClusterVAS Demo Application is starting...");
-		if (CVDemoApplication.mode == Mode.UNIT_TEST) {
+		if (CVDemoOrchestratorApplication.mode == Mode.UNIT_TEST) {
 			InteractiveShellApplicationRunner.disable(environment);
 		}
 	}
