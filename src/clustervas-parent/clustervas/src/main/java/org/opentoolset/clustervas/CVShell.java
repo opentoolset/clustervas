@@ -49,13 +49,15 @@ public class CVShell {
 
 		Function<String, Integer> parser = (input) -> Integer.parseInt(input);
 		String portStr = getInput("Enter orchestrator's port (0 to exit):", (input) -> Utils.noExcepion(() -> parser.apply(input)));
-		if (host.equals("0")) {
+		if (portStr.equals("0")) {
 			return;
 		}
 
 		int port = parser.apply(portStr);
 
 		this.agent.shutdown();
+		Utils.waitFor(2);
+		this.agent.prepare();
 		this.agent.getConfig().setRemoteHost(host);
 		this.agent.getConfig().setRemotePort(port);
 		this.agent.startPeerIdentificationMode();
@@ -65,10 +67,18 @@ public class CVShell {
 		PeerContext server = this.agent.getServer();
 		if (server == null) {
 			println("The orchestrator couln't be connected. Please retry.");
+			this.agent.shutdown();
 			return;
 		}
 
+		Utils.waitUntil(() -> this.agent.getServer().getCert() != null, 10);
 		X509Certificate orchestratorCert = server.getCert();
+		if (orchestratorCert == null) {
+			println("The orchestrator certificate couln't be gathered. Please switch the orchestrator to peer identification mode.");
+			this.agent.shutdown();
+			return;
+		}
+
 		String fingerprint = org.opentoolset.nettyagents.Utils.getFingerprintAsHex(orchestratorCert);
 
 		println("The orchestrator's fingerprint is: %s", fingerprint);
@@ -78,11 +88,21 @@ public class CVShell {
 			case "Y":
 				this.agent.setTrusted(server, fingerprint, orchestratorCert);
 				this.agent.stopPeerIdentificationMode();
+
+				String orchestratorCertStr = org.opentoolset.nettyagents.Utils.base64Encode(orchestratorCert.getEncoded());
+				CVConfig.setOrchestratorTLSCertificate(orchestratorCertStr);
+				CVConfig.save();
 				break;
 
 			default:
+				this.agent.shutdown();
 				break;
 		}
+	}
+
+	@ShellMethod("Connect to an orchestrator")
+	public void disconnect() throws Exception {
+
 	}
 
 	// ------

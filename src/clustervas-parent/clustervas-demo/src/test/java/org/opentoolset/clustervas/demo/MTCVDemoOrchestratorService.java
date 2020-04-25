@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opentoolset.clustervas.demo.CVDemoOrchestratorApplication.Mode;
-import org.opentoolset.clustervas.demo.service.CVDemoService;
+import org.opentoolset.clustervas.demo.service.CVDemoOrchestratorService;
 import org.opentoolset.clustervas.sdk.NodeManagerContext;
 import org.opentoolset.nettyagents.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +21,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class MTCVDemoService {
+public class MTCVDemoOrchestratorService {
 
 	static {
 		CVDemoOrchestratorApplication.mode = Mode.UNIT_TEST;
 	}
 
 	@Autowired
-	private CVDemoService service;
+	private CVDemoOrchestratorService service;
 
 	@Test
 	public void test() throws IOException, InterruptedException {

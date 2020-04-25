@@ -7,7 +7,6 @@ package org.opentoolset.clustervas.utils;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class Utils {
@@ -33,6 +32,14 @@ public class Utils {
 		}
 	};
 
+	public static void waitFor(int timeSec) {
+		try {
+			TimeUnit.SECONDS.sleep(timeSec);
+		} catch (InterruptedException e) {
+			CVLogger.warn(e);
+		}
+	}
+
 	public static boolean waitUntil(Supplier<Boolean> tester, int timeoutSec) {
 		try {
 			for (int i = 0; i < timeoutSec; i++) {
@@ -47,7 +54,7 @@ public class Utils {
 
 		return tester.get();
 	}
-	
+
 	public static boolean noExcepion(Supplier<Object> supplier) {
 		try {
 			supplier.get();

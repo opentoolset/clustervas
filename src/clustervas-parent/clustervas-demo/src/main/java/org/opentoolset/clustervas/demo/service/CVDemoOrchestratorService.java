@@ -21,10 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 @Service
-public class CVDemoService {
+public class CVDemoOrchestratorService {
 
 	@Autowired
-	private CVDemoAgent agent;
+	private CVDemoOrchestratorAgent agent;
 
 	public List<NodeManagerContext> getNodeManagersWaiting() {
 		return this.agent.getNodeManagers().values().stream().filter(nm -> !nm.getPeerContext().isTrusted()).collect(Collectors.toList());
@@ -43,7 +43,7 @@ public class CVDemoService {
 	}
 
 	public boolean isInPeerIdentificationMode() {
-		return !this.agent.isInPeerIdentificationMode();
+		return this.agent.isInPeerIdentificationMode();
 	}
 
 	public void setTrusted(NodeManagerContext nodeManager, boolean trusted) {
@@ -89,7 +89,6 @@ public class CVDemoService {
 	@PostConstruct
 	private void postContruct() throws CertificateException, InvalidKeyException {
 		this.agent.setRequestHandler(GetActiveNodesRequest.class, request -> handle(request));
-		this.agent.startPeerIdentificationMode();
 		this.agent.startup();
 	}
 

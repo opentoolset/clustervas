@@ -10,7 +10,7 @@ import java.util.stream.IntStream;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opentoolset.clustervas.demo.service.CVDemoService;
+import org.opentoolset.clustervas.demo.service.CVDemoOrchestratorService;
 import org.opentoolset.clustervas.sdk.CVAgent;
 import org.opentoolset.clustervas.sdk.NodeManagerContext;
 import org.opentoolset.nettyagents.Utils;
@@ -24,7 +24,7 @@ import jline.console.ConsoleReader;
 public class CVDemoOrchestratorShell {
 
 	@Autowired
-	private CVDemoService service;
+	private CVDemoOrchestratorService service;
 
 	@Autowired
 	private CVAgent agent;
@@ -83,6 +83,11 @@ public class CVDemoOrchestratorShell {
 		});
 	}
 
+	@ShellMethod("Show mode")
+	public void showMode() {
+		println(this.service.isInPeerIdentificationMode() ? "peer idendification mode" : "normal mode");
+	}
+	
 	@ShellMethod("Start peer identification mode")
 	public void startPeerIdentificationMode() {
 		this.service.startPeerIdentificationMode();

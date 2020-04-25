@@ -198,7 +198,7 @@ public class ContainerService extends AbstractService {
 	private void maintaintenance() {
 		try {
 			GetActiveNodesResponse response = this.cvAgent.doRequest(new GetActiveNodesRequest());
-			if (response.isSuccessfull()) {
+			if (response != null && response.isSuccessfull()) {
 				List<String> nodeNames = response.getNodeNames();
 				// TODO [hadi] Remove inactive node containers here
 			}

@@ -28,24 +28,13 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
 @Component
 public class CVNodeManager {
 
-	private ClientAgent agent = new ClientAgent();
+	private ClientAgent agent;
 
-	public <TReq extends AbstractRequestFromNodeManager<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request) {
-		request.setSenderId(CVConfig.getId());
-		return this.agent.doRequest(request);
-	}
+	private boolean started = false;
 
-	public <TReq extends AbstractRequestFromNodeManager<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request, int timeoutSec) {
-		request.setSenderId(CVConfig.getId());
-		return this.agent.doRequest(request, timeoutSec);
-	}
+	public void prepare() throws CertificateException, InvalidKeyException {
+		ClientAgent agent = new ClientAgent();
 
-	public <TReq extends AbstractRequest<TResp>, TResp extends AbstractMessage> void setRequestHandler(Class<TReq> classOfRequest, Function<TReq, TResp> function) {
-		this.agent.setRequestHandler(classOfRequest, function);
-	}
-
-	@PostConstruct
-	private void postContruct() throws CertificateException, InvalidKeyException {
 		String id = CVConfig.getId();
 		if (StringUtils.isEmpty(id)) {
 			CVConfig.setId(UUID.randomUUID().toString());
@@ -65,17 +54,33 @@ public class CVNodeManager {
 			CVConfig.save();
 		}
 
-		this.agent.getConfig().setTlsEnabled(true);
-		this.agent.getConfig().setPriKey(priKeyStr);
-		this.agent.getConfig().setCert(certStr);
-		this.agent.getConfig().setRemoteHost(CVConfig.getOrchestratorHost());
-		this.agent.getConfig().setRemotePort(CVConfig.getOrchestratorPort());
+		agent.getConfig().setTlsEnabled(true);
+		agent.getConfig().setPriKey(priKeyStr);
+		agent.getConfig().setCert(certStr);
+		agent.getConfig().setRemoteHost(CVConfig.getOrchestratorHost());
+		agent.getConfig().setRemotePort(CVConfig.getOrchestratorPort());
 
 		String orchestratorCert = CVConfig.getOrchestratorTLSCertificate();
 		if (!StringUtils.isBlank(orchestratorCert)) {
 			X509Certificate cert = Utils.buildCert(orchestratorCert);
 			setTrustedCert(cert);
 		}
+
+		this.agent = agent;
+	}
+
+	public <TReq extends AbstractRequestFromNodeManager<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request) {
+		request.setSenderId(CVConfig.getId());
+		return this.agent.doRequest(request);
+	}
+
+	public <TReq extends AbstractRequestFromNodeManager<TResp>, TResp extends AbstractMessage> TResp doRequest(TReq request, int timeoutSec) {
+		request.setSenderId(CVConfig.getId());
+		return this.agent.doRequest(request, timeoutSec);
+	}
+
+	public <TReq extends AbstractRequest<TResp>, TResp extends AbstractMessage> void setRequestHandler(Class<TReq> classOfRequest, Function<TReq, TResp> function) {
+		this.agent.setRequestHandler(classOfRequest, function);
 	}
 
 	public void startPeerIdentificationMode() {
@@ -98,11 +103,21 @@ public class CVNodeManager {
 	}
 
 	public void startup() {
-		this.agent.startup();
+		synchronized (this) {
+			if (!this.started) {
+				this.agent.startup();
+				this.started = true;
+			}
+		}
 	}
 
 	public void shutdown() {
-		this.agent.shutdown();
+		synchronized (this) {
+			if (this.started) {
+				this.agent.shutdown();
+				this.started = false;
+			}
+		}
 	}
 
 	public PeerContext getServer() {
@@ -113,5 +128,12 @@ public class CVNodeManager {
 		this.agent.getContext().getTrustedCerts().clear();
 		this.agent.getContext().getTrustedCerts().put(orchestratorFingerprint, orchestratorCert);
 		server.setTrusted(true);
+	}
+
+	// ---
+
+	@PostConstruct
+	private void postContruct() throws InvalidKeyException, CertificateException {
+		prepare();
 	}
 }

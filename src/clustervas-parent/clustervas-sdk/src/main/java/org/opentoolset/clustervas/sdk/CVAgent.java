@@ -33,6 +33,8 @@ public class CVAgent {
 
 	private Map<SocketAddress, NodeManagerContext> nodeManagers = new HashMap<>();
 
+	private boolean started = false;
+
 	public CVAgent() {
 		Config config = this.agent.getConfig();
 		config.setTlsEnabled(true);
@@ -58,11 +60,22 @@ public class CVAgent {
 	}
 
 	public void startup() {
-		this.agent.startup();
+		synchronized (this) {
+			if (!this.started) {
+				this.agent.startup();
+				this.started = true;
+			}
+		}
 	}
 
 	public void shutdown() {
-		this.agent.shutdown();
+		synchronized (this) {
+			if (this.started) {
+				this.agent.shutdown();
+				this.nodeManagers.clear();
+				this.started = false;
+			}
+		}
 	}
 
 	public <TReq extends AbstractRequestFromNodeManager<TResp>, TResp extends AbstractMessage> void setRequestHandler(Class<TReq> classOfRequest, Function<TReq, TResp> function) {

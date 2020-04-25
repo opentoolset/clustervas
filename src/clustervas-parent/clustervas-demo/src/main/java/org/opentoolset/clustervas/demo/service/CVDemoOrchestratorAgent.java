@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 
 @Component
-public class CVDemoAgent extends CVAgent {
+public class CVDemoOrchestratorAgent extends CVAgent {
 
 	@PostConstruct
 	private void postContruct() throws CertificateException, InvalidKeyException {

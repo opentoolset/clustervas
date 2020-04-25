@@ -117,8 +117,8 @@ public final class CVConfig {
 		return getString(Entry.ORCHESTRATOR_TLS_CERTIFICATE);
 	}
 
-	public static void setOrchestratorTLSCertificate(String id) {
-		set(Entry.ORCHESTRATOR_TLS_CERTIFICATE, id);
+	public static void setOrchestratorTLSCertificate(String cert) {
+		set(Entry.ORCHESTRATOR_TLS_CERTIFICATE, cert);
 	}
 
 	// ---
