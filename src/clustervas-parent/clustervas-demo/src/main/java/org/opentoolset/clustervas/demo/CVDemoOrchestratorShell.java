@@ -9,6 +9,7 @@ import java.util.stream.IntStream;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.StringUtils;
 import org.opentoolset.clustervas.demo.service.CVDemoOrchestratorService;
 import org.opentoolset.clustervas.sdk.CVAgent;
 import org.opentoolset.clustervas.sdk.NodeManagerContext;
@@ -55,11 +56,11 @@ public class CVDemoOrchestratorShell {
 	public void approveTrust() throws Exception {
 		List<NodeManagerContext> nodeManagers = this.service.getNodeManagersWaiting();
 		if (nodeManagers.isEmpty()) {
-			println("There is no node manager waiting to be trusted");
+			println("There is no trusted node manager");
 			return;
 		}
 
-		Integer index = select("Select node manager number to approve trust", nodeManagers.stream().map(nodeManager -> buildNodeManagerStr(nodeManager)).collect(Collectors.toList()));
+		Integer index = select("Select node manager to approve trust", nodeManagers.stream().map(nodeManager -> buildNodeManagerStr(nodeManager)).collect(Collectors.toList()));
 		if (index == null) {
 			return;
 		}
@@ -75,18 +76,7 @@ public class CVDemoOrchestratorShell {
 
 	@ShellMethod("Select and revoke trust to a node manager")
 	public void revokeTrust() throws Exception {
-		List<NodeManagerContext> nodeManagers = this.service.getNodeManagersTrusted();
-		if (nodeManagers.isEmpty()) {
-			println("There is no trusted node manager");
-			return;
-		}
-
-		Integer index = select("Select node manager number to revoke trust", nodeManagers.stream().map(nodeManager -> buildNodeManagerStr(nodeManager)).collect(Collectors.toList()));
-		if (index == null) {
-			return;
-		}
-
-		NodeManagerContext nodeManager = nodeManagers.get(index);
+		NodeManagerContext nodeManager = selectNodeManager("Select node manager to revoke trust");
 		if (nodeManager == null) {
 			return;
 		}
@@ -114,18 +104,7 @@ public class CVDemoOrchestratorShell {
 
 	@ShellMethod("Load new node")
 	public void loadNewNode() throws IOException {
-		List<NodeManagerContext> nodeManagers = this.service.getNodeManagersTrusted();
-		if (nodeManagers.isEmpty()) {
-			println("There is no trusted node manager");
-			return;
-		}
-
-		Integer index = select("Select node manager number to load a new node", nodeManagers.stream().map(nodeManager -> buildNodeManagerStr(nodeManager)).collect(Collectors.toList()));
-		if (index == null) {
-			return;
-		}
-
-		NodeManagerContext nodeManager = nodeManagers.get(index);
+		NodeManagerContext nodeManager = selectNodeManager("Select node manager to load a new node");
 		if (nodeManager == null) {
 			return;
 		}
@@ -136,18 +115,7 @@ public class CVDemoOrchestratorShell {
 
 	@ShellMethod("Remove node")
 	public void removeNode() throws IOException {
-		List<NodeManagerContext> nodeManagers = this.service.getNodeManagersTrusted();
-		if (nodeManagers.isEmpty()) {
-			println("There is no trusted node manager");
-			return;
-		}
-
-		Integer index = select("Select node manager number to remove a node", nodeManagers.stream().map(nodeManager -> buildNodeManagerStr(nodeManager)).collect(Collectors.toList()));
-		if (index == null) {
-			return;
-		}
-
-		NodeManagerContext nodeManager = nodeManagers.get(index);
+		NodeManagerContext nodeManager = selectNodeManager("Select node manager to remove a node");
 		if (nodeManager == null) {
 			return;
 		}
@@ -155,7 +123,12 @@ public class CVDemoOrchestratorShell {
 		println("Selected node manager: %s", nodeManager.getPeerContext().getId());
 
 		List<String> activeNodes = nodeManager.getActiveNodes();
-		index = select("Select a node to remove", activeNodes);
+		if (activeNodes.isEmpty()) {
+			println("There is no active node");
+			return;
+		}
+
+		Integer index = select("Select a node to remove", activeNodes);
 		if (index == null) {
 			return;
 		}
@@ -169,11 +142,58 @@ public class CVDemoOrchestratorShell {
 		println("Removed: %s", removed);
 	}
 
+	@ShellMethod("Send GMP command")
+	public void sendGmpCommand() throws IOException {
+		NodeManagerContext nodeManager = selectNodeManager("Select node manager to send a GMP command");
+		if (nodeManager == null) {
+			return;
+		}
+
+		println("Selected node manager: %s", nodeManager.getPeerContext().getId());
+
+		List<String> activeNodes = nodeManager.getActiveNodes();
+		if (activeNodes.isEmpty()) {
+			println("There is no active node");
+			return;
+		}
+
+		Integer index = select("Select a node to send a GMP command", activeNodes);
+		if (index == null) {
+			return;
+		}
+
+		String selectedNodeName = activeNodes.get(index);
+		if (selectedNodeName == null) {
+			return;
+		}
+
+		String commandXML = getInput("GMP command as XML (0 to exit): ", input -> StringUtils.isNotBlank(input)).trim();
+		String gmpResponse = this.service.sendGmpCommand(nodeManager, selectedNodeName, commandXML);
+		println("GMP response:");
+		println(gmpResponse);
+	}
+
 	// ------
 
 	@PostConstruct
 	private void postConstruct() throws IOException {
 		this.consoleReader = new ConsoleReader();
+	}
+
+	private NodeManagerContext selectNodeManager(String prompt) throws IOException {
+		List<NodeManagerContext> nodeManagers = this.service.getNodeManagersTrusted();
+		if (nodeManagers.isEmpty()) {
+			println("There is no trusted node manager");
+			return null;
+		}
+
+		Integer index = select(prompt, nodeManagers.stream().map(nodeManager -> buildNodeManagerStr(nodeManager)).collect(Collectors.toList()));
+		if (index == null) {
+			return null;
+		}
+
+		NodeManagerContext nodeManager = nodeManagers.get(index);
+		return nodeManager;
 	}
 
 	private String getInput(String prompt, Predicate<String> validator) throws IOException {

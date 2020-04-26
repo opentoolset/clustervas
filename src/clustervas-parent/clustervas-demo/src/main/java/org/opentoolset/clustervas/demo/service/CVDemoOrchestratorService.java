@@ -74,12 +74,11 @@ public class CVDemoOrchestratorService {
 		return false;
 	}
 
-	public String sendGMPCommand(String nodeManagerId, String nodeName, String commandXML) {
+	public String sendGmpCommand(NodeManagerContext nodeManager, String nodeName, String commandXML) {
 		GMPRequest request = new GMPRequest();
 		request.setNodeName(nodeName);
 		request.setXml(commandXML);
 
-		NodeManagerContext nodeManager = this.agent.getNodeManager(nodeManagerId);
 		GMPResponse response = this.agent.doRequest(request, nodeManager);
 		return response.isSuccessfull() ? response.getXml() : null;
 	}
