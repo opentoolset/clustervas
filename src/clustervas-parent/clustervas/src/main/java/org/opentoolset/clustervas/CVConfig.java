@@ -93,7 +93,7 @@ public final class CVConfig {
 		return getBoolean(Entry.TEMPLATE_INTERNAL_SYNC_ENABLED);
 	}
 
-	public static void setTemplateInternalSyncEnabled(String enabled) {
+	public static void setTemplateInternalSyncEnabled(boolean enabled) {
 		set(Entry.TEMPLATE_INTERNAL_SYNC_ENABLED, enabled);
 	}
 
@@ -109,7 +109,7 @@ public final class CVConfig {
 		return getInteger(Entry.ORCHESTRATOR_PORT);
 	}
 
-	public static void setOrchestratorPort(String port) {
+	public static void setOrchestratorPort(Integer port) {
 		set(Entry.ORCHESTRATOR_PORT, port);
 	}
 

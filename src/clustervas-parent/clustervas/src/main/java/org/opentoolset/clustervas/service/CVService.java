@@ -4,12 +4,13 @@
 // ---
 package org.opentoolset.clustervas.service;
 
+import java.security.InvalidKeyException;
+import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.apache.commons.lang3.StringUtils;
 import org.opentoolset.clustervas.CVConfig;
 import org.opentoolset.clustervas.CVConstants;
 import org.opentoolset.clustervas.sdk.messages.GMPRequest;
@@ -21,6 +22,7 @@ import org.opentoolset.clustervas.sdk.messages.NodeManagerInfoResponse;
 import org.opentoolset.clustervas.sdk.messages.RemoveNodeRequest;
 import org.opentoolset.clustervas.sdk.messages.RemoveNodeResponse;
 import org.opentoolset.clustervas.service.ContainerService.CVContainer;
+import org.opentoolset.clustervas.utils.CVLogger;
 import org.opentoolset.clustervas.utils.CmdExecutor;
 import org.opentoolset.clustervas.utils.ContainerUtils;
 import org.opentoolset.clustervas.utils.Utils;
@@ -37,7 +39,7 @@ public class CVService extends AbstractService {
 	private ContainerService containerService;
 
 	@Autowired
-	private CVNodeManager agent;
+	private CVNodeManager nodeManager;
 
 	// ---
 
@@ -102,24 +104,39 @@ public class CVService extends AbstractService {
 		return gvmResponse;
 	}
 
+	public void addHandlers() throws InvalidKeyException, CertificateException {
+		this.nodeManager.setRequestHandler(NodeManagerInfoRequest.class, request -> handle(request));
+		this.nodeManager.setRequestHandler(LoadNewNodeRequest.class, request -> handle(request));
+		this.nodeManager.setRequestHandler(RemoveNodeRequest.class, request -> handle(request));
+		this.nodeManager.setRequestHandler(GMPRequest.class, request -> handle(request));
+	}
+
 	// ---
 
 	@PostConstruct
-	private void postConstruct() {
-		this.agent.setRequestHandler(NodeManagerInfoRequest.class, request -> handle(request));
-		this.agent.setRequestHandler(LoadNewNodeRequest.class, request -> handle(request));
-		this.agent.setRequestHandler(RemoveNodeRequest.class, request -> handle(request));
-		this.agent.setRequestHandler(GMPRequest.class, request -> handle(request));
+	private void postConstruct() throws InvalidKeyException, CertificateException {
+		if (this.nodeManager == null) {
+			CVLogger.info("Node manager couldn't be created");
+			return;
+		}
 
-		boolean prepared = true;
-		prepared = prepared && StringUtils.isBlank(CVConfig.getTLSPrivateKey());
-		prepared = prepared && StringUtils.isBlank(CVConfig.getTLSCertificate());
-		prepared = prepared && StringUtils.isBlank(CVConfig.getOrchestratorHost());
-		prepared = prepared && CVConfig.getOrchestratorPort() != null;
-		prepared = prepared && StringUtils.isBlank(CVConfig.getOrchestratorTLSCertificate());
+		if (!this.nodeManager.isConfigured()) {
+			CVLogger.info("Node manager is not configured");
+			return;
+		}
 
-		if (prepared) {
-			this.agent.startup();
+		if (!this.nodeManager.hasTrustedOrchestrator()) {
+			CVLogger.info("Node manager has no trusted orchestrator");
+			return;
+		}
+
+		addHandlers();
+
+		CVLogger.info("Node manager is starting...");
+		if (this.nodeManager.startup()) {
+			CVLogger.info("Node manager started");
+		} else {
+			CVLogger.info("Node manager didn't start");
 		}
 	}
 

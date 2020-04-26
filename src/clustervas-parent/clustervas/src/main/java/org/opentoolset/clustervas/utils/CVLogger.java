@@ -14,7 +14,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.net.SyslogAppender;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
-import ch.qos.logback.core.ConsoleAppender;
 
 public class CVLogger {
 
@@ -31,9 +30,9 @@ public class CVLogger {
 			Iterator<Appender<ILoggingEvent>> appenders = logger.iteratorForAppenders();
 			while (appenders.hasNext()) {
 				Appender<ILoggingEvent> appender = appenders.next();
-				if (appender instanceof ConsoleAppender) {
-					logger.detachAppender(appender);
-				}
+				// if (appender instanceof ConsoleAppender) {
+				// logger.detachAppender(appender);
+				// }
 				if (appender instanceof SyslogAppender) {
 					addSyslogAppender = false;
 				}

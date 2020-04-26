@@ -3,13 +3,12 @@ package org.opentoolset.clustervas.demo;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.lang3.StringUtils;
 import org.opentoolset.clustervas.demo.service.CVDemoOrchestratorService;
 import org.opentoolset.clustervas.sdk.CVAgent;
 import org.opentoolset.clustervas.sdk.NodeManagerContext;
@@ -37,7 +36,7 @@ public class CVDemoOrchestratorShell {
 		String fingerprint = Utils.getFingerprintAsHex(cert);
 		println(fingerprint);
 	}
-	
+
 	@ShellMethod("List node managers waiting to be trusted")
 	public void listNodeManagersWaitingToBeTrusted() throws Exception {
 		List<NodeManagerContext> nodeManagers = this.service.getNodeManagersWaiting();
@@ -55,17 +54,23 @@ public class CVDemoOrchestratorShell {
 	@ShellMethod("Select and approve trust to a node manager")
 	public void approveTrust() throws Exception {
 		List<NodeManagerContext> nodeManagers = this.service.getNodeManagersWaiting();
-		String result = IntStream.range(1, nodeManagers.size() + 1).boxed().map(index -> String.format("%s - %s", index, buildNodeManagerStr(nodeManagers.get(index - 1)))).collect(Collectors.joining("\n"));
-		if (StringUtils.isEmpty(result)) {
+		if (nodeManagers.isEmpty()) {
 			println("There is no node manager waiting to be trusted");
 			return;
 		}
 
-		selectAndPerform(nodeManagers, selection -> {
-			NodeManagerContext nodeManager = nodeManagers.get(selection - 1);
-			this.service.setTrusted(nodeManager, true);
-			println("Node manager is now trusted by you: %s", buildNodeManagerStr(nodeManager));
-		});
+		Integer index = select("Select node manager number to approve trust", nodeManagers.stream().map(nodeManager -> buildNodeManagerStr(nodeManager)).collect(Collectors.toList()));
+		if (index == null) {
+			return;
+		}
+
+		NodeManagerContext nodeManager = nodeManagers.get(index);
+		if (nodeManager == null) {
+			return;
+		}
+
+		this.service.setTrusted(nodeManager, true);
+		println("Node manager is now trusted by you: %s", buildNodeManagerStr(nodeManager));
 	}
 
 	@ShellMethod("Select and revoke trust to a node manager")
@@ -76,18 +81,25 @@ public class CVDemoOrchestratorShell {
 			return;
 		}
 
-		selectAndPerform(nodeManagers, selection -> {
-			NodeManagerContext nodeManager = nodeManagers.get(selection - 1);
-			this.service.setTrusted(nodeManager, false);
-			println("Node manager is now not trusted by you: %s", buildNodeManagerStr(nodeManager));
-		});
+		Integer index = select("Select node manager number to revoke trust", nodeManagers.stream().map(nodeManager -> buildNodeManagerStr(nodeManager)).collect(Collectors.toList()));
+		if (index == null) {
+			return;
+		}
+
+		NodeManagerContext nodeManager = nodeManagers.get(index);
+		if (nodeManager == null) {
+			return;
+		}
+
+		this.service.setTrusted(nodeManager, false);
+		println("Node manager is now not trusted by you: %s", buildNodeManagerStr(nodeManager));
 	}
 
 	@ShellMethod("Show mode")
 	public void showMode() {
 		println(this.service.isInPeerIdentificationMode() ? "peer idendification mode" : "normal mode");
 	}
-	
+
 	@ShellMethod("Start peer identification mode")
 	public void startPeerIdentificationMode() {
 		this.service.startPeerIdentificationMode();
@@ -108,14 +120,21 @@ public class CVDemoOrchestratorShell {
 			return;
 		}
 
-		selectAndPerform(nodeManagers, selection -> {
-			NodeManagerContext nodeManager = nodeManagers.get(selection - 1);
-			String sendLoadNewNodeRequest = this.service.sendLoadNewNodeRequest(nodeManager);
-			println("New node name: %s", sendLoadNewNodeRequest);
-		});
+		Integer index = select("Select node manager number to load a new node", nodeManagers.stream().map(nodeManager -> buildNodeManagerStr(nodeManager)).collect(Collectors.toList()));
+		if (index == null) {
+			return;
+		}
+
+		NodeManagerContext nodeManager = nodeManagers.get(index);
+		if (nodeManager == null) {
+			return;
+		}
+
+		String sendLoadNewNodeRequest = this.service.sendLoadNewNodeRequest(nodeManager);
+		println("New node name: %s", sendLoadNewNodeRequest);
 	}
 
-	@ShellMethod("Load new node")
+	@ShellMethod("Remove node")
 	public void removeNode() throws IOException {
 		List<NodeManagerContext> nodeManagers = this.service.getNodeManagersTrusted();
 		if (nodeManagers.isEmpty()) {
@@ -123,21 +142,31 @@ public class CVDemoOrchestratorShell {
 			return;
 		}
 
-		selectAndPerform(nodeManagers, selection -> {
-			NodeManagerContext nodeManager = nodeManagers.get(selection - 1);
+		Integer index = select("Select node manager number to remove a node", nodeManagers.stream().map(nodeManager -> buildNodeManagerStr(nodeManager)).collect(Collectors.toList()));
+		if (index == null) {
+			return;
+		}
 
-			String result = IntStream.range(1, nodeManagers.size() + 1).boxed().map(index -> String.format("%s - %s", index, buildNodeManagerStr(nodeManagers.get(index - 1)))).collect(Collectors.joining("\n"));
+		NodeManagerContext nodeManager = nodeManagers.get(index);
+		if (nodeManager == null) {
+			return;
+		}
 
-			nodeManager.getActiveNodes();
+		println("Selected node manager: %s", nodeManager.getPeerContext().getId());
 
-			try {
-				String nodeName = consoleReader.readLine("Enter node name to revoke: ");
-				boolean removed = this.service.sendRemoveNodeRequest(nodeManager, nodeName);
-				println("Removed: %s", removed);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		});
+		List<String> activeNodes = nodeManager.getActiveNodes();
+		index = select("Select a node to remove", activeNodes);
+		if (index == null) {
+			return;
+		}
+
+		String selectedNodeName = activeNodes.get(index);
+		if (selectedNodeName == null) {
+			return;
+		}
+
+		boolean removed = this.service.sendRemoveNodeRequest(nodeManager, selectedNodeName);
+		println("Removed: %s", removed);
 	}
 
 	// ------
@@ -147,22 +176,35 @@ public class CVDemoOrchestratorShell {
 		this.consoleReader = new ConsoleReader();
 	}
 
-	private void selectAndPerform(List<NodeManagerContext> nodeManagers, Consumer<Integer> performer) throws IOException {
-		String nodeManagerListStr = IntStream.range(1, nodeManagers.size() + 1).boxed().map(index -> String.format("%s - %s", index, buildNodeManagerStr(nodeManagers.get(index - 1)))).collect(Collectors.joining("\n"));
-		println(nodeManagerListStr);
+	private String getInput(String prompt, Predicate<String> validator) throws IOException {
+		String input;
+		while (true) {
+			input = this.consoleReader.readLine(prompt);
+			try {
+				if (validator.test(input)) {
+					break;
+				}
+			} catch (Exception e) {
+			}
+		}
+
+		return input;
+	}
+
+	private Integer select(String prompt, List<String> selectables) throws IOException {
+		String listStr = IntStream.range(1, selectables.size() + 1).boxed().map(index -> String.format("%s - %s", index, selectables.get(index - 1))).collect(Collectors.joining("\n"));
+		println(prompt);
+		println(listStr);
 
 		while (true) {
-			String selectionStr = this.consoleReader.readLine("Select node manager number to revoke trust (0 to exit): ");
+			String selectionStr = this.consoleReader.readLine("Select one option (0 to exit): ");
 			try {
-				int selection = Integer.parseInt(selectionStr);
-				if (selection == 0) {
-					return;
+				int selectionIndex = Integer.parseInt(selectionStr);
+				if (selectionIndex == 0) {
+					return null;
 				}
 
-				if (selection > 0 || selection <= nodeManagers.size()) {
-					performer.accept(selection);
-					return;
-				}
+				return selectionIndex - 1;
 			} catch (Exception e) {
 			}
 		}

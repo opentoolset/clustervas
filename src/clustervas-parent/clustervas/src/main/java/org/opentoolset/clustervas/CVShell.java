@@ -29,13 +29,13 @@ public class CVShell {
 	private CVService cvService;
 
 	@Autowired
-	private CVNodeManager agent;
+	private CVNodeManager nodeManager;
 
 	private ConsoleReader consoleReader;
 
 	@ShellMethod("Show fingerprint of our TLS certificate")
 	public void showCertFingerprint() throws Exception {
-		X509Certificate cert = this.agent.getConfig().getCert();
+		X509Certificate cert = this.nodeManager.getConfig().getCert();
 		String fingerprint = org.opentoolset.nettyagents.Utils.getFingerprintAsHex(cert);
 		println(fingerprint);
 	}
@@ -55,27 +55,28 @@ public class CVShell {
 
 		int port = parser.apply(portStr);
 
-		this.agent.shutdown();
+		this.nodeManager.shutdown();
 		Utils.waitFor(2);
-		this.agent.prepare();
-		this.agent.getConfig().setRemoteHost(host);
-		this.agent.getConfig().setRemotePort(port);
-		this.agent.startPeerIdentificationMode();
-		this.agent.startup();
+		this.nodeManager.build();
+		this.nodeManager.getConfig().setRemoteHost(host);
+		this.nodeManager.getConfig().setRemotePort(port);
+		this.cvService.addHandlers();
+		this.nodeManager.startPeerIdentificationMode();
+		this.nodeManager.startup();
 
-		Utils.waitUntil(() -> this.agent.getServer() != null, 10);
-		PeerContext server = this.agent.getServer();
+		Utils.waitUntil(() -> this.nodeManager.getServer() != null, 10);
+		PeerContext server = this.nodeManager.getServer();
 		if (server == null) {
 			println("The orchestrator couln't be connected. Please retry.");
-			this.agent.shutdown();
+			this.nodeManager.shutdown();
 			return;
 		}
 
-		Utils.waitUntil(() -> this.agent.getServer().getCert() != null, 10);
+		Utils.waitUntil(() -> this.nodeManager.getServer().getCert() != null, 10);
 		X509Certificate orchestratorCert = server.getCert();
 		if (orchestratorCert == null) {
 			println("The orchestrator certificate couln't be gathered. Please switch the orchestrator to peer identification mode.");
-			this.agent.shutdown();
+			this.nodeManager.shutdown();
 			return;
 		}
 
@@ -86,16 +87,18 @@ public class CVShell {
 		String trustOrNot = getInput("Trust (Y) or not (N)?", input -> input.matches("[ynYN]"));
 		switch (trustOrNot) {
 			case "Y":
-				this.agent.setTrusted(server, fingerprint, orchestratorCert);
-				this.agent.stopPeerIdentificationMode();
+				this.nodeManager.setTrusted(server, fingerprint, orchestratorCert);
+				this.nodeManager.stopPeerIdentificationMode();
 
 				String orchestratorCertStr = org.opentoolset.nettyagents.Utils.base64Encode(orchestratorCert.getEncoded());
+				CVConfig.setOrchestratorHost(host);
+				CVConfig.setOrchestratorPort(port);
 				CVConfig.setOrchestratorTLSCertificate(orchestratorCertStr);
 				CVConfig.save();
 				break;
 
 			default:
-				this.agent.shutdown();
+				this.nodeManager.shutdown();
 				break;
 		}
 	}

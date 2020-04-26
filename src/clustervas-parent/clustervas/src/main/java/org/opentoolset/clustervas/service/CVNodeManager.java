@@ -15,6 +15,7 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.opentoolset.clustervas.CVConfig;
 import org.opentoolset.clustervas.sdk.messages.cv.AbstractRequestFromNodeManager;
+import org.opentoolset.clustervas.utils.CVLogger;
 import org.opentoolset.nettyagents.AbstractMessage;
 import org.opentoolset.nettyagents.AbstractRequest;
 import org.opentoolset.nettyagents.PeerContext;
@@ -32,7 +33,24 @@ public class CVNodeManager {
 
 	private boolean started = false;
 
-	public void prepare() throws CertificateException, InvalidKeyException {
+	boolean isConfigured() {
+		Config config = agent.getConfig();
+
+		boolean configured = true;
+		configured = configured && config.isTlsEnabled();
+		configured = configured && config.getPriKey() != null;
+		configured = configured && config.getCert() != null;
+		configured = configured && config.getRemoteHost() != null;
+		configured = configured && config.getRemotePort() > 0;
+
+		return configured;
+	}
+
+	public boolean hasTrustedOrchestrator() {
+		return !this.agent.getContext().getTrustedCerts().isEmpty();
+	}
+
+	public void build() throws CertificateException, InvalidKeyException {
 		ClientAgent agent = new ClientAgent();
 
 		String id = CVConfig.getId();
@@ -50,20 +68,22 @@ public class CVNodeManager {
 			certStr = Utils.base64Encode(cert.cert().getEncoded());
 
 			CVConfig.setTLSPrivateKey(priKeyStr);
-			CVConfig.setTLSPrivateKey(certStr);
+			CVConfig.setTLSCertificate(certStr);
 			CVConfig.save();
 		}
 
-		agent.getConfig().setTlsEnabled(true);
-		agent.getConfig().setPriKey(priKeyStr);
-		agent.getConfig().setCert(certStr);
-		agent.getConfig().setRemoteHost(CVConfig.getOrchestratorHost());
-		agent.getConfig().setRemotePort(CVConfig.getOrchestratorPort());
+		Config config = agent.getConfig();
+		config.setTlsEnabled(true);
+		config.setPriKey(priKeyStr);
+		config.setCert(certStr);
+		config.setRemoteHost(CVConfig.getOrchestratorHost());
+		config.setRemotePort(CVConfig.getOrchestratorPort());
 
-		String orchestratorCert = CVConfig.getOrchestratorTLSCertificate();
-		if (!StringUtils.isBlank(orchestratorCert)) {
-			X509Certificate cert = Utils.buildCert(orchestratorCert);
-			setTrustedCert(cert);
+		String orchestratorCertStr = CVConfig.getOrchestratorTLSCertificate();
+		if (!StringUtils.isBlank(orchestratorCertStr)) {
+			X509Certificate orchestratorCert = Utils.buildCert(orchestratorCertStr);
+			String orchestratorFingerprint = Utils.getFingerprintAsHex(orchestratorCert);
+			agent.getContext().getTrustedCerts().put(orchestratorFingerprint, orchestratorCert);
 		}
 
 		this.agent = agent;
@@ -95,27 +115,30 @@ public class CVNodeManager {
 		return this.agent.getConfig();
 	}
 
-	public void setTrustedCert(X509Certificate orchestratorCert) {
-		String fingerprint = Utils.getFingerprintAsHex(orchestratorCert);
-
-		this.agent.getContext().getTrustedCerts().clear();
-		this.agent.getContext().getTrustedCerts().put(fingerprint, orchestratorCert);
-	}
-
-	public void startup() {
+	public boolean startup() {
 		synchronized (this) {
-			if (!this.started) {
-				this.agent.startup();
-				this.started = true;
+			try {
+				if (!this.started && isConfigured()) {
+					this.agent.startup();
+					this.started = true;
+					return true;
+				}
+			} catch (Exception e) {
+				CVLogger.error(e);
 			}
+
+			return false;
 		}
 	}
 
-	public void shutdown() {
+	public boolean shutdown() {
 		synchronized (this) {
 			if (this.started) {
 				this.agent.shutdown();
 				this.started = false;
+				return true;
+			} else {
+				return false;
 			}
 		}
 	}
@@ -134,6 +157,6 @@ public class CVNodeManager {
 
 	@PostConstruct
 	private void postContruct() throws InvalidKeyException, CertificateException {
-		prepare();
+		build();
 	}
 }

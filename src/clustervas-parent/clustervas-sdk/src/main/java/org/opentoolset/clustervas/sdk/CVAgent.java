@@ -7,7 +7,9 @@ package org.opentoolset.clustervas.sdk;
 import java.net.SocketAddress;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -53,6 +55,14 @@ public class CVAgent {
 
 	public void stopPeerIdentificationMode() {
 		this.agent.stopPeerIdentificationMode();
+		synchronized (this.nodeManagers) {
+			for (Entry<SocketAddress, NodeManagerContext> entry : new HashSet<>(this.nodeManagers.entrySet())) {
+				NodeManagerContext nodeManagerContext = entry.getValue();
+				if (!nodeManagerContext.getPeerContext().isTrusted()) {
+					this.nodeManagers.remove(entry.getKey());
+				}
+			}
+		}
 	}
 
 	public boolean isInPeerIdentificationMode() {
@@ -120,10 +130,18 @@ public class CVAgent {
 
 	public void setTrusted(NodeManagerContext nodeManager, boolean trusted) {
 		PeerContext peerContext = nodeManager.getPeerContext();
-		peerContext.setTrusted(true);
 		X509Certificate cert = peerContext.getCert();
 		String fingerprint = Utils.getFingerprintAsHex(cert);
-		this.agent.getContext().getTrustedCerts().put(fingerprint, cert);
+
+		peerContext.setTrusted(trusted);
+		if (trusted) {
+			this.agent.getContext().getTrustedCerts().put(fingerprint, cert);
+		} else {
+			this.agent.getContext().getTrustedCerts().remove(fingerprint);
+		}
+
+		// NodeManagerInfoRequest request = new NodeManagerInfoRequest();
+		// NodeManagerInfoResponse doRequest = doRequest(request, nodeManager);
 	}
 
 	// ---

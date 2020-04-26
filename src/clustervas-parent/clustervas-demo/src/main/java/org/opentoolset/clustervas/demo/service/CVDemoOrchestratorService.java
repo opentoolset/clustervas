@@ -51,7 +51,7 @@ public class CVDemoOrchestratorService {
 	}
 
 	public String sendLoadNewNodeRequest(NodeManagerContext nodeManager) {
-		LoadNewNodeResponse response = this.agent.doRequest(new LoadNewNodeRequest(), nodeManager);
+		LoadNewNodeResponse response = this.agent.doRequest(new LoadNewNodeRequest(), nodeManager, 300);
 		if (response != null && response.isSuccessfull()) {
 			String newNodeName = response.getNodeName();
 			nodeManager.getActiveNodes().add(newNodeName);
@@ -65,7 +65,7 @@ public class CVDemoOrchestratorService {
 		RemoveNodeRequest request = new RemoveNodeRequest();
 		request.setNodeName(nodeName);
 
-		RemoveNodeResponse response = this.agent.doRequest(request, nodeManager);
+		RemoveNodeResponse response = this.agent.doRequest(request, nodeManager, 60);
 		if (response != null && response.isSuccessfull()) {
 			nodeManager.getActiveNodes().remove(nodeName);
 			return true;
