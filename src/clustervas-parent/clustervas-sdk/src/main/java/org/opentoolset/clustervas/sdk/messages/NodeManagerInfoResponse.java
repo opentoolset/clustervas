@@ -6,8 +6,6 @@ package org.opentoolset.clustervas.sdk.messages;
 
 public class NodeManagerInfoResponse extends AbstractResponse {
 
-	private static final long serialVersionUID = 5196299320381072704L;
-
 	private String id;
 
 	public String getId() {

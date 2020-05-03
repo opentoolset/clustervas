@@ -9,7 +9,6 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opentoolset.clustervas.CVContext;
 import org.opentoolset.clustervas.CVContext.Mode;
 import org.opentoolset.clustervas.sdk.messages.GMPRequest;
 import org.opentoolset.clustervas.sdk.messages.GMPResponse;

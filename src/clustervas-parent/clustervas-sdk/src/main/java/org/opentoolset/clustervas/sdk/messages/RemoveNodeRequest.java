@@ -8,8 +8,6 @@ import org.opentoolset.nettyagents.AbstractRequest;
 
 public class RemoveNodeRequest extends AbstractRequest<RemoveNodeResponse> {
 
-	private static final long serialVersionUID = 4717004656323471619L;
-
 	private String nodeName;
 
 	public String getNodeName() {

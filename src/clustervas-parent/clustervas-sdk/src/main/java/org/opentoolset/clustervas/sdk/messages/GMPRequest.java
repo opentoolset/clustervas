@@ -8,8 +8,6 @@ import org.opentoolset.nettyagents.AbstractRequest;
 
 public class GMPRequest extends AbstractRequest<GMPResponse> {
 
-	private static final long serialVersionUID = 7081137175920247788L;
-
 	private String nodeName;
 
 	private String xml;

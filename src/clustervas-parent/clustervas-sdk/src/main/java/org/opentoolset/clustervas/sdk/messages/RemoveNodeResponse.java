@@ -5,6 +5,4 @@
 package org.opentoolset.clustervas.sdk.messages;
 
 public class RemoveNodeResponse extends AbstractResponse {
-
-	private static final long serialVersionUID = -4741917937426676207L;
 }
