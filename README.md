@@ -1,6 +1,6 @@
 # ClusterVAS
 
-A docker based cluster manager server and an orchestrator SDK for OpenVAS
+A docker based node manager and an orchestrator SDK for remotely managing OpenVAS instances
 
 Project Wiki: https://gitlab.com/opentoolset/clustervas/-/wikis/home
 
