@@ -2,9 +2,9 @@
 
 A docker based node manager and an orchestrator SDK for remotely managing OpenVAS instances
 
-Project Wiki: https://gitlab.com/opentoolset/clustervas/-/wikis/home
+* Project Wiki: https://gitlab.com/opentoolset/clustervas/-/wikis/home
+* Project Web site: https://opentoolset.org/
 
-Project Web site: https://opentoolset.org/
 
 ## Features
 * Management of containerized OpenVAS nodes and their life-cycles
