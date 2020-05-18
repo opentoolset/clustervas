@@ -20,8 +20,8 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.opentoolset.clustervas.CVConfig;
 import org.opentoolset.clustervas.CVConstants;
-import org.opentoolset.clustervas.sdk.messages.cv.GetActiveNodesRequest;
-import org.opentoolset.clustervas.sdk.messages.cv.GetActiveNodesResponse;
+import org.opentoolset.clustervas.sdk.messages.cv.GetManagedNodesRequest;
+import org.opentoolset.clustervas.sdk.messages.cv.GetManagedNodesResponse;
 import org.opentoolset.clustervas.utils.CVLogger;
 import org.opentoolset.clustervas.utils.CmdExecutor.Response;
 import org.opentoolset.clustervas.utils.ContainerUtils;
@@ -197,7 +197,7 @@ public class ContainerService extends AbstractService {
 
 	private void maintaintenance() {
 		try {
-			GetActiveNodesResponse response = this.cvAgent.doRequest(new GetActiveNodesRequest());
+			GetManagedNodesResponse response = this.cvAgent.doRequest(new GetManagedNodesRequest());
 			if (response != null && response.isSuccessfull()) {
 				List<String> nodeNames = response.getNodeNames();
 				// TODO [hadi] Remove inactive node containers here

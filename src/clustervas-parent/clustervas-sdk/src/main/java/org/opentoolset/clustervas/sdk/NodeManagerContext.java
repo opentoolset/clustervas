@@ -19,7 +19,7 @@ public class NodeManagerContext {
 
 	private PeerContext peerContext;
 
-	private List<String> activeNodes = new ArrayList<>();
+	private List<String> managedNodes = new ArrayList<>();
 
 	public SocketAddress getSocketAddress() {
 		return socketAddress;
@@ -33,8 +33,8 @@ public class NodeManagerContext {
 		return peerContext;
 	}
 
-	public List<String> getActiveNodes() {
-		return activeNodes;
+	public List<String> getManagedNodes() {
+		return managedNodes;
 	}
 
 	// ---

@@ -122,18 +122,18 @@ public class CVDemoOrchestratorShell {
 
 		println("Selected node manager: %s", nodeManager.getPeerContext().getId());
 
-		List<String> activeNodes = nodeManager.getActiveNodes();
-		if (activeNodes.isEmpty()) {
+		List<String> managedNodes = nodeManager.getManagedNodes();
+		if (managedNodes.isEmpty()) {
 			println("There is no active node");
 			return;
 		}
 
-		Integer index = select("Select a node to remove", activeNodes);
+		Integer index = select("Select a node to remove", managedNodes);
 		if (index == null) {
 			return;
 		}
 
-		String selectedNodeName = activeNodes.get(index);
+		String selectedNodeName = managedNodes.get(index);
 		if (selectedNodeName == null) {
 			return;
 		}
@@ -151,18 +151,18 @@ public class CVDemoOrchestratorShell {
 
 		println("Selected node manager: %s", nodeManager.getPeerContext().getId());
 
-		List<String> activeNodes = nodeManager.getActiveNodes();
-		if (activeNodes.isEmpty()) {
+		List<String> managedNodes = nodeManager.getManagedNodes();
+		if (managedNodes.isEmpty()) {
 			println("There is no active node");
 			return;
 		}
 
-		Integer index = select("Select a node to send a GMP command", activeNodes);
+		Integer index = select("Select a node to send a GMP command", managedNodes);
 		if (index == null) {
 			return;
 		}
 
-		String selectedNodeName = activeNodes.get(index);
+		String selectedNodeName = managedNodes.get(index);
 		if (selectedNodeName == null) {
 			return;
 		}

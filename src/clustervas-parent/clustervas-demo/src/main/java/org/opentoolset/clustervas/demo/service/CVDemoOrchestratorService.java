@@ -14,8 +14,8 @@ import org.opentoolset.clustervas.sdk.messages.LoadNewNodeRequest;
 import org.opentoolset.clustervas.sdk.messages.LoadNewNodeResponse;
 import org.opentoolset.clustervas.sdk.messages.RemoveNodeRequest;
 import org.opentoolset.clustervas.sdk.messages.RemoveNodeResponse;
-import org.opentoolset.clustervas.sdk.messages.cv.GetActiveNodesRequest;
-import org.opentoolset.clustervas.sdk.messages.cv.GetActiveNodesResponse;
+import org.opentoolset.clustervas.sdk.messages.cv.GetManagedNodesRequest;
+import org.opentoolset.clustervas.sdk.messages.cv.GetManagedNodesResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -54,7 +54,7 @@ public class CVDemoOrchestratorService {
 		LoadNewNodeResponse response = this.agent.doRequest(new LoadNewNodeRequest(), nodeManager, 300);
 		if (response != null && response.isSuccessfull()) {
 			String newNodeName = response.getNodeName();
-			nodeManager.getActiveNodes().add(newNodeName);
+			nodeManager.getManagedNodes().add(newNodeName);
 			return newNodeName;
 		}
 
@@ -67,7 +67,7 @@ public class CVDemoOrchestratorService {
 
 		RemoveNodeResponse response = this.agent.doRequest(request, nodeManager, 60);
 		if (response != null && response.isSuccessfull()) {
-			nodeManager.getActiveNodes().remove(nodeName);
+			nodeManager.getManagedNodes().remove(nodeName);
 			return true;
 		}
 
@@ -87,12 +87,12 @@ public class CVDemoOrchestratorService {
 
 	@PostConstruct
 	private void postContruct() throws CertificateException, InvalidKeyException {
-		this.agent.setRequestHandler(GetActiveNodesRequest.class, request -> handle(request));
+		this.agent.setRequestHandler(GetManagedNodesRequest.class, request -> handle(request));
 		this.agent.startup();
 	}
 
-	private GetActiveNodesResponse handle(GetActiveNodesRequest request) {
-		GetActiveNodesResponse response = new GetActiveNodesResponse();
+	private GetManagedNodesResponse handle(GetManagedNodesRequest request) {
+		GetManagedNodesResponse response = new GetManagedNodesResponse();
 
 		String nodeManagerId = request.getSenderId();
 		if (StringUtils.isEmpty(nodeManagerId)) {
@@ -100,7 +100,7 @@ public class CVDemoOrchestratorService {
 		}
 
 		NodeManagerContext nodeManager = this.agent.getNodeManager(nodeManagerId);
-		response.getNodeNames().addAll(nodeManager.getActiveNodes());
+		response.getNodeNames().addAll(nodeManager.getManagedNodes());
 		response.setSuccessfull(true);
 		return response;
 	}

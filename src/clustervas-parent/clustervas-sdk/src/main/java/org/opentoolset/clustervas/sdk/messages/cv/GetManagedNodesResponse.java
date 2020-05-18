@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.opentoolset.clustervas.sdk.messages.AbstractResponse;
 
-public class GetActiveNodesResponse extends AbstractResponse {
+public class GetManagedNodesResponse extends AbstractResponse {
 
 	private List<String> nodeNames = new ArrayList<>();
 
