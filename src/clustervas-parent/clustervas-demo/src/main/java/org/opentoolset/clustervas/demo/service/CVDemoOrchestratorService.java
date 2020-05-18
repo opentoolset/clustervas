@@ -14,6 +14,9 @@ import org.opentoolset.clustervas.sdk.messages.LoadNewNodeRequest;
 import org.opentoolset.clustervas.sdk.messages.LoadNewNodeResponse;
 import org.opentoolset.clustervas.sdk.messages.RemoveNodeRequest;
 import org.opentoolset.clustervas.sdk.messages.RemoveNodeResponse;
+import org.opentoolset.clustervas.sdk.messages.SyncOperationRequest;
+import org.opentoolset.clustervas.sdk.messages.SyncOperationRequest.Type;
+import org.opentoolset.clustervas.sdk.messages.SyncOperationResponse;
 import org.opentoolset.clustervas.sdk.messages.cv.GetManagedNodesRequest;
 import org.opentoolset.clustervas.sdk.messages.cv.GetManagedNodesResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,6 +84,22 @@ public class CVDemoOrchestratorService {
 
 		GMPResponse response = this.agent.doRequest(request, nodeManager);
 		return response.isSuccessfull() ? response.getXml() : null;
+	}
+
+	public boolean internalNvtSync(NodeManagerContext nodeManager) {
+		SyncOperationRequest request = new SyncOperationRequest();
+		request.setType(Type.DO_INTERNAL_SYNC);
+
+		SyncOperationResponse response = this.agent.doRequest(request, nodeManager);
+		return response.isSuccessfull();
+	}
+
+	public boolean doPostSyncOperations(NodeManagerContext nodeManager) {
+		SyncOperationRequest request = new SyncOperationRequest();
+		request.setType(Type.DO_POST_SYNC_OPERATIONS);
+
+		SyncOperationResponse response = this.agent.doRequest(request, nodeManager);
+		return response.isSuccessfull();
 	}
 
 	// ---

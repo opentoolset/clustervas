@@ -21,6 +21,9 @@ import org.opentoolset.clustervas.sdk.messages.NodeManagerInfoRequest;
 import org.opentoolset.clustervas.sdk.messages.NodeManagerInfoResponse;
 import org.opentoolset.clustervas.sdk.messages.RemoveNodeRequest;
 import org.opentoolset.clustervas.sdk.messages.RemoveNodeResponse;
+import org.opentoolset.clustervas.sdk.messages.SyncOperationRequest;
+import org.opentoolset.clustervas.sdk.messages.SyncOperationRequest.Type;
+import org.opentoolset.clustervas.sdk.messages.SyncOperationResponse;
 import org.opentoolset.clustervas.service.ContainerService.CVContainer;
 import org.opentoolset.clustervas.utils.CVLogger;
 import org.opentoolset.clustervas.utils.CmdExecutor;
@@ -40,6 +43,16 @@ public class CVService extends AbstractService {
 
 	@Autowired
 	private CVNodeManager nodeManager;
+
+	// ---
+
+	public void addHandlers() throws InvalidKeyException, CertificateException {
+		this.nodeManager.setRequestHandler(NodeManagerInfoRequest.class, request -> handle(request));
+		this.nodeManager.setRequestHandler(LoadNewNodeRequest.class, request -> handle(request));
+		this.nodeManager.setRequestHandler(RemoveNodeRequest.class, request -> handle(request));
+		this.nodeManager.setRequestHandler(GMPRequest.class, request -> handle(request));
+		this.nodeManager.setRequestHandler(SyncOperationRequest.class, request -> handle(request));
+	}
 
 	// ---
 
@@ -104,11 +117,31 @@ public class CVService extends AbstractService {
 		return gvmResponse;
 	}
 
-	public void addHandlers() throws InvalidKeyException, CertificateException {
-		this.nodeManager.setRequestHandler(NodeManagerInfoRequest.class, request -> handle(request));
-		this.nodeManager.setRequestHandler(LoadNewNodeRequest.class, request -> handle(request));
-		this.nodeManager.setRequestHandler(RemoveNodeRequest.class, request -> handle(request));
-		this.nodeManager.setRequestHandler(GMPRequest.class, request -> handle(request));
+	public SyncOperationResponse handle(SyncOperationRequest request) {
+		SyncOperationResponse response = new SyncOperationResponse();
+
+		Type type = request.getType();
+		if (type != null) {
+			switch (type) {
+				case DO_INTERNAL_SYNC: {
+					boolean result = this.containerService.doInternalNVTSync();
+					response.setSuccessfull(result);
+					break;
+				}
+
+				case DO_POST_SYNC_OPERATIONS: {
+					boolean result = this.containerService.doPostSyncOperations();
+					response.setSuccessfull(result);
+					break;
+				}
+
+				default:
+					break;
+			}
+
+		}
+
+		return response;
 	}
 
 	// ---

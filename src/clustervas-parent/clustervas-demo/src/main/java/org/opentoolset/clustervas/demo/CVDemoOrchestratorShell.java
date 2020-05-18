@@ -109,8 +109,8 @@ public class CVDemoOrchestratorShell {
 			return;
 		}
 
-		String sendLoadNewNodeRequest = this.service.sendLoadNewNodeRequest(nodeManager);
-		println("New node name: %s", sendLoadNewNodeRequest);
+		String response = this.service.sendLoadNewNodeRequest(nodeManager);
+		println("New node name: %s", response);
 	}
 
 	@ShellMethod("Remove node")
@@ -138,8 +138,8 @@ public class CVDemoOrchestratorShell {
 			return;
 		}
 
-		boolean removed = this.service.sendRemoveNodeRequest(nodeManager, selectedNodeName);
-		println("Removed: %s", removed);
+		boolean result = this.service.sendRemoveNodeRequest(nodeManager, selectedNodeName);
+		println("Removed: %s", result);
 	}
 
 	@ShellMethod("Send GMP command")
@@ -171,6 +171,32 @@ public class CVDemoOrchestratorShell {
 		String gmpResponse = this.service.sendGmpCommand(nodeManager, selectedNodeName, commandXML);
 		println("GMP response:");
 		println(gmpResponse);
+	}
+
+	@ShellMethod("Perform internal NVT synchronization")
+	public void internalNvtSync() throws IOException {
+		NodeManagerContext nodeManager = selectNodeManager("Select node manager to start internal NVT synchronization");
+		if (nodeManager == null) {
+			return;
+		}
+
+		println("Selected node manager: %s", nodeManager.getPeerContext().getId());
+
+		boolean result = this.service.internalNvtSync(nodeManager);
+		println(result ? "Succeeded" : "Failed");
+	}
+
+	@ShellMethod("Perform post sync operations")
+	public void doPostSyncOperations() throws IOException {
+		NodeManagerContext nodeManager = selectNodeManager("Select node manager to perform post synchronization operations");
+		if (nodeManager == null) {
+			return;
+		}
+
+		println("Selected node manager: %s", nodeManager.getPeerContext().getId());
+
+		boolean result = this.service.doPostSyncOperations(nodeManager);
+		println(result ? "Succeeded" : "Failed");
 	}
 
 	// ------
