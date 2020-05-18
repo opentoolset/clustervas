@@ -4,5 +4,5 @@
 // ---
 package org.opentoolset.clustervas.sdk.messages;
 
-public class RemoveNodeResponse extends AbstractResponse {
+public class RemoveContainerResponse extends AbstractResponse {
 }

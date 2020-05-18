@@ -15,12 +15,12 @@ import org.opentoolset.clustervas.CVConfig;
 import org.opentoolset.clustervas.CVConstants;
 import org.opentoolset.clustervas.sdk.messages.GMPRequest;
 import org.opentoolset.clustervas.sdk.messages.GMPResponse;
-import org.opentoolset.clustervas.sdk.messages.LoadNewNodeRequest;
-import org.opentoolset.clustervas.sdk.messages.LoadNewNodeResponse;
+import org.opentoolset.clustervas.sdk.messages.LoadNewContainerRequest;
+import org.opentoolset.clustervas.sdk.messages.LoadNewContainerResponse;
 import org.opentoolset.clustervas.sdk.messages.NodeManagerInfoRequest;
 import org.opentoolset.clustervas.sdk.messages.NodeManagerInfoResponse;
-import org.opentoolset.clustervas.sdk.messages.RemoveNodeRequest;
-import org.opentoolset.clustervas.sdk.messages.RemoveNodeResponse;
+import org.opentoolset.clustervas.sdk.messages.RemoveContainerRequest;
+import org.opentoolset.clustervas.sdk.messages.RemoveContainerResponse;
 import org.opentoolset.clustervas.sdk.messages.SyncOperationRequest;
 import org.opentoolset.clustervas.sdk.messages.SyncOperationRequest.Type;
 import org.opentoolset.clustervas.sdk.messages.SyncOperationResponse;
@@ -48,8 +48,8 @@ public class CVService extends AbstractService {
 
 	public void addHandlers() throws InvalidKeyException, CertificateException {
 		this.nodeManager.setRequestHandler(NodeManagerInfoRequest.class, request -> handle(request));
-		this.nodeManager.setRequestHandler(LoadNewNodeRequest.class, request -> handle(request));
-		this.nodeManager.setRequestHandler(RemoveNodeRequest.class, request -> handle(request));
+		this.nodeManager.setRequestHandler(LoadNewContainerRequest.class, request -> handle(request));
+		this.nodeManager.setRequestHandler(RemoveContainerRequest.class, request -> handle(request));
 		this.nodeManager.setRequestHandler(GMPRequest.class, request -> handle(request));
 		this.nodeManager.setRequestHandler(SyncOperationRequest.class, request -> handle(request));
 	}
@@ -63,10 +63,10 @@ public class CVService extends AbstractService {
 		return response;
 	}
 
-	public LoadNewNodeResponse handle(LoadNewNodeRequest request) {
-		LoadNewNodeResponse response = new LoadNewNodeResponse();
+	public LoadNewContainerResponse handle(LoadNewContainerRequest request) {
+		LoadNewContainerResponse response = new LoadNewContainerResponse();
 
-		CVContainer cvContainer = this.containerService.loadNewNodeContainer();
+		CVContainer cvContainer = this.containerService.loadNewContainer();
 		if (cvContainer == null) {
 			return response;
 		}
@@ -74,26 +74,26 @@ public class CVService extends AbstractService {
 		String nodeName = cvContainer.getName();
 
 		if (!this.containerService.isContainerRunning(nodeName)) {
-			this.containerService.removeNodeContainer(nodeName);
+			this.containerService.removeContainer(nodeName);
 			// TODO [hadi] inform user through response message about failure
 			return response;
 		}
 
 		if (!ContainerUtils.waitUntilGvmdIsReady(nodeName, new Utils.TimeOutIndicator(120, TimeUnit.SECONDS))) {
-			this.containerService.removeNodeContainer(nodeName);
+			this.containerService.removeContainer(nodeName);
 			// TODO [hadi] inform user through response message about failure
 			return response;
 		}
 
 		response.setSuccessfull(true);
-		response.setNodeName(nodeName);
+		response.setContainerName(nodeName);
 		return response;
 	}
 
-	public RemoveNodeResponse handle(RemoveNodeRequest request) {
-		RemoveNodeResponse response = new RemoveNodeResponse();
+	public RemoveContainerResponse handle(RemoveContainerRequest request) {
+		RemoveContainerResponse response = new RemoveContainerResponse();
 
-		boolean successfull = this.containerService.removeNodeContainer(request.getNodeName());
+		boolean successfull = this.containerService.removeContainer(request.getContainerName());
 		response.setSuccessfull(successfull);
 		return response;
 	}
@@ -101,17 +101,17 @@ public class CVService extends AbstractService {
 	public GMPResponse handle(GMPRequest request) {
 		GMPResponse gvmResponse = new GMPResponse();
 
-		if (!this.containerService.isContainerRunning(request.getNodeName())) {
+		if (!this.containerService.isContainerRunning(request.getContainerName())) {
 			// TODO [hadi] inform user through response message about illegal state
 			return gvmResponse;
 		}
 
-		if (!ContainerUtils.waitUntilGvmdIsReady(request.getNodeName(), new Utils.TimeOutIndicator(10, TimeUnit.SECONDS))) {
+		if (!ContainerUtils.waitUntilGvmdIsReady(request.getContainerName(), new Utils.TimeOutIndicator(10, TimeUnit.SECONDS))) {
 			// TODO [hadi] inform user through response message about illegal state
 			return gvmResponse;
 		}
 
-		CmdExecutor.Response response = ContainerUtils.dockerExec(request.getNodeName(), GVM_COMMAND, request.getXml());
+		CmdExecutor.Response response = ContainerUtils.dockerExec(request.getContainerName(), GVM_COMMAND, request.getXml());
 		gvmResponse.setSuccessfull(response.isSuccessful());
 		gvmResponse.setXml(response.getOutput());
 		return gvmResponse;

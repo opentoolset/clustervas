@@ -10,15 +10,15 @@ import javax.annotation.PostConstruct;
 import org.opentoolset.clustervas.sdk.NodeManagerContext;
 import org.opentoolset.clustervas.sdk.messages.GMPRequest;
 import org.opentoolset.clustervas.sdk.messages.GMPResponse;
-import org.opentoolset.clustervas.sdk.messages.LoadNewNodeRequest;
-import org.opentoolset.clustervas.sdk.messages.LoadNewNodeResponse;
-import org.opentoolset.clustervas.sdk.messages.RemoveNodeRequest;
-import org.opentoolset.clustervas.sdk.messages.RemoveNodeResponse;
+import org.opentoolset.clustervas.sdk.messages.LoadNewContainerRequest;
+import org.opentoolset.clustervas.sdk.messages.LoadNewContainerResponse;
+import org.opentoolset.clustervas.sdk.messages.RemoveContainerRequest;
+import org.opentoolset.clustervas.sdk.messages.RemoveContainerResponse;
 import org.opentoolset.clustervas.sdk.messages.SyncOperationRequest;
 import org.opentoolset.clustervas.sdk.messages.SyncOperationRequest.Type;
 import org.opentoolset.clustervas.sdk.messages.SyncOperationResponse;
-import org.opentoolset.clustervas.sdk.messages.cv.GetManagedNodesRequest;
-import org.opentoolset.clustervas.sdk.messages.cv.GetManagedNodesResponse;
+import org.opentoolset.clustervas.sdk.messages.cv.GetManagedContainersRequest;
+import org.opentoolset.clustervas.sdk.messages.cv.GetManagedContainersResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -53,33 +53,33 @@ public class CVDemoOrchestratorService {
 		this.agent.setTrusted(nodeManager, trusted);
 	}
 
-	public String sendLoadNewNodeRequest(NodeManagerContext nodeManager) {
-		LoadNewNodeResponse response = this.agent.doRequest(new LoadNewNodeRequest(), nodeManager, 300);
+	public String sendLoadNewContainerRequest(NodeManagerContext nodeManager) {
+		LoadNewContainerResponse response = this.agent.doRequest(new LoadNewContainerRequest(), nodeManager, 300);
 		if (response != null && response.isSuccessfull()) {
-			String newNodeName = response.getNodeName();
-			nodeManager.getManagedNodes().add(newNodeName);
-			return newNodeName;
+			String newContainerName = response.getContainerName();
+			nodeManager.getManagedContainers().add(newContainerName);
+			return newContainerName;
 		}
 
 		return null;
 	}
 
-	public boolean sendRemoveNodeRequest(NodeManagerContext nodeManager, String nodeName) {
-		RemoveNodeRequest request = new RemoveNodeRequest();
-		request.setNodeName(nodeName);
+	public boolean sendRemoveContainerRequest(NodeManagerContext nodeManager, String containerName) {
+		RemoveContainerRequest request = new RemoveContainerRequest();
+		request.setContainerName(containerName);
 
-		RemoveNodeResponse response = this.agent.doRequest(request, nodeManager, 60);
+		RemoveContainerResponse response = this.agent.doRequest(request, nodeManager, 60);
 		if (response != null && response.isSuccessfull()) {
-			nodeManager.getManagedNodes().remove(nodeName);
+			nodeManager.getManagedContainers().remove(containerName);
 			return true;
 		}
 
 		return false;
 	}
 
-	public String sendGmpCommand(NodeManagerContext nodeManager, String nodeName, String commandXML) {
+	public String sendGmpCommand(NodeManagerContext nodeManager, String containerName, String commandXML) {
 		GMPRequest request = new GMPRequest();
-		request.setNodeName(nodeName);
+		request.setContainerName(containerName);
 		request.setXml(commandXML);
 
 		GMPResponse response = this.agent.doRequest(request, nodeManager);
@@ -106,12 +106,12 @@ public class CVDemoOrchestratorService {
 
 	@PostConstruct
 	private void postContruct() throws CertificateException, InvalidKeyException {
-		this.agent.setRequestHandler(GetManagedNodesRequest.class, request -> handle(request));
+		this.agent.setRequestHandler(GetManagedContainersRequest.class, request -> handle(request));
 		this.agent.startup();
 	}
 
-	private GetManagedNodesResponse handle(GetManagedNodesRequest request) {
-		GetManagedNodesResponse response = new GetManagedNodesResponse();
+	private GetManagedContainersResponse handle(GetManagedContainersRequest request) {
+		GetManagedContainersResponse response = new GetManagedContainersResponse();
 
 		String nodeManagerId = request.getSenderId();
 		if (StringUtils.isEmpty(nodeManagerId)) {
@@ -119,7 +119,7 @@ public class CVDemoOrchestratorService {
 		}
 
 		NodeManagerContext nodeManager = this.agent.getNodeManager(nodeManagerId);
-		response.getNodeNames().addAll(nodeManager.getManagedNodes());
+		response.getContainerNames().addAll(nodeManager.getManagedContainers());
 		response.setSuccessfull(true);
 		return response;
 	}

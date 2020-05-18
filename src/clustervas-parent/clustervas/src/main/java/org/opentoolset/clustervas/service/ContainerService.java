@@ -20,8 +20,8 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.opentoolset.clustervas.CVConfig;
 import org.opentoolset.clustervas.CVConstants;
-import org.opentoolset.clustervas.sdk.messages.cv.GetManagedNodesRequest;
-import org.opentoolset.clustervas.sdk.messages.cv.GetManagedNodesResponse;
+import org.opentoolset.clustervas.sdk.messages.cv.GetManagedContainersRequest;
+import org.opentoolset.clustervas.sdk.messages.cv.GetManagedContainersResponse;
 import org.opentoolset.clustervas.utils.CVLogger;
 import org.opentoolset.clustervas.utils.CmdExecutor.Response;
 import org.opentoolset.clustervas.utils.ContainerUtils;
@@ -52,7 +52,7 @@ public class ContainerService extends AbstractService {
 
 	private DockerClient dockerClient;
 
-	private boolean nodeImageChangeRequired = false;
+	private boolean containerImageChangeRequired = false;
 
 	private Object lockForTempImage = new Object();
 
@@ -140,7 +140,7 @@ public class ContainerService extends AbstractService {
 				return false;
 			}
 
-			this.nodeImageChangeRequired = true;
+			this.containerImageChangeRequired = true;
 			maintaintenance();
 		}
 
@@ -160,24 +160,36 @@ public class ContainerService extends AbstractService {
 		return false;
 	}
 
-	public CVContainer loadNewNodeContainer() {
+	public CVContainer loadNewContainer() {
 		synchronized (getLock()) {
-			if (!checkDockerImageClusterVASNodeLoaded()) {
+			if (!checkDockerImageLoaded()) {
 				return null;
 			}
 
-			String nodeName = String.format("%s-%s", CVConstants.DOCKER_CONTAINER_CLUSTERVAS_NODE_PREFIX, UUID.randomUUID().toString());
-			Container container = runClusterVASContainer(nodeName, true);
+			String containerName = String.format("%s-%s", CVConstants.DOCKER_CONTAINER_CLUSTERVAS_PREFIX, UUID.randomUUID().toString());
+			Container container = runClusterVASContainer(containerName, true);
 			if (container == null) {
 				return null;
 			}
 
-			return new CVContainer(nodeName, container.getId());
+			return new CVContainer(containerName, container.getId());
 		}
 	}
 
-	public boolean removeNodeContainer(String containerName) {
-		return removeContainer(containerName);
+	public boolean removeContainer(String containerName) {
+		synchronized (getLock()) {
+			try {
+				Container container = getContainerByName(containerName);
+				if (container != null) {
+					this.dockerClient.removeContainerCmd(container.getId()).withForce(true).exec();
+				}
+
+				return true;
+			} catch (Exception e) {
+				CVLogger.error(e);
+				return false;
+			}
+		}
 	}
 
 	public boolean isContainerRunning(String containerName) {
@@ -197,18 +209,18 @@ public class ContainerService extends AbstractService {
 
 	private void maintaintenance() {
 		try {
-			GetManagedNodesResponse response = this.cvAgent.doRequest(new GetManagedNodesRequest());
+			GetManagedContainersResponse response = this.cvAgent.doRequest(new GetManagedContainersRequest());
 			if (response != null && response.isSuccessfull()) {
-				List<String> nodeNames = response.getNodeNames();
-				// TODO [hadi] Remove inactive node containers here
+				List<String> containerNames = response.getContainerNames();
+				// TODO [hadi] Remove inactive containers here
 			}
 		} catch (Exception e) {
-			CVLogger.debug(e, "Active nodes couln't be gathered");
+			CVLogger.debug(e, "Managed containers couln't be gathered");
 		}
 
 		synchronized (lockForTempImage) {
-			if (this.nodeImageChangeRequired) {
-				this.nodeImageChangeRequired = !ContainerUtils.renameDockerImage(CVConstants.DOCKER_IMAGE_CLUSTERVAS_TEMP_NAME, CVConstants.DOCKER_IMAGE_CLUSTERVAS_NODE_NAME);
+			if (this.containerImageChangeRequired) {
+				this.containerImageChangeRequired = !ContainerUtils.renameDockerImage(CVConstants.DOCKER_IMAGE_CLUSTERVAS_TEMP_NAME, CVConstants.DOCKER_IMAGE_CLUSTERVAS_NAME);
 			}
 		}
 
@@ -242,6 +254,16 @@ public class ContainerService extends AbstractService {
 	}
 
 	private boolean checkDockerImageClusterVASLoaded() {
+		Image image = getImageByName(CVConstants.DOCKER_IMAGE_CLUSTERVAS_BASE_NAME);
+		if (image == null) {
+			CVLogger.error("Docker image has not been loaded");
+			return false;
+		}
+
+		return true;
+	}
+
+	private boolean checkDockerImageLoaded() {
 		Image image = getImageByName(CVConstants.DOCKER_IMAGE_CLUSTERVAS_NAME);
 		if (image == null) {
 			CVLogger.error("Docker image has not been loaded");
@@ -251,18 +273,8 @@ public class ContainerService extends AbstractService {
 		return true;
 	}
 
-	private boolean checkDockerImageClusterVASNodeLoaded() {
-		Image image = getImageByName(CVConstants.DOCKER_IMAGE_CLUSTERVAS_NODE_NAME);
-		if (image == null) {
-			CVLogger.error("Docker image has not been loaded");
-			return false;
-		}
-
-		return true;
-	}
-
 	private Container runClusterVASContainer(String containerName, boolean dataFolderIsReadonly) {
-		CreateContainerCmd createContainerCmd = this.dockerClient.createContainerCmd(CVConstants.DOCKER_IMAGE_CLUSTERVAS_NAME);
+		CreateContainerCmd createContainerCmd = this.dockerClient.createContainerCmd(CVConstants.DOCKER_IMAGE_CLUSTERVAS_BASE_NAME);
 		createContainerCmd = createContainerCmd.withAttachStdin(true);
 		createContainerCmd = createContainerCmd.withAttachStdout(true);
 		createContainerCmd = createContainerCmd.withAttachStderr(true);
@@ -315,22 +327,6 @@ public class ContainerService extends AbstractService {
 		List<Container> containers = cmd.exec();
 		Container container = containers.stream().findFirst().orElse(null);
 		return container;
-	}
-
-	private boolean removeContainer(String containerName) {
-		synchronized (getLock()) {
-			try {
-				Container container = getContainerByName(containerName);
-				if (container != null) {
-					this.dockerClient.removeContainerCmd(container.getId()).withForce(true).exec();
-				}
-
-				return true;
-			} catch (Exception e) {
-				CVLogger.error(e);
-				return false;
-			}
-		}
 	}
 
 	// ---

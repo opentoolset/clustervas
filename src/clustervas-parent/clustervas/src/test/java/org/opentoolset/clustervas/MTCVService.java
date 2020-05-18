@@ -12,10 +12,10 @@ import org.junit.runner.RunWith;
 import org.opentoolset.clustervas.CVContext.Mode;
 import org.opentoolset.clustervas.sdk.messages.GMPRequest;
 import org.opentoolset.clustervas.sdk.messages.GMPResponse;
-import org.opentoolset.clustervas.sdk.messages.LoadNewNodeRequest;
-import org.opentoolset.clustervas.sdk.messages.LoadNewNodeResponse;
-import org.opentoolset.clustervas.sdk.messages.RemoveNodeRequest;
-import org.opentoolset.clustervas.sdk.messages.RemoveNodeResponse;
+import org.opentoolset.clustervas.sdk.messages.LoadNewContainerRequest;
+import org.opentoolset.clustervas.sdk.messages.LoadNewContainerResponse;
+import org.opentoolset.clustervas.sdk.messages.RemoveContainerRequest;
+import org.opentoolset.clustervas.sdk.messages.RemoveContainerResponse;
 import org.opentoolset.clustervas.service.CVService;
 import org.opentoolset.clustervas.utils.CVLogger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,24 +38,24 @@ public class MTCVService {
 		String nodeName = null;
 
 		{
-			LoadNewNodeResponse response = this.service.handle(new LoadNewNodeRequest());
+			LoadNewContainerResponse response = this.service.handle(new LoadNewContainerRequest());
 			Assert.assertTrue(response.isSuccessfull());
 
-			nodeName = response.getNodeName();
+			nodeName = response.getContainerName();
 			CVLogger.info(nodeName);
 		}
 
 		try {
 			GMPRequest gvmCliRequest = new GMPRequest();
-			gvmCliRequest.setNodeName(nodeName);
+			gvmCliRequest.setContainerName(nodeName);
 			gvmCliRequest.setXml("<get_configs />");
 			GMPResponse response = this.service.handle(gvmCliRequest);
 			Assert.assertTrue(response.isSuccessfull());
 			CVLogger.info(response.getXml());
 		} finally {
-			RemoveNodeRequest request = new RemoveNodeRequest();
-			request.setNodeName(nodeName);
-			RemoveNodeResponse response = this.service.handle(request);
+			RemoveContainerRequest request = new RemoveContainerRequest();
+			request.setContainerName(nodeName);
+			RemoveContainerResponse response = this.service.handle(request);
 			Assert.assertTrue(response.isSuccessfull());
 		}
 	}

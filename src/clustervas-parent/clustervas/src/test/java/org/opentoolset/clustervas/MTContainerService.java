@@ -47,7 +47,7 @@ public class MTContainerService {
 
 	@Test
 	public void testLoadNode() throws IOException {
-		CVContainer container = service.loadNewNodeContainer();
+		CVContainer container = service.loadNewContainer();
 		Assert.assertTrue(container != null);
 		CVLogger.info(container.toString());
 	}

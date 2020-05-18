@@ -102,43 +102,43 @@ public class CVDemoOrchestratorShell {
 		println("stopped");
 	}
 
-	@ShellMethod("Load new node")
-	public void loadNewNode() throws IOException {
-		NodeManagerContext nodeManager = selectNodeManager("Select node manager to load a new node");
+	@ShellMethod("Load new container")
+	public void loadNewContainer() throws IOException {
+		NodeManagerContext nodeManager = selectNodeManager("Select node manager to load a new container");
 		if (nodeManager == null) {
 			return;
 		}
 
-		String response = this.service.sendLoadNewNodeRequest(nodeManager);
-		println("New node name: %s", response);
+		String response = this.service.sendLoadNewContainerRequest(nodeManager);
+		println("New container name: %s", response);
 	}
 
-	@ShellMethod("Remove node")
-	public void removeNode() throws IOException {
-		NodeManagerContext nodeManager = selectNodeManager("Select node manager to remove a node");
+	@ShellMethod("Remove container")
+	public void removeContainer() throws IOException {
+		NodeManagerContext nodeManager = selectNodeManager("Select node manager to remove a container");
 		if (nodeManager == null) {
 			return;
 		}
 
 		println("Selected node manager: %s", nodeManager.getPeerContext().getId());
 
-		List<String> managedNodes = nodeManager.getManagedNodes();
-		if (managedNodes.isEmpty()) {
-			println("There is no active node");
+		List<String> managedContainers = nodeManager.getManagedContainers();
+		if (managedContainers.isEmpty()) {
+			println("There is no managed container");
 			return;
 		}
 
-		Integer index = select("Select a node to remove", managedNodes);
+		Integer index = select("Select a container to remove", managedContainers);
 		if (index == null) {
 			return;
 		}
 
-		String selectedNodeName = managedNodes.get(index);
-		if (selectedNodeName == null) {
+		String selectedContainerName = managedContainers.get(index);
+		if (selectedContainerName == null) {
 			return;
 		}
 
-		boolean result = this.service.sendRemoveNodeRequest(nodeManager, selectedNodeName);
+		boolean result = this.service.sendRemoveContainerRequest(nodeManager, selectedContainerName);
 		println("Removed: %s", result);
 	}
 
@@ -151,24 +151,24 @@ public class CVDemoOrchestratorShell {
 
 		println("Selected node manager: %s", nodeManager.getPeerContext().getId());
 
-		List<String> managedNodes = nodeManager.getManagedNodes();
-		if (managedNodes.isEmpty()) {
-			println("There is no active node");
+		List<String> managedContainers = nodeManager.getManagedContainers();
+		if (managedContainers.isEmpty()) {
+			println("There is no managed container");
 			return;
 		}
 
-		Integer index = select("Select a node to send a GMP command", managedNodes);
+		Integer index = select("Select a container to send a GMP command", managedContainers);
 		if (index == null) {
 			return;
 		}
 
-		String selectedNodeName = managedNodes.get(index);
-		if (selectedNodeName == null) {
+		String selectedContainerName = managedContainers.get(index);
+		if (selectedContainerName == null) {
 			return;
 		}
 
 		String commandXML = getInput("GMP command as XML (0 to exit): ", input -> StringUtils.isNotBlank(input)).trim();
-		String gmpResponse = this.service.sendGmpCommand(nodeManager, selectedNodeName, commandXML);
+		String gmpResponse = this.service.sendGmpCommand(nodeManager, selectedContainerName, commandXML);
 		println("GMP response:");
 		println(gmpResponse);
 	}

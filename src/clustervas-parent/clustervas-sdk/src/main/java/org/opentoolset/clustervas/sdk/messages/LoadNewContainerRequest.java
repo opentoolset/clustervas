@@ -6,10 +6,10 @@ package org.opentoolset.clustervas.sdk.messages;
 
 import org.opentoolset.nettyagents.AbstractRequest;
 
-public class LoadNewNodeRequest extends AbstractRequest<LoadNewNodeResponse> {
+public class LoadNewContainerRequest extends AbstractRequest<LoadNewContainerResponse> {
 
 	@Override
-	public Class<LoadNewNodeResponse> getResponseClass() {
-		return LoadNewNodeResponse.class;
+	public Class<LoadNewContainerResponse> getResponseClass() {
+		return LoadNewContainerResponse.class;
 	}
 }
