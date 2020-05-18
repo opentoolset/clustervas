@@ -12,5 +12,5 @@ A docker based node manager and an orchestrator SDK to build an OpenVAS cluster
 * Remote access to one or more node managers via provided SDK for a completely distrubited solution
 * Support for remote management of OpenVAS scanning process with delegation of GMP commands through SDK
 * TLS securith with mutual certificate authentication between node managers and orchestrators
-* Controlling node manager at runtime with provided command line interface
+* Controlling the node manager at runtime with provided command line interface
 
