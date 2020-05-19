@@ -14,6 +14,6 @@ A docker based node manager and an orchestrator SDK to build an OpenVAS cluster
 * TLS securith with mutual certificate authentication between node managers and orchestrators
 * Controlling the node manager at runtime with provided command line interface
 
-## ClusterVAS System Architecture
+## System Architecture
 
 ![clustervas-architecture](https://gitlab.com/opentoolset/clustervas/-/wikis/uploads/5e0cf4767af08f33a8dd4c986f3209c5/clustervas-architecture.png)
