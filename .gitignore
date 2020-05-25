@@ -1,5 +1,5 @@
-.settings/
 target/
+.settings/
 .project
 .gitignore
 .*
@@ -16,10 +16,4 @@ target/
 *.deb
 spring-shell.log
 pom.xml.versionsBackup
-spring-shell.log
 \~*
-.metadata/
-.recommenders/
-Servers/
-RemoteSystemsTempFiles/
-/devops/release/
