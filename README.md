@@ -16,4 +16,4 @@ A docker based node manager and an orchestrator SDK to build an OpenVAS cluster
 
 ## System Architecture
 
-![clustervas-architecture](https://gitlab.com/opentoolset/clustervas/-/wikis/uploads/5e0cf4767af08f33a8dd4c986f3209c5/clustervas-architecture.png)
+![clustervas-architecture](https://gitlab.com/opentoolset/clustervas/-/wikis/uploads/55c7c204b97f865c661e2517de2948e3/clustervas-architecture.png)
