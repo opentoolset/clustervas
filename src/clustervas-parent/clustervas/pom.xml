@@ -51,4 +51,25 @@
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
 	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>org.opentoolset.clustervas.CVApplication</mainClass>
+					<executable>true</executable>
+					<classifier>exec</classifier>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
