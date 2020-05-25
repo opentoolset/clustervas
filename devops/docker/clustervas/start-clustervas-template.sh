@@ -4,7 +4,7 @@
 # Copyright 2020 ClusterVAS Team
 # All rights reserved
 #
-# Startup script for ClusterVAS container
+# Startup script for ClusterVAS template container
 # ---
 
 set -e
@@ -73,7 +73,7 @@ main()
 #	-v /var/run/docker.sock:/var/run/docker.sock --privileged \
 	-v $DATA_FOLTER:/clustervas/data \
 	--name $CONTAINER_NAME \
-	clustervas
+	clustervas-template
 	
 #	DOCKER_EXEC="docker exec $CONTAINER_NAME bash -c"
 	
