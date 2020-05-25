@@ -8,5 +8,4 @@
 # ---
 
 export CLUSTERVAS_HOME=/clustervas
-cd $CLUSTERVAS_HOME
-$CLUSTERVAS_HOME/clustervas-manager.jar
+cd $CLUSTERVAS_HOME && ./clustervas-manager

@@ -16,4 +16,5 @@ target/
 *.deb
 spring-shell.log
 pom.xml.versionsBackup
+clustervas-manager
 \~*
