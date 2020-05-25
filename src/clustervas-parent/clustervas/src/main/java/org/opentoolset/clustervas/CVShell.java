@@ -12,11 +12,14 @@ import java.util.function.Predicate;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jline.utils.AttributedString;
 import org.opentoolset.clustervas.service.CVNodeManager;
 import org.opentoolset.clustervas.service.CVService;
 import org.opentoolset.clustervas.utils.Utils;
 import org.opentoolset.nettyagents.PeerContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.shell.jline.PromptProvider;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
@@ -32,6 +35,15 @@ public class CVShell {
 	private CVNodeManager nodeManager;
 
 	private ConsoleReader consoleReader;
+
+	// ---
+
+	@Bean
+	private PromptProvider promptProvider() {
+		return () -> new AttributedString("clustervas:> ");
+	}
+
+	// ---
 
 	@ShellMethod("Show fingerprint of our TLS certificate")
 	public void showCertFingerprint() throws Exception {
@@ -112,6 +124,7 @@ public class CVShell {
 
 	@PostConstruct
 	private void postConstruct() throws IOException {
+
 		this.consoleReader = new ConsoleReader();
 	}
 
