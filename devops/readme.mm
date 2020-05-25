@@ -18,14 +18,14 @@
 </node>
 </node>
 <node CREATED="1581780069917" ID="ID_408952801" MODIFIED="1581780159267" POSITION="right" TEXT="ClusterVAS image">
-<node COLOR="#990000" CREATED="1581779980948" ID="ID_799179947" LINK="docker/clustervas/02-clustervas/" MODIFIED="1581780309300" TEXT="cd docker/clustervas/02-clustervas/"/>
-<node COLOR="#990000" CREATED="1581780024761" ID="ID_1752200678" MODIFIED="1581780182710" TEXT="docker build -t clustervas ."/>
+<node COLOR="#990000" CREATED="1581779980948" ID="ID_799179947" LINK="docker/clustervas/02-clustervas-template/" MODIFIED="1590386907292" TEXT="cd docker/clustervas/02-clustervas-template/"/>
+<node COLOR="#990000" CREATED="1581780024761" ID="ID_1752200678" MODIFIED="1590386853774" TEXT="docker build -t clustervas-template ."/>
 </node>
 <node CREATED="1581780196760" ID="ID_1488740929" MODIFIED="1581780538846" POSITION="right" TEXT="Starting">
 <node CREATED="1581780500637" ID="ID_1968469485" MODIFIED="1581780542994" TEXT="ClusterVAS template container">
 <node COLOR="#990000" CREATED="1581779980948" ID="ID_426801818" LINK="docker/clustervas/" MODIFIED="1581780533296" TEXT="cd docker/clustervas/"/>
 <node COLOR="#990000" CREATED="1581780474401" ID="ID_349072799" MODIFIED="1581780533295" TEXT="mkdir -pv data"/>
-<node COLOR="#990000" CREATED="1581780480084" ID="ID_309166441" MODIFIED="1581780533294" TEXT="./start-clustervas-template.sh"/>
+<node COLOR="#990000" CREATED="1581780480084" ID="ID_309166441" LINK="docker/clustervas/start-clustervas-template.sh" MODIFIED="1590386973817" STYLE="bubble" TEXT="./start-clustervas-template.sh"/>
 </node>
 </node>
 <node CREATED="1573476902183" ID="ID_241215288" MODIFIED="1581622774071" POSITION="right" TEXT="Test">
