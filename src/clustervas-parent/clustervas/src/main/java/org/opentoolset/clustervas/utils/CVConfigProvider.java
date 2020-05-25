@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.FileBasedConfiguration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.ConfigurationBuilderEvent;
@@ -61,7 +62,7 @@ public final class CVConfigProvider {
 
 	public static String getString(Entry key) {
 		try {
-			return getConfig().getString(key.getKey(), (String) key.getDefaultValue());
+			return getFileBasedConfig().getString(key.getKey(), (String) key.getDefaultValue());
 		} catch (Exception e) {
 			return null;
 		}
@@ -69,7 +70,7 @@ public final class CVConfigProvider {
 
 	public static Integer getInteger(Entry key) {
 		try {
-			return getConfig().getInteger(key.getKey(), (Integer) key.getDefaultValue());
+			return getFileBasedConfig().getInteger(key.getKey(), (Integer) key.getDefaultValue());
 		} catch (Exception e) {
 			return null;
 		}
@@ -77,7 +78,7 @@ public final class CVConfigProvider {
 
 	public static boolean getBoolean(Entry key) {
 		try {
-			return getConfig().getBoolean(key.getKey(), (boolean) key.getDefaultValue());
+			return getFileBasedConfig().getBoolean(key.getKey(), (boolean) key.getDefaultValue());
 		} catch (Exception e) {
 			return false;
 		}
@@ -89,7 +90,7 @@ public final class CVConfigProvider {
 	}
 
 	public static void set(Entry key, Object value) {
-		getConfig().setProperty(key.getKey(), Optional.ofNullable(value).orElse(""));
+		getFileBasedConfig().setProperty(key.getKey(), Optional.ofNullable(value).orElse(""));
 	}
 
 	public static void save() {
@@ -108,12 +109,16 @@ public final class CVConfigProvider {
 		configBuilder.getReloadingController().addEventListener(eventType, listener);
 	}
 
+	public static Configuration getConfig() {
+		return getFileBasedConfig();
+	}
+
 	// ---
 
 	private static void loadConfig() {
 		try {
 			boolean changed = false;
-			FileBasedConfiguration config = getConfig();
+			FileBasedConfiguration config = getFileBasedConfig();
 			for (CVConfig.Entry item : CVConfig.Entry.values()) {
 				String key = item.getKey();
 				if (!config.containsKey(key)) {
@@ -138,7 +143,7 @@ public final class CVConfigProvider {
 		}
 	}
 
-	private static FileBasedConfiguration getConfig() {
+	private static FileBasedConfiguration getFileBasedConfig() {
 		if (configBuilder == null) {
 			configBuilder = createConfigBuilder();
 		}

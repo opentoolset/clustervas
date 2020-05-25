@@ -54,6 +54,32 @@ public class CVService extends AbstractService {
 		this.nodeManager.setRequestHandler(SyncOperationRequest.class, request -> handle(request));
 	}
 
+	public void reconnect() throws InvalidKeyException, CertificateException {
+		if (this.nodeManager == null) {
+			CVLogger.info("Node manager couldn't be created");
+			return;
+		}
+
+		if (!this.nodeManager.isConfigured()) {
+			CVLogger.info("Node manager is not configured");
+			return;
+		}
+
+		if (!this.nodeManager.hasTrustedOrchestrator()) {
+			CVLogger.info("Node manager has no trusted orchestrator");
+			return;
+		}
+
+		addHandlers();
+
+		CVLogger.info("Node manager is starting...");
+		if (this.nodeManager.startup()) {
+			CVLogger.info("Node manager started");
+		} else {
+			CVLogger.info("Node manager didn't start");
+		}
+	}
+
 	// ---
 
 	public NodeManagerInfoResponse handle(NodeManagerInfoRequest request) {
@@ -148,29 +174,7 @@ public class CVService extends AbstractService {
 
 	@PostConstruct
 	private void postConstruct() throws InvalidKeyException, CertificateException {
-		if (this.nodeManager == null) {
-			CVLogger.info("Node manager couldn't be created");
-			return;
-		}
-
-		if (!this.nodeManager.isConfigured()) {
-			CVLogger.info("Node manager is not configured");
-			return;
-		}
-
-		if (!this.nodeManager.hasTrustedOrchestrator()) {
-			CVLogger.info("Node manager has no trusted orchestrator");
-			return;
-		}
-
-		addHandlers();
-
-		CVLogger.info("Node manager is starting...");
-		if (this.nodeManager.startup()) {
-			CVLogger.info("Node manager started");
-		} else {
-			CVLogger.info("Node manager didn't start");
-		}
+		reconnect();
 	}
 
 	@PreDestroy
