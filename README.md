@@ -1,6 +1,6 @@
 # ClusterVAS
 
-A docker based node manager and an orchestrator SDK to build an OpenVAS cluster
+A docker based node manager and an orchestrator SDK (for Java applications) to build an OpenVAS cluster
 
 * Project Wiki: https://gitlab.com/opentoolset/clustervas/-/wikis/home
 * Project Web site: https://opentoolset.org/
