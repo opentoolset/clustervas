@@ -254,7 +254,7 @@ public class ContainerService extends AbstractService {
 	}
 
 	private boolean checkDockerImageClusterVASLoaded() {
-		Image image = getImageByName(CVConstants.DOCKER_IMAGE_CLUSTERVAS_BASE_NAME);
+		Image image = getImageByName(CVConstants.DOCKER_IMAGE_CLUSTERVAS_TEMPLATE_NAME);
 		if (image == null) {
 			CVLogger.error("Docker image has not been loaded");
 			return false;
@@ -274,7 +274,7 @@ public class ContainerService extends AbstractService {
 	}
 
 	private Container runClusterVASContainer(String containerName, boolean dataFolderIsReadonly) {
-		CreateContainerCmd createContainerCmd = this.dockerClient.createContainerCmd(CVConstants.DOCKER_IMAGE_CLUSTERVAS_BASE_NAME);
+		CreateContainerCmd createContainerCmd = this.dockerClient.createContainerCmd(CVConstants.DOCKER_IMAGE_CLUSTERVAS_TEMPLATE_NAME);
 		createContainerCmd = createContainerCmd.withAttachStdin(true);
 		createContainerCmd = createContainerCmd.withAttachStdout(true);
 		createContainerCmd = createContainerCmd.withAttachStderr(true);
