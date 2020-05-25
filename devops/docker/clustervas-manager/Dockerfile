@@ -5,7 +5,7 @@ LABEL "vendor"="ClusterVAS Team"
 
 RUN apt update
 RUN apt-get -y dist-upgrade
-RUN apt-get install -y bash-completion less vim openjdk-8-jre-headless
+RUN apt-get install -y openjdk-8-jre-headless
 
 RUN mkdir -p /clustervas/
 COPY clustervas-manager /clustervas/

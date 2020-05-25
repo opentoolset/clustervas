@@ -201,6 +201,7 @@ public class ContainerService extends AbstractService {
 
 	@PostConstruct
 	private void postConstruct() {
+		CVLogger.info("ContainerService is starting...");
 		DefaultDockerClientConfig.Builder config = DefaultDockerClientConfig.createDefaultConfigBuilder();
 		this.dockerClient = DockerClientBuilder.getInstance(config).build();
 
