@@ -131,8 +131,23 @@ public class CVShell {
 		connectionStatus();
 	}
 
-	@ShellMethod("Disconnect from the orchestrator (this preserves current configuration)")
+	@ShellMethod("Disconnect from the orchestrator (this preserves trust)")
 	public void disconnect() throws Exception {
+		PeerContext server = this.nodeManager.getServer();
+		if (server.getChannelHandlerContext() != null) {
+			this.nodeManager.shutdown();
+			Utils.waitFor(2);
+			println("Disconnected");
+		}
+
+		connectionStatus();
+	}
+	
+	@ShellMethod("Revoke trust from the orchestrator (also disconnects)")
+	public void revokeServer() throws Exception {
+		CVConfig.setOrchestratorTLSCertificate(null);
+		CVConfig.save();
+		
 		PeerContext server = this.nodeManager.getServer();
 		if (server.getChannelHandlerContext() != null) {
 			this.nodeManager.shutdown();
