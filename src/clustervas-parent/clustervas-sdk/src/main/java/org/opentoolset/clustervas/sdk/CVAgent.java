@@ -6,10 +6,12 @@ package org.opentoolset.clustervas.sdk;
 
 import java.net.SocketAddress;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -161,12 +163,17 @@ public class CVAgent {
 		synchronized (this.nodeManagers) {
 			// TODO [hadidilek] Here, convert nodeManager maintenance method from polling to event handling
 			Map<SocketAddress, PeerContext> clients = this.agent.getClients();
+
+			for (SocketAddress nodeManagerSocketAddress : new ArrayList<>(this.nodeManagers.keySet())) {
+				if (clients.keySet().stream().noneMatch(clientSocketAddress -> Objects.equals(clientSocketAddress, nodeManagerSocketAddress))) {
+					this.nodeManagers.remove(nodeManagerSocketAddress);
+				}
+			}
+
 			for (SocketAddress socketAddress : clients.keySet()) {
 				PeerContext peerContext = clients.get(socketAddress);
 				this.nodeManagers.compute(socketAddress, (key, value) -> addOrUpdateNodeManagerContext(key, value, peerContext));
 			}
-
-			// TODO [hadidilek] Here, perform cleanup for old untrusted connections...
 		}
 	}
 

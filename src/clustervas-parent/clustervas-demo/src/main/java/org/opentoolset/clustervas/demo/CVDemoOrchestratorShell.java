@@ -257,7 +257,7 @@ public class CVDemoOrchestratorShell {
 	}
 
 	private String buildNodeManagerStr(NodeManagerContext nodeManager) {
-		String result = String.format("id: %s, fingerprint: %s", nodeManager.getPeerContext().getId(), Utils.getFingerprintAsHex(nodeManager.getPeerContext().getCert()));
+		String result = String.format("id: %s, fingerprint: %s, socket: %s", nodeManager.getPeerContext().getId(), Utils.getFingerprintAsHex(nodeManager.getPeerContext().getCert()), nodeManager.getSocketAddress());
 		return result;
 	}
 
