@@ -224,8 +224,8 @@ public class ContainerService extends AbstractService {
 
 			removeNotRunningContainers();
 			removeUnnecessaryImages();
-
 		} catch (Exception e) {
+			CVLogger.debug(e, e.getLocalizedMessage());
 		}
 	}
 
@@ -236,6 +236,7 @@ public class ContainerService extends AbstractService {
 			List<String> namesOfContainer = Arrays.asList(container.getNames());
 
 			boolean remove = namesOfContainer.stream().anyMatch(name -> name.contains(CVConstants.DOCKER_OPERATIONAL_CONTAINER_NAME_PREFIX));
+			remove = remove && !namesOfContainer.stream().anyMatch(name -> managedContainerNames.stream().anyMatch(managedContainerName -> name.contains(managedContainerName)));
 			remove = remove && namesOfContainer.stream().noneMatch(name -> name.contains(CVConstants.DOCKER_NODE_MANAGER_CONTAINER_NAME));
 			remove = remove && namesOfContainer.stream().noneMatch(name -> name.contains(CVConstants.DOCKER_TEMPLATE_CONTAINER_NAME));
 			if (remove) {

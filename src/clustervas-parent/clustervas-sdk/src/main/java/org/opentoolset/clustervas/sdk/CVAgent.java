@@ -28,8 +28,12 @@ import org.opentoolset.nettyagents.PeerContext;
 import org.opentoolset.nettyagents.Utils;
 import org.opentoolset.nettyagents.agents.ServerAgent;
 import org.opentoolset.nettyagents.agents.ServerAgent.Config;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CVAgent {
+
+	private static Logger logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 
 	private ServerAgent agent = new ServerAgent();
 
@@ -160,20 +164,24 @@ public class CVAgent {
 	// ---
 
 	private void maintenance() {
-		synchronized (this.nodeManagers) {
-			// TODO [hadidilek] Here, convert nodeManager maintenance method from polling to event handling
-			Map<SocketAddress, PeerContext> clients = this.agent.getClients();
+		try {
+			synchronized (this.nodeManagers) {
+				// TODO [hadidilek] Here, convert nodeManager maintenance method from polling to event handling
+				Map<SocketAddress, PeerContext> clients = this.agent.getClients();
 
-			for (SocketAddress nodeManagerSocketAddress : new ArrayList<>(this.nodeManagers.keySet())) {
-				if (clients.keySet().stream().noneMatch(clientSocketAddress -> Objects.equals(clientSocketAddress, nodeManagerSocketAddress))) {
-					this.nodeManagers.remove(nodeManagerSocketAddress);
+				for (SocketAddress nodeManagerSocketAddress : new ArrayList<>(this.nodeManagers.keySet())) {
+					if (clients.keySet().stream().noneMatch(clientSocketAddress -> Objects.equals(clientSocketAddress, nodeManagerSocketAddress))) {
+						this.nodeManagers.remove(nodeManagerSocketAddress);
+					}
+				}
+
+				for (SocketAddress socketAddress : clients.keySet()) {
+					PeerContext peerContext = clients.get(socketAddress);
+					this.nodeManagers.compute(socketAddress, (key, value) -> addOrUpdateNodeManagerContext(key, value, peerContext));
 				}
 			}
-
-			for (SocketAddress socketAddress : clients.keySet()) {
-				PeerContext peerContext = clients.get(socketAddress);
-				this.nodeManagers.compute(socketAddress, (key, value) -> addOrUpdateNodeManagerContext(key, value, peerContext));
-			}
+		} catch (Exception e) {
+			logger.debug(e.getLocalizedMessage(), e);
 		}
 	}
 
@@ -188,6 +196,7 @@ public class CVAgent {
 					peerContext.setId(response.getId());
 				}
 			} catch (Exception e) {
+				logger.debug(e.getLocalizedMessage(), e);
 			}
 		}
 		return nodeManager;
