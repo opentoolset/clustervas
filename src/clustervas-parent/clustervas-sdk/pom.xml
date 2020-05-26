@@ -3,12 +3,95 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>clustervas</groupId>
+		<groupId>org.opentoolset.clustervas</groupId>
 		<artifactId>clustervas-parent</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>1.0.0</version>
 	</parent>
 	<artifactId>clustervas-sdk</artifactId>
 	<packaging>jar</packaging>
+
+	<name>ClusterVAS SDK</name>
+	<description>A library for managing ClusterVAS node managers within your application.</description>
+	<url>https://gitlab.com/opentoolset/clustervas/</url>
+
+	<licenses>
+		<license>
+			<name>The Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+	</properties>
+
+	<developers>
+		<developer>
+			<name>Mustafa Hadi Dilek</name>
+			<email>hadi.dilek@gmail.com</email>
+			<organization>Open Toolset</organization>
+			<organizationUrl>http://www.opentoolset.org/</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:https://gitlab.com/opentoolset/clustervas.git</connection>
+		<developerConnection>scm:git:ssh://git@gitlab.com:opentoolset/clustervas.git</developerConnection>
+		<url>https://gitlab.com/opentoolset/clustervas/</url>
+	</scm>
+
+	<distributionManagement>
+		<repository>
+			<id>bintray-opentoolset-maven-repo</id>
+			<name>opentoolset-maven-repo</name>
+			<url>https://api.bintray.com/maven/opentoolset/maven-repo/clustervas-sdk/;publish=1</url>
+		</repository>
+	</distributionManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
 
 	<dependencies>
 		<dependency>
