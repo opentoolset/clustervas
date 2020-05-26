@@ -83,7 +83,7 @@ public class CVDemoOrchestratorService {
 		request.setXml(commandXML);
 
 		GMPResponse response = this.agent.doRequest(request, nodeManager, 60);
-		return (response == null || response.isSuccessfull()) ? response.getXml() : null;
+		return (response != null && response.isSuccessfull()) ? response.getXml() : null;
 	}
 
 	public boolean internalNvtSync(NodeManagerContext nodeManager) {
@@ -91,7 +91,7 @@ public class CVDemoOrchestratorService {
 		request.setType(Type.DO_INTERNAL_SYNC);
 
 		SyncOperationResponse response = this.agent.doRequest(request, nodeManager, 300);
-		return response == null || response.isSuccessfull();
+		return response != null && response.isSuccessfull();
 	}
 
 	public boolean doPostSyncOperations(NodeManagerContext nodeManager) {
@@ -99,7 +99,7 @@ public class CVDemoOrchestratorService {
 		request.setType(Type.DO_POST_SYNC_OPERATIONS);
 
 		SyncOperationResponse response = this.agent.doRequest(request, nodeManager, 120);
-		return response == null || response.isSuccessfull();
+		return response != null && response.isSuccessfull();
 	}
 
 	// ---
