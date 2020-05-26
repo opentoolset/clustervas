@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.opentoolset.clustervas.CVConfig;
@@ -40,7 +41,6 @@ import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
-import com.google.common.collect.Lists;
 
 @Service
 public class ContainerService extends AbstractService {
@@ -323,9 +323,12 @@ public class ContainerService extends AbstractService {
 	}
 
 	private Image getImageByName(String imageName) {
-		List<Image> images = this.dockerClient.listImagesCmd().exec();
-		Image result = images.stream().filter(image -> Lists.newArrayList(image.getRepoTags()).stream().anyMatch(tag -> tag.contains(imageName))).findFirst().orElse(null);
-		return result;
+		List<Image> images = this.dockerClient.listImagesCmd().withImageNameFilter(imageName).exec();
+		if (!CollectionUtils.isEmpty(images)) {
+			return images.get(0);
+		}
+
+		return null;
 	}
 
 	private Container getContainerByName(String containerName) {

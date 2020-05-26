@@ -182,7 +182,7 @@ public class CVAgent {
 		if (StringUtils.isEmpty(peerContext.getId()) && peerContext.isTrusted()) {
 			try {
 				NodeManagerInfoResponse response = doRequest(new NodeManagerInfoRequest(), nodeManager);
-				if (response.isSuccessfull()) {
+				if (response != null && response.isSuccessfull()) {
 					peerContext.setId(response.getId());
 				}
 			} catch (Exception e) {
