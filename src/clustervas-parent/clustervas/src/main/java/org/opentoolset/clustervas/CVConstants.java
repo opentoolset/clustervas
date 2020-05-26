@@ -21,12 +21,14 @@ public interface CVConstants {
 	Path PATH_OF_CONFIG_FOLDER = Paths.get(HOME_FOLDER, CONFIG_FOLDER);
 	Path PATH_OF_CONFIG_FILE = PATH_OF_CONFIG_FOLDER.resolve(CONFIG_FILE);
 
-	String DOCKER_IMAGE_CLUSTERVAS_TEMPLATE_NAME = "clustervas-template";
-	String DOCKER_IMAGE_CLUSTERVAS_NAME = "clustervas";
-	String DOCKER_IMAGE_CLUSTERVAS_TEMP_NAME = "clustervas-temp";
-	String DOCKER_CONTAINER_CLUSTERVAS_PREFIX = "clustervas";
-	String DOCKER_CONTAINER_CLUSTERVAS_TEMPLATE_NAME = "clustervas-template";
-	String DOCKER_CONTAINER_CLUSTERVAS_DATA_FOLDER = "/clustervas/data";
+	String DOCKER_TEMPLATE_IMAGE_NAME = "clustervas-template";
+	String DOCKER_OPERATIONAL_IMAGE_NAME = "clustervas";
+	String DOCKER_TEMP_IMAGE_NAME = "clustervas-temp";
+
+	String DOCKER_NODE_MANAGER_CONTAINER_NAME = "clustervas-manager";
+	String DOCKER_TEMPLATE_CONTAINER_NAME = "clustervas-template";
+	String DOCKER_OPERATIONAL_CONTAINER_NAME_PREFIX = "clustervas";
+	String DOCKER_DATA_FOLDER_IN_CONTAINERS = "/clustervas/data";
 
 	String DOCKER_CONTAINER_STATUS_RUNNING = "running";
 
