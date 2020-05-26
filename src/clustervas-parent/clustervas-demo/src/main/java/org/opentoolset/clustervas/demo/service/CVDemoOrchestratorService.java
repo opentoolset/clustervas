@@ -119,6 +119,10 @@ public class CVDemoOrchestratorService {
 		}
 
 		NodeManagerContext nodeManager = this.agent.getNodeManager(nodeManagerId);
+		if (nodeManager == null) {
+			return response;
+		}
+
 		response.getContainerNames().addAll(nodeManager.getManagedContainers());
 		response.setSuccessfull(true);
 		return response;

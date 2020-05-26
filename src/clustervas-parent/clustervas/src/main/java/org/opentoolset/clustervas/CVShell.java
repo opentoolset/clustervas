@@ -94,7 +94,7 @@ public class CVShell {
 
 		println("The orchestrator's fingerprint is: %s", fingerprint);
 
-		String trustOrNot = getInput("Trust (Y) or not (N)? ", input -> input.matches("[ynYN]"));
+		String trustOrNot = getInput("Trust (Y) or not (N)? ", input -> input.matches("[ynYN]")).toUpperCase();
 		switch (trustOrNot) {
 			case "Y":
 				this.nodeManager.setTrusted(server, fingerprint, orchestratorCert);
@@ -120,7 +120,7 @@ public class CVShell {
 	@ShellMethod("Reconnect to the configured orchestrator")
 	public void reconnect() throws Exception {
 		PeerContext server = this.nodeManager.getServer();
-		
+
 		this.nodeManager.shutdown();
 		Utils.waitFor(2);
 		println("Disconnected, reconnecting...");
@@ -142,12 +142,12 @@ public class CVShell {
 
 		connectionStatus();
 	}
-	
+
 	@ShellMethod("Revoke trust from the orchestrator (also disconnects)")
 	public void revokeServer() throws Exception {
 		CVConfig.setOrchestratorTLSCertificate(null);
 		CVConfig.save();
-		
+
 		PeerContext server = this.nodeManager.getServer();
 		if (server.getChannelHandlerContext() != null) {
 			this.nodeManager.shutdown();
@@ -191,7 +191,7 @@ public class CVShell {
 	private String getInput(String prompt, Predicate<String> validator) throws IOException {
 		String input;
 		while (true) {
-			input = this.consoleReader.readLine(prompt);
+			input = this.consoleReader.readLine(prompt).trim();
 			try {
 				if (validator.test(input)) {
 					break;

@@ -54,8 +54,6 @@ public class ContainerService extends AbstractService {
 
 	private boolean containerImageChangeRequired = false;
 
-	private Object lockForTempImage = new Object();
-
 	private ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	// ---
@@ -103,10 +101,10 @@ public class ContainerService extends AbstractService {
 			return false;
 		}
 
-		return doPostSyncOperations();
+		return loadOperationalImageFromTemplateContainer();
 	}
 
-	public boolean doPostSyncOperations() {
+	public boolean loadOperationalImageFromTemplateContainer() {
 		if (!loadTemplateContainerIfNeeded()) {
 			return false;
 		}
@@ -115,32 +113,7 @@ public class ContainerService extends AbstractService {
 			return false;
 		}
 
-		return saveClusterVASImage(() -> false);
-	}
-
-	public boolean saveClusterVASImage(Supplier<Boolean> stopRequestIndicator) {
-		String templateContainerName = CVConstants.DOCKER_TEMPLATE_CONTAINER_NAME;
-		Container container = getContainerByName(templateContainerName);
-		if (container == null) {
-			return false;
-		}
-
-		if (!ContainerUtils.waitUntilGvmdIsReady(templateContainerName, stopRequestIndicator)) {
-			return false;
-		}
-
-		synchronized (lockForTempImage) {
-			removeImage(CVConstants.DOCKER_TEMP_IMAGE_NAME, true);
-
-			if (!ContainerUtils.commitDockerImage(templateContainerName, CVConstants.DOCKER_TEMP_IMAGE_NAME)) {
-				return false;
-			}
-
-			this.containerImageChangeRequired = true;
-			maintaintenance();
-		}
-
-		return true;
+		return loadOperationalImageFromTemplateContainer(() -> false);
 	}
 
 	public boolean removeImage(String imageName, boolean force) {
@@ -159,7 +132,7 @@ public class ContainerService extends AbstractService {
 	public CVContainer loadNewContainer() {
 		synchronized (getLock()) {
 			if (!checkDockerImageLoaded(CVConstants.DOCKER_OPERATIONAL_IMAGE_NAME)) {
-				return null;
+				loadOperationalImageFromTemplateContainer();
 			}
 
 			String containerName = String.format("%s-%s", CVConstants.DOCKER_OPERATIONAL_CONTAINER_NAME_PREFIX, UUID.randomUUID().toString());
@@ -198,10 +171,42 @@ public class ContainerService extends AbstractService {
 	@PostConstruct
 	private void postConstruct() {
 		CVLogger.info("ContainerService is starting...");
+
 		DefaultDockerClientConfig.Builder config = DefaultDockerClientConfig.createDefaultConfigBuilder();
 		this.dockerClient = DockerClientBuilder.getInstance(config).build();
 
+		if (!checkDockerImageLoaded(CVConstants.DOCKER_OPERATIONAL_IMAGE_NAME)) {
+			CVLogger.info("Operational image is loading...");
+			loadOperationalImageFromTemplateContainer();
+		}
+
 		this.scheduledExecutor.scheduleWithFixedDelay(() -> maintaintenance(), 0, 10, TimeUnit.SECONDS);
+	}
+
+	private boolean loadOperationalImageFromTemplateContainer(Supplier<Boolean> stopRequestIndicator) {
+		String templateContainerName = CVConstants.DOCKER_TEMPLATE_CONTAINER_NAME;
+		Container container = getContainerByName(templateContainerName);
+		if (container == null) {
+			return false;
+		}
+
+		if (!ContainerUtils.waitUntilGvmdIsReady(templateContainerName, stopRequestIndicator)) {
+			return false;
+		}
+
+		synchronized (getLock()) {
+			removeImage(CVConstants.DOCKER_TEMP_IMAGE_NAME, true);
+			if (!ContainerUtils.commitDockerImage(templateContainerName, CVConstants.DOCKER_TEMP_IMAGE_NAME)) {
+				return false;
+			}
+
+			this.containerImageChangeRequired = true;
+			maintaintenance();
+		}
+
+		removeContainer(CVConstants.DOCKER_TEMPLATE_CONTAINER_NAME);
+
+		return true;
 	}
 
 	private void maintaintenance() {
@@ -209,15 +214,16 @@ public class ContainerService extends AbstractService {
 			GetManagedContainersResponse response = this.cvAgent.doRequest(new GetManagedContainersRequest());
 			if (response != null && response.isSuccessfull()) {
 				List<String> managedContainerNames = response.getContainerNames();
-				removeUnanagedContainers(managedContainerNames);
+				removeUnmanagedContainers(managedContainerNames);
 			}
 		} catch (Exception e) {
 			CVLogger.debug(e, "Managed containers couln't be gathered");
 		}
 
-		synchronized (lockForTempImage) {
+		synchronized (getLock()) {
 			if (this.containerImageChangeRequired) {
-				this.containerImageChangeRequired = !ContainerUtils.renameDockerImage(CVConstants.DOCKER_TEMP_IMAGE_NAME, CVConstants.DOCKER_OPERATIONAL_IMAGE_NAME);
+				boolean renamed = ContainerUtils.renameDockerImage(CVConstants.DOCKER_TEMP_IMAGE_NAME, CVConstants.DOCKER_OPERATIONAL_IMAGE_NAME);
+				this.containerImageChangeRequired = !renamed;
 			}
 		}
 
@@ -225,15 +231,15 @@ public class ContainerService extends AbstractService {
 		removeUnnecessaryImages();
 	}
 
-	private void removeUnanagedContainers(List<String> managedContainerNames) {
+	private void removeUnmanagedContainers(List<String> managedContainerNames) {
 		ListContainersCmd cmd = this.dockerClient.listContainersCmd();
 		List<Container> containers = cmd.exec();
 		for (Container container : containers) {
 			List<String> namesOfContainer = Arrays.asList(container.getNames());
-			
+
 			boolean remove = namesOfContainer.contains(CVConstants.DOCKER_OPERATIONAL_CONTAINER_NAME_PREFIX);
 			remove = remove && !namesOfContainer.contains(CVConstants.DOCKER_NODE_MANAGER_CONTAINER_NAME);
-			remove = remove && !namesOfContainer.contains(CVConstants.DOCKER_TEMPLATE_CONTAINER_NAME);
+			remove = remove && namesOfContainer.contains(CVConstants.DOCKER_TEMPLATE_CONTAINER_NAME);
 			if (remove) {
 				this.dockerClient.removeContainerCmd(container.getId()).withForce(true).exec();
 			}
@@ -252,7 +258,7 @@ public class ContainerService extends AbstractService {
 
 		for (Container container : containers) {
 			List<String> namesOfContainer = Arrays.asList(container.getNames());
-			
+
 			boolean remove = namesOfContainer.contains(CVConstants.DOCKER_OPERATIONAL_CONTAINER_NAME_PREFIX);
 			remove = remove && !namesOfContainer.contains(CVConstants.DOCKER_NODE_MANAGER_CONTAINER_NAME);
 			remove = remove && !namesOfContainer.contains(CVConstants.DOCKER_TEMPLATE_CONTAINER_NAME);

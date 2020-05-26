@@ -56,7 +56,7 @@ public class CVDemoOrchestratorShell {
 	public void approveTrust() throws Exception {
 		List<NodeManagerContext> nodeManagers = this.service.getNodeManagersWaiting();
 		if (nodeManagers.isEmpty()) {
-			println("There is no trusted node manager");
+			println("There is no node manager waiting for trust");
 			return;
 		}
 

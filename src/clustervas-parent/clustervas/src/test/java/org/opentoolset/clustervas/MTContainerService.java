@@ -35,9 +35,8 @@ public class MTContainerService {
 	}
 
 	@Test
-	public void testSaveTemplate() throws IOException {
-		Assert.assertTrue(service.loadTemplateContainerIfNeeded());
-		Assert.assertTrue(service.saveClusterVASImage(() -> false));
+	public void testSaveTemplateContainer() throws IOException {
+		Assert.assertTrue(service.loadOperationalImageFromTemplateContainer());
 	}
 
 	@Test
