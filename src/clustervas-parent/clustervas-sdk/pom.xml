@@ -63,6 +63,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
+				<version>3.2.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -92,11 +93,11 @@
 		</plugins>
 	</build>
 
-
 	<dependencies>
 		<dependency>
 			<groupId>org.opentoolset</groupId>
 			<artifactId>netty-agents</artifactId>
+			<version>1.0.1</version>
 		</dependency>
 	</dependencies>
 </project>
