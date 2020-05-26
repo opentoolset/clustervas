@@ -101,18 +101,10 @@ public class ContainerService extends AbstractService {
 			return false;
 		}
 
-		return loadOperationalImageFromTemplateContainer();
+		return doPostSyncOperations();
 	}
 
-	public boolean loadOperationalImageFromTemplateContainer() {
-		if (!loadTemplateContainerIfNeeded()) {
-			return false;
-		}
-
-		if (!ContainerUtils.waitUntilGvmdIsReady(CVConstants.DOCKER_TEMPLATE_CONTAINER_NAME, () -> false)) {
-			return false;
-		}
-
+	public boolean doPostSyncOperations() {
 		return loadOperationalImageFromTemplateContainer(() -> false);
 	}
 
@@ -132,7 +124,7 @@ public class ContainerService extends AbstractService {
 	public CVContainer loadNewContainer() {
 		synchronized (getLock()) {
 			if (!checkDockerImageLoaded(CVConstants.DOCKER_OPERATIONAL_IMAGE_NAME)) {
-				loadOperationalImageFromTemplateContainer();
+				loadOperationalImageFromTemplateContainer(() -> false);
 			}
 
 			String containerName = String.format("%s-%s", CVConstants.DOCKER_OPERATIONAL_CONTAINER_NAME_PREFIX, UUID.randomUUID().toString());
@@ -177,20 +169,25 @@ public class ContainerService extends AbstractService {
 
 		if (!checkDockerImageLoaded(CVConstants.DOCKER_OPERATIONAL_IMAGE_NAME)) {
 			CVLogger.info("Operational image is loading...");
-			loadOperationalImageFromTemplateContainer();
+			loadOperationalImageFromTemplateContainer(() -> false);
 		}
 
 		this.scheduledExecutor.scheduleWithFixedDelay(() -> maintaintenance(), 0, 10, TimeUnit.SECONDS);
 	}
 
 	private boolean loadOperationalImageFromTemplateContainer(Supplier<Boolean> stopRequestIndicator) {
-		String templateContainerName = CVConstants.DOCKER_TEMPLATE_CONTAINER_NAME;
-		Container container = getContainerByName(templateContainerName);
-		if (container == null) {
+		if (!loadTemplateContainerIfNeeded()) {
 			return false;
 		}
 
+		String templateContainerName = CVConstants.DOCKER_TEMPLATE_CONTAINER_NAME;
+
 		if (!ContainerUtils.waitUntilGvmdIsReady(templateContainerName, stopRequestIndicator)) {
+			return false;
+		}
+
+		Container container = getContainerByName(templateContainerName);
+		if (container == null) {
 			return false;
 		}
 

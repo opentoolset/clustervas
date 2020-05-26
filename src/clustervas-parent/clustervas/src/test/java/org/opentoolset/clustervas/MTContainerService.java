@@ -35,8 +35,8 @@ public class MTContainerService {
 	}
 
 	@Test
-	public void testSaveTemplateContainer() throws IOException {
-		Assert.assertTrue(service.loadOperationalImageFromTemplateContainer());
+	public void testDoPostSyncOperations() throws IOException {
+		Assert.assertTrue(service.doPostSyncOperations());
 	}
 
 	@Test

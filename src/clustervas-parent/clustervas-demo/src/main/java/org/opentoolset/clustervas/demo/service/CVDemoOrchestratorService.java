@@ -68,7 +68,7 @@ public class CVDemoOrchestratorService {
 		RemoveContainerRequest request = new RemoveContainerRequest();
 		request.setContainerName(containerName);
 
-		RemoveContainerResponse response = this.agent.doRequest(request, nodeManager, 60);
+		RemoveContainerResponse response = this.agent.doRequest(request, nodeManager, 120);
 		if (response != null && response.isSuccessfull()) {
 			nodeManager.getManagedContainers().remove(containerName);
 			return true;
@@ -82,24 +82,24 @@ public class CVDemoOrchestratorService {
 		request.setContainerName(containerName);
 		request.setXml(commandXML);
 
-		GMPResponse response = this.agent.doRequest(request, nodeManager);
-		return response.isSuccessfull() ? response.getXml() : null;
+		GMPResponse response = this.agent.doRequest(request, nodeManager, 60);
+		return (response == null || response.isSuccessfull()) ? response.getXml() : null;
 	}
 
 	public boolean internalNvtSync(NodeManagerContext nodeManager) {
 		SyncOperationRequest request = new SyncOperationRequest();
 		request.setType(Type.DO_INTERNAL_SYNC);
 
-		SyncOperationResponse response = this.agent.doRequest(request, nodeManager);
-		return response.isSuccessfull();
+		SyncOperationResponse response = this.agent.doRequest(request, nodeManager, 300);
+		return response == null || response.isSuccessfull();
 	}
 
 	public boolean doPostSyncOperations(NodeManagerContext nodeManager) {
 		SyncOperationRequest request = new SyncOperationRequest();
 		request.setType(Type.DO_POST_SYNC_OPERATIONS);
 
-		SyncOperationResponse response = this.agent.doRequest(request, nodeManager);
-		return response.isSuccessfull();
+		SyncOperationResponse response = this.agent.doRequest(request, nodeManager, 120);
+		return response == null || response.isSuccessfull();
 	}
 
 	// ---

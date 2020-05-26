@@ -156,7 +156,7 @@ public class CVService extends AbstractService {
 				}
 
 				case DO_POST_SYNC_OPERATIONS: {
-					boolean result = this.containerService.loadOperationalImageFromTemplateContainer();
+					boolean result = this.containerService.doPostSyncOperations();
 					response.setSuccessfull(result);
 					break;
 				}
