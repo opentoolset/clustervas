@@ -179,6 +179,8 @@ public class CVAgent {
 
 	private NodeManagerContext addOrUpdateNodeManagerContext(SocketAddress socketAddress, NodeManagerContext nodeManager, PeerContext peerContext) {
 		nodeManager = nodeManager != null ? nodeManager : new NodeManagerContext();
+		nodeManager.setSocketAddress(socketAddress);
+		nodeManager.setPeerContext(peerContext);
 		if (StringUtils.isEmpty(peerContext.getId()) && peerContext.isTrusted()) {
 			try {
 				NodeManagerInfoResponse response = doRequest(new NodeManagerInfoRequest(), nodeManager);
@@ -188,8 +190,6 @@ public class CVAgent {
 			} catch (Exception e) {
 			}
 		}
-		nodeManager.setSocketAddress(socketAddress);
-		nodeManager.setPeerContext(peerContext);
 		return nodeManager;
 	}
 }

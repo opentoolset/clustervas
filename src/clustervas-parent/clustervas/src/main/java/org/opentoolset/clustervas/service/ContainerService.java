@@ -181,7 +181,6 @@ public class ContainerService extends AbstractService {
 		}
 
 		String templateContainerName = CVConstants.DOCKER_TEMPLATE_CONTAINER_NAME;
-
 		if (!ContainerUtils.waitUntilGvmdIsReady(templateContainerName, stopRequestIndicator)) {
 			return false;
 		}
@@ -212,20 +211,22 @@ public class ContainerService extends AbstractService {
 			if (response != null && response.isSuccessfull()) {
 				List<String> managedContainerNames = response.getContainerNames();
 				removeUnmanagedContainers(managedContainerNames);
+			} else {
+				CVLogger.debug("Managed containers couln't be gathered");
 			}
+
+			synchronized (getLock()) {
+				if (this.containerImageChangeRequired) {
+					boolean renamed = ContainerUtils.renameDockerImage(CVConstants.DOCKER_TEMP_IMAGE_NAME, CVConstants.DOCKER_OPERATIONAL_IMAGE_NAME);
+					this.containerImageChangeRequired = !renamed;
+				}
+			}
+
+			removeNotRunningContainers();
+			removeUnnecessaryImages();
+
 		} catch (Exception e) {
-			CVLogger.debug(e, "Managed containers couln't be gathered");
 		}
-
-		synchronized (getLock()) {
-			if (this.containerImageChangeRequired) {
-				boolean renamed = ContainerUtils.renameDockerImage(CVConstants.DOCKER_TEMP_IMAGE_NAME, CVConstants.DOCKER_OPERATIONAL_IMAGE_NAME);
-				this.containerImageChangeRequired = !renamed;
-			}
-		}
-
-		removeNotRunningContainers();
-		removeUnnecessaryImages();
 	}
 
 	private void removeUnmanagedContainers(List<String> managedContainerNames) {
@@ -234,9 +235,9 @@ public class ContainerService extends AbstractService {
 		for (Container container : containers) {
 			List<String> namesOfContainer = Arrays.asList(container.getNames());
 
-			boolean remove = namesOfContainer.contains(CVConstants.DOCKER_OPERATIONAL_CONTAINER_NAME_PREFIX);
-			remove = remove && !namesOfContainer.contains(CVConstants.DOCKER_NODE_MANAGER_CONTAINER_NAME);
-			remove = remove && namesOfContainer.contains(CVConstants.DOCKER_TEMPLATE_CONTAINER_NAME);
+			boolean remove = namesOfContainer.stream().anyMatch(name -> name.contains(CVConstants.DOCKER_OPERATIONAL_CONTAINER_NAME_PREFIX));
+			remove = remove && namesOfContainer.stream().noneMatch(name -> name.contains(CVConstants.DOCKER_NODE_MANAGER_CONTAINER_NAME));
+			remove = remove && namesOfContainer.stream().noneMatch(name -> name.contains(CVConstants.DOCKER_TEMPLATE_CONTAINER_NAME));
 			if (remove) {
 				this.dockerClient.removeContainerCmd(container.getId()).withForce(true).exec();
 			}
@@ -256,9 +257,9 @@ public class ContainerService extends AbstractService {
 		for (Container container : containers) {
 			List<String> namesOfContainer = Arrays.asList(container.getNames());
 
-			boolean remove = namesOfContainer.contains(CVConstants.DOCKER_OPERATIONAL_CONTAINER_NAME_PREFIX);
-			remove = remove && !namesOfContainer.contains(CVConstants.DOCKER_NODE_MANAGER_CONTAINER_NAME);
-			remove = remove && !namesOfContainer.contains(CVConstants.DOCKER_TEMPLATE_CONTAINER_NAME);
+			boolean remove = namesOfContainer.stream().anyMatch(name -> name.contains(CVConstants.DOCKER_OPERATIONAL_CONTAINER_NAME_PREFIX));
+			remove = remove && namesOfContainer.stream().noneMatch(name -> name.contains(CVConstants.DOCKER_NODE_MANAGER_CONTAINER_NAME));
+			remove = remove && namesOfContainer.stream().noneMatch(name -> name.contains(CVConstants.DOCKER_TEMPLATE_CONTAINER_NAME));
 			if (remove) {
 				this.dockerClient.removeContainerCmd(container.getId()).withForce(true).exec();
 			}
