@@ -22,4 +22,4 @@ A docker based node manager and an orchestrator SDK (for Java applications) to b
 
 * [ClusterVAS SDK Tutorial](https://gitlab.com/opentoolset/clustervas/-/wikis/ClusterVAS-SDK-Tutorial)
 * [ClusterVAS Node Manager Installation and Startup](https://gitlab.com/opentoolset/clustervas/-/wikis/ClusterVAS-Node-Manager-Installation)
-* [Integration](https://gitlab.com/opentoolset/clustervas/-/wikis/Integration)
+* [Integration and Sample Operations](https://gitlab.com/opentoolset/clustervas/-/wikis/Integration-and-Sample-Operations)
