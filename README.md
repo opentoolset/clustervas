@@ -16,7 +16,7 @@ A docker based node manager and an orchestrator SDK (for Java applications) to b
 
 ## System Architecture
 
-![clustervas-architecture](https://gitlab.com/opentoolset/clustervas/-/wikis/uploads/55c7c204b97f865c661e2517de2948e3/clustervas-architecture.png)
+![clustervas-architecture](https://gitlab.com/opentoolset/clustervas/-/wikis/uploads/bb94be7ebb739e3ced107ae5aa41d3c0/clustervas-architecture.png)
 
 # Installation and Usage
 
