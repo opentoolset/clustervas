@@ -8,7 +8,7 @@ A [docker](https://www.docker.com/) based node manager and an orchestrator SDK (
 
 ## Features
 * Management of containerized [OpenVAS](https://www.openvas.org/) instances and their life-cycles
-* Support for parallel vulnerability scanning through loading multiple OpenVAS containers in parallel
+* Support for parallel vulnerability scanning through loading multiple [OpenVAS](https://www.openvas.org/) containers in parallel
 * Remote access to one or more node managers via provided SDK for a completely distrubited solution
 * Support for remote management of OpenVAS scanning process with delegation of GMP commands through SDK
 * TLS securith with mutual certificate authentication between node managers and orchestrators
