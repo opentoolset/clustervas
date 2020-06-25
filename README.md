@@ -1,6 +1,6 @@
 # ClusterVAS
 
-A docker based node manager and an orchestrator SDK (for Java applications) to build an OpenVAS cluster
+A [Docker](https://www.docker.com/) based node manager and an orchestrator SDK (for Java applications) to build an [OpenVAS](https://www.openvas.org/) cluster
 
 * Project Wiki: https://gitlab.com/opentoolset/clustervas/-/wikis/home
 * Project Web site: https://opentoolset.org/
@@ -16,10 +16,10 @@ A docker based node manager and an orchestrator SDK (for Java applications) to b
 
 ## System Architecture
 
-![clustervas-architecture](https://gitlab.com/opentoolset/clustervas/-/wikis/uploads/55c7c204b97f865c661e2517de2948e3/clustervas-architecture.png)
+![clustervas-architecture](https://gitlab.com/opentoolset/clustervas/-/wikis/uploads/bb94be7ebb739e3ced107ae5aa41d3c0/clustervas-architecture.png)
 
 # Installation and Usage
 
 * [ClusterVAS SDK Tutorial](https://gitlab.com/opentoolset/clustervas/-/wikis/ClusterVAS-SDK-Tutorial)
 * [ClusterVAS Node Manager Installation and Startup](https://gitlab.com/opentoolset/clustervas/-/wikis/ClusterVAS-Node-Manager-Installation)
-* [Integration](https://gitlab.com/opentoolset/clustervas/-/wikis/Integration)
+* [Integration and Sample Operations](https://gitlab.com/opentoolset/clustervas/-/wikis/Integration-and-Sample-Operations)

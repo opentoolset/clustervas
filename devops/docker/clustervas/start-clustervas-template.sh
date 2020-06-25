@@ -45,19 +45,19 @@ help() {
 main()
 {
 	while getopts "d:t\?" opt; do
-	  case "$opt" in
-	    d)
-	      DATA_FOLTER=$OPTARG
-	      ;;
-	    t)
-			  TEST="test"
-			  println "Dry-run mode..."
-	      ;;
-	    \?)
-	    	help
-	      exit
-	      ;;
-	  esac
+        case "$opt" in
+            d)
+                DATA_FOLTER=$OPTARG
+                ;;
+            t)
+                TEST="test"
+                println "Dry-run mode..."
+                ;;
+            \?)
+                help
+                exit
+                ;;
+        esac
 	done
 
 	if [ -z "$DATA_FOLTER" ]; then
