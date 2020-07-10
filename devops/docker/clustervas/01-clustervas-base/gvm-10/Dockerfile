@@ -3,9 +3,9 @@ FROM ubuntu:18.04
 LABEL "product"="ClusterVAS"
 LABEL "vendor"="ClusterVAS Team"
 
-COPY install/*.deb    /install/
-COPY install/*.tar.gz /install/
-COPY install-pkgs.sh  /install-pkgs.sh
+COPY install/*.deb        /install/
+COPY install/*.tar.gz     /install/
+COPY install-packages.sh  /install-packages.sh
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
