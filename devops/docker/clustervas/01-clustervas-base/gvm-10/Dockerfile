@@ -15,8 +15,10 @@ RUN apt-get update
 RUN apt-get dist-upgrade -y
 RUN bash /install-packages.sh
 
-RUN apt autoremove cmdtest --purge
+RUN apt autoremove -y cmdtest --purge
 RUN dpkg -i /install/yarn_1.19.1_all.deb
+RUN yarn config set "strict-ssl" false
+
 RUN rm -rf /var/lib/apt/lists/*
 
 RUN echo "Starting Build..." && mkdir -pv /install && mkdir -pv /build
@@ -68,7 +70,7 @@ RUN cd /build && \
 	make install && \
 	cd /build && \
 	rm -rf *
-    
+
 # --- Greenbone Security Assistant (GSA)
 RUN cd /build && \
 	tar -zxvf /install/gsa-v8.0.1.tar.gz && \
